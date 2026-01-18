@@ -5,7 +5,7 @@
         <link rel="icon" type="image/x-icon" href="favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>
-            Test Programs
+            List Of Subdomains
         </title>
         <style>
             body {
@@ -75,7 +75,7 @@
     <body>
         <header>
             <h1>
-                List Of Testing Programs
+                List Of Subdomains
             </h1>
         </header>
         <div class="container" id="linksContainer">
@@ -83,34 +83,20 @@
         <script>
             const links = [
                 { 
-                    title: "Example Project",
-                    desc: "Example Description",
-                    url: "https://example.com"
+                    title: "devs.infinitecampus.xyz",
+                    desc: "This Page Is To Show Off The Contributors To Infinitecampus.xyz"
                 },
                 { 
-                    title: "Example Project",
-                    desc: "Example Description",
-                    url: "https://example.com"
+                    title: "gmac.infinitecampus.xyz",
+                    desc: "This Page Is To Show Off the-oblyv's Profile"
                 },
                 { 
-                    title: "Example Project",
-                    desc: "Example Description",
-                    url: "https://example.com"
+                    title: "play.infinitecampus.xyz",
+                    desc: "This Page Is To Link Games To The Main Website"
                 },
                 { 
-                    title: "Example Project",
-                    desc: "Example Description",
-                    url: "https://example.com"
-                },
-                { 
-                    title: "Example Project",
-                    desc: "Example Description",
-                    url: "https://example.com"
-                },
-                { 
-                    title: "Example Project",
-                    desc: "Example Description",
-                    url: "https://example.com"
+                    title: "test.infinitecampus.xyz",
+                    desc: "This Page Is To Show Off Test Projects"
                 }
             ];
             const container = document.getElementById("linksContainer");
@@ -120,7 +106,6 @@
                 box.innerHTML = `
                     <h2 class="title">${link.title}</h2>
                     <p class="desc">${link.desc}</p>
-                    <a class="visit-btn" href="${link.url}" target="_blank">Visit</a>
                 `;
                 container.appendChild(box);
             });
