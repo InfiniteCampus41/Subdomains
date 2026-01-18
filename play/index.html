@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Links Menu</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 40px;
+        }
+        h1 {
+            margin-bottom: 25px;
+            font-weight: 300;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .link-btn {
+            background: #333;
+            border: 2px solid #444;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 18px;
+            width: 260px;
+            transition: 0.2s;
+        }
+        .link-btn:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Link Buttons</h1>
+    <div id="container"></div>
+    <script>
+        const links = [
+            { name: "1", url: "https://play.infinitecampus.xyz/games/1/index.html" }
+        ];
+        const container = document.getElementById("container");
+        links.forEach(link => {
+            const btn = document.createElement("button");
+            btn.className = "link-btn";
+            btn.textContent = link.name;
+            btn.onclick = () => window.open(link.url, "_blank");
+            container.appendChild(btn);
+        });
+    </script>
+</body>
+</html>
