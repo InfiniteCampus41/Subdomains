@@ -1,0 +1,71 @@
+.button {
+  align-items: center;
+  font-family: "Fira Code", monospace;
+  background-color: #21252b;
+  border-radius: 20px;
+  color: #abb2bf;
+  display: flex;
+  font-size: 16px;
+  justify-content: left;
+  padding-left: 24px;
+  text-decoration: none;
+  cursor: pointer;
+  width: 42%;
+  height: 60px;
+  border: 0;
+}
+
+.button:hover {
+  border: 2px solid #5555ff;
+  padding-left: 22px;
+}
+
+.links {
+  display: flex;
+  column-gap: 15px;
+}
+
+.project {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 120px;
+  padding: 16px;
+  box-sizing: border-box;
+  background-color: #21252b;
+  color: #abb2bf;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  font-family: "Fira Code", monospace;
+  text-align: left;
+  transition: all 0.3s ease;
+  margin-bottom: 12px;
+}
+
+.project:hover {
+  border: 2px solid #f1fa8c;
+  padding-left: 22px;
+  background-color: #4a546a;
+  transform: scale(1.02);
+}
+
+.project .text {
+  display: block;
+  width: 100%;
+}
+
+@media (max-width: 1020px) {
+  .links {
+    flex-direction: column;
+    transition: 0.3s;
+  }
+  .button {
+    width: 95%;
+    transition: 0.3s;
+  }
+  .project {
+    width: 95%;
+    transition: 0.3s;
+  }
+}
