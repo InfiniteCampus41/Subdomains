@@ -75,7 +75,7 @@ a[rel~="nofollow"]:hover {
 .header .title {
   	font-size: 24px;
   	line-height: 24px;
-	font-weight: 700;
+  	font-weight: 700;
   	margin: 0;
 }
 .translations-list-container {

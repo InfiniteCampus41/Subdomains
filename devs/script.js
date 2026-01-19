@@ -74,7 +74,6 @@ async function loadContributors() {
         container.appendChild(card);
     });
 }
-
 async function loadReadme(user) {
     const readmeBox = document.getElementById("readme");
     readmeBox.innerHTML = "Loading README...";

@@ -84,27 +84,6 @@ body {
     	transition: 0.3s;
   	}
 }
-.red {
-  	color: #ff5555;
-}
-.purple {
-  	color: #bd93f9;
-}
-.green {
-  	color: #50fa7b;
-}
-.yellow {
-  	color: #f1fa8c;
-}
-.cyan {
-  	color: #8be9fd;
-}
-.orange {
-  	color: #ffb86c;
-}
-.blue {
-  	color: #5555ff;
-}
 a {
   	text-decoration: none;
 }
