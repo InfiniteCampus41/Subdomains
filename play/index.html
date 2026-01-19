@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            Infinite Campus
+        </title>
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #111;
+                color: #fff;
+                margin: 0;
+                padding: 20px;
+            }
+            #games-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+            .game-card {
+                background: #1c1c1c;
+                padding: 15px;
+                width: 150px;
+                border-radius: 12px;
+                text-align: center;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+            .game-card:hover {
+                background: #222;
+                transform: scale(1.05);
+            }
+            .game-img {
+                width: 100%;
+                height: 120px;
+                object-fit: contain;
+                margin-bottom: 10px;
+            }
+            .game-title {
+                font-size: 16px;
+                font-weight: bold;
+                margin-top: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>
+            Games
+        </h1>
+        <div id="games-container">
+        </div>
+        <script>
+            fetch("games.json")
+            .then(response => response.json())
+            .then(data => {
+                data.sort((a, b) => a.place - b.place);
+                const container = document.getElementById("games-container");
+                data.forEach(item => {
+                    const card = document.createElement("div");
+                    card.className = "game-card";
+                    card.onclick = () => window.location.href = item.url;
+                    card.innerHTML = `<img src="${item.img}" class="game-img"><div class="game-title">${item.game}</div>`;
+                    container.appendChild(card);
+                });
+            })
+            .catch(err => console.error("Error loading Games File:", err));
+        </script>
+    </body>
+</html>

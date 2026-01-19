@@ -108,8 +108,10 @@
                 const box = document.createElement("div");
                 box.className = "link-box";
                 box.innerHTML = `
+                <a href="${link.title}">
                     <h2 class="title">${link.title}</h2>
                     <p class="desc">${link.desc}</p>
+                </a>
                 `;
                 container.appendChild(box);
             });
