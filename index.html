@@ -27,6 +27,9 @@
                 letter-spacing: 2px;
                 color: #e0e0e0;
             }
+            a {
+                text-decoration:none;
+            }
             .container {
                 max-width: 1000px;
                 margin: 40px auto;
@@ -108,7 +111,7 @@
                 const box = document.createElement("div");
                 box.className = "link-box";
                 box.innerHTML = `
-                <a href="${link.title}">
+                <a href="https://${link.title}">
                     <h2 class="title">${link.title}</h2>
                     <p class="desc">${link.desc}</p>
                 </a>
