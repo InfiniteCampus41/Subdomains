@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-7SV03ZXJ9R">
+        </script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-7SV03ZXJ9R');
+        </script>
+        <title>
+            Infinite Campus
+        </title>
+        <link id="dynamic-favicon" rel="icon" type="image/png" href="/res/icon.png">
+        <link rel="stylesheet" href="global.css">
+        <meta name="keywords" content="Infinite campus,infinite campus,Infinite Campus,infinite Campus">
+        <meta name="description" content="Infinite Campus Is A International Buisiness And Has Good Devs">
+        <meta property="og:title" content="Infinite Campus">
+        <meta property="og:description" content="Infinite Campus Is An International Buisiness And Has Good Devs">
+        <meta property="og:url" content="https://www.infinitecampus.xyz">
+        <meta name="theme-color" content="#8cbe37">
+        <meta content="/res/icon.png" property="og:image">
+        <script src="main.js">
+        </script>
+        <script src="theme.js">
+        </script>
+        <script type="module" src="login.js">
+        </script>
+        <style>
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+            td {
+                padding: 10px;
+                border: 1px solid #ddd;
+                text-align: left;
+            }
+            #panel-btn {
+                position: fixed;
+                top: 70px;
+                right: 20px;
+                z-index: 999;
+            }
+            #panel {
+                position: fixed;
+                top: 0;
+                right: -350px;
+                width: 350px;
+                height: 100%;
+                background: #111;
+                color: white;
+                padding: 20px;
+                transition: right 0.3s ease;
+                z-index: 998;
+                display: flex;
+                flex-direction: column;
+            }
+            #panel.open {
+                right: 0;
+            }
+            #panel-header {
+                display: flex;
+                justify-content: space-between;
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+            .blocked-item {
+                background: #222;
+                padding: 10px;
+                border-radius: 6px;
+                margin-bottom: 10px;
+            }
+            .blocked-item .url {
+                font-size: 15px;
+                color: white;
+            }
+            .blocked-item .reason {
+                font-size: 12px;
+                color: #aaa;
+            }
+            #add-panel {
+                position: fixed;
+                top: -300px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 300px;
+                background: #222;
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                transition: top 0.3s ease;
+                z-index: 1000;
+            }
+            #add-panel.open {
+                top: 80px;
+            }
+            #add-inner input {
+                width: 100%;
+                padding: 7px;
+                margin: 8px 0;
+            }
+            #add-close {
+                float: right;
+                cursor: pointer;
+                font-size: 20px;
+            }
+            #add-error {
+                color: red;
+                font-size: 13px;
+            }
+        </style>
+    </head>
+    <body>
+        <center>
+            <h1 class="tptxt">
+                Proxy URL Logs
+            </h1>
+            <table id="url-table">
+                <tbody>
+                    <tr>
+                        <td colspan="4">
+                            Loading
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+            <br>
+        </center>
+        <div id="panel-btn" class="button">
+            ←
+        </div>
+        <div id="panel">
+            <div id="panel-header">
+                <span id="panel-back" class="button">
+                    ←
+                </span>
+                <span id="panel-title" class="tptxt">
+                    Current Blocked URLs
+                </span>
+                <span></span>
+            </div>
+            <div id="panel-search">
+                <input class="button" id="search" placeholder="Search URLs...">
+            </div>
+            <div id="blocked-list">
+            </div>
+            <button id="add-url-btn" class="button">
+                Add URL
+            </button>
+        </div>
+        <div id="add-panel">
+            <div id="add-inner">
+                <div id="add-close">
+                    ×
+                </div>
+                <h2>
+                    Add URL
+                </h2>
+                <input id="add-url-input" placeholder="URL">
+                <input id="add-reason-input" placeholder="Reason">
+                <div id="add-error">
+                </div>
+                <button onclick="addUrl()">
+                    Submit
+                </button>
+            </div>
+        </div>
+        <script type="module" src="adminurls.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+        </script>
+        <script src="popup.js">
+        </script>
+        <script src="frame.js">
+        </script>
+    </body>
+</html>
