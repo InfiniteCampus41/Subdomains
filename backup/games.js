@@ -1,11 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const launchButton = document.getElementById("launchGames");
     const launch2 = document.getElementById("launchGames2");
     const OfficialSites = ['infinitecampus.xyz', 'www.infinitecampus.xyz', 'instructure.space'];
     if (OfficialSites.includes(window.location.host)) {
         launch2.textContent = 'Games (Method 2)';
-    } else {
-        launchButton.style.display = 'none';
     }
     const before = document.getElementById("before");
     const games = [
@@ -158,67 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.body.appendChild(container);
         }
         if (method == "1") {
-            games.forEach(function (game) {
-                if (game.method.includes("1")) {
-                    const button = document.createElement("button");
-                    button.textContent = game.name;
-                    button.className = "button";
-                    button.style.padding = "10px 20px";
-                    button.style.fontSize = "16px";
-                    button.style.cursor = "pointer";
-                    button.onclick = function () {
-                        container.style.display = "none";
-                        const backButton = document.createElement("button");
-                        backButton.textContent = "← Back";
-                        backButton.className = "button";
-                        backButton.style.position = "fixed";
-                        backButton.style.top = "70px";
-                        backButton.style.left = "10px";
-                        backButton.style.zIndex = "1000";
-                        backButton.style.padding = "10px";
-                        backButton.style.fontSize = "16px";
-                        backButton.style.cursor = "pointer";
-                        document.body.appendChild(backButton);
-                        const fullscreen = document.createElement("button");
-                        fullscreen.textContent = "⛶";
-                        fullscreen.className = "button";
-                        fullscreen.style.position = "fixed";
-                        fullscreen.style.bottom = "10px";
-                        fullscreen.style.right = "10px";
-                        fullscreen.style.zIndex = "1000";
-                        fullscreen.style.padding = "10px";
-                        fullscreen.style.fontSize = "16px";
-                        fullscreen.style.cursor = "pointer";
-                        document.body.appendChild(fullscreen);
-                        const addressInput = document.getElementById("sj-address");
-                        if (addressInput) {
-                            addressInput.value = game.url;
-                            const form = document.getElementById("sj-form");
-                            if (form) {
-                                const event = new Event("submit", { bubbles: true, cancelable: true });
-                                form.dispatchEvent(event);
-                            }
-                        }
-                        fullscreen.onclick = function () {
-                            const iframe = document.querySelector("iframe");
-                            if (!iframe) return;
-                            if (!document.fullscreenElement) {
-                                iframe.requestFullscreen().catch(err => console.error(err));
-                            } else {
-                                document.exitFullscreen();
-                            }
-                        };
-                        backButton.onclick = function () {
-                            const iframes = document.querySelectorAll("iframe");
-                            iframes.forEach(iframe => iframe.remove());
-                            backButton.remove();
-                            fullscreen.remove();
-                            container.style.display = "flex";
-                        };
-                    };
-                    container.appendChild(button);
-                }
-            });
+            showError("This Method Is Not Available For This URL")
         } else {
             games.forEach(function (game) {
                 if (game.method.includes("2")) {
@@ -281,8 +218,5 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     launch2.addEventListener("click", function () {
         showGames("2");
-    });
-    launchButton.addEventListener("click", function () {
-        showGames("1");
     });
 })

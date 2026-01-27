@@ -1,4 +1,4 @@
-const allowedHosts = ["infinitecampus.xyz", "www.infinitecampus.xyz", "instructure.space"];
+const allowedHosts = ["infinitecampus.xyz", "www.infinitecampus.xyz", "instructure.space", "backup.infinitecampus.xyz"];
 const before = document.getElementById("before");
 const toptext = document.getElementById("tptxt");
 if (!allowedHosts.includes(window.location.host)) {
