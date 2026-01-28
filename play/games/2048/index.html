@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>
+            1
+        </title>
+        <link rel="icon" type="image/x-icon" href="/games/2048/favicon.ico" />
+        <link href="/games/2048/css/main.css" rel="stylesheet" type="text/css" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="MobileOptimized" content="320" />
+        <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui" />
+        <style>
+            body, html {
+                overflow: hidden;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                height: 100vh;
+                overflow: hidden;
+                max-height: 100vh;
+                box-sizing: border-box;
+                transform-origin: top left;
+            }
+            body {
+                touch-action: manipulation;
+                -webkit-overflow-scrolling: auto;
+            }
+        </style>
+    </head>
+    <script src="/games/2048/js/main.js">
+    </script>
+    <body>
+        <div class="container">
+            <div class="heading">
+                <h1 class="title">
+                    2048
+                </h1>
+                <div class="scores-container">
+                    <div class="score-container">
+                        0
+                    </div>
+                    <div class="best-container">
+                        0
+                    </div>
+                </div>
+            </div>
+            <p class="game-intro">
+                Add The Numbers And Get To The 
+                <strong>
+                    2048 Tile!
+                </strong>
+            </p>
+            <div class="game-container">
+                <div class="game-message">
+                    <p>
+                    </p>
+                    <div class="lower">
+                        <a style="display: none;" class="keep-playing-button">
+                            Keep Going
+                        </a>
+                        <a class="retry-button">
+                            Try Again
+                        </a>
+                    </div>
+                </div>
+                <div class="grid-container">
+                    <div class="grid-row">
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                        <div class="grid-cell">
+                        </div>
+                    </div>
+                </div>
+                <div class="tile-container">
+                </div>
+            </div>
+            <p class="game-explanation">
+                <strong class="important">
+                    How To Play:
+                </strong> 
+                Use Your 
+                <strong>
+                    Arrow Keys
+                </strong> 
+                To Move The Tiles. When Two Tiles With The Same Number Touch, They 
+                <strong>
+                    Add
+                </strong>
+                 You Win When You Reach A Tile With 2048.
+            </p>
+            <hr/>
+            <p>
+                <strong class="important">
+                    Note:
+                </strong> 
+                This Site Is A Derivative Of 
+                <a href="http://git.io/2048">
+                    http://git.io/2048
+                </a>
+                , Created By 
+                <a href="http://gabrielecirulli.com" target="_blank">
+                    Gabriele Cirulli.
+                </a>
+                 Based On
+                <a href="https://itunes.apple.com/us/app/1024!/id823499224" target="_blank">
+                    1024 By Veewo Studio
+                </a> 
+                And Conceptually Similar To 
+                <a href="http://asherv.com/threes/" target="_blank">
+                    Threes By Asher Vollmer.
+                </a>
+            </p>
+            <hr/>
+        </div>
+        <script src="/games/2048/js/animframe_polyfill.js">
+        </script>
+        <script src="/games/2048/js/keyboard_input_manager.js">
+        </script>
+        <script src="/games/2048/js/html_actuator.js">
+        </script>
+        <script src="/games/2048/js/grid.js">
+        </script>
+        <script src="/games/2048/js/tile.js">
+        </script>
+        <script src="/games/2048/js/local_score_manager.js">
+        </script>
+        <script src="/games/2048/js/game_manager.js">
+        </script>
+        <script src="/games/2048/js/application.js">
+        </script>
+    </body>
+</html>

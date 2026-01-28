@@ -5,10 +5,16 @@
         "place": 1,
         "url": "/games/1/index.html"
     },
+    { 
+        "game": "2048",
+        "img": "/games/2048/favicon.ico",
+        "place": 2,
+        "url": "/games/2048/index.html"
+    },
     {
         "game": "Universal Paperclips",
         "img": "/games/paperclips/title.png",
-        "place": 2,
+        "place": 3,
         "url": "/games/paperclips/index.html"
     }
 ]
