@@ -22,5 +22,11 @@
         "img": "/games/slope/title.png",
         "place": 4,
         "url": "/games/slope/index.html"
+    },
+    {
+        "game": "Eaglercraft",
+        "img": "/games/eaglercraft/splash.jpeg",
+        "place": 5,
+        "url": "/games/eaglercraft/index.html"
     }
 ]
