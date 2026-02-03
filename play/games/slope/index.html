@@ -1,10 +1,10 @@
 <head>
   <title>Slope</title>
-    <link rel="stylesheet" href="TemplateData/style.css">
-    <script src="TemplateData/UnityProgress.js"></script>
-    <script src="TemplateData/unityloader41.js"></script>
+    <link rel="stylesheet" href="/games/slope/TemplateData/style.css">
+    <script src="/games/slope/TemplateData/UnityProgress.js"></script>
+    <script src="/games/slope/TemplateData/unityloader41.js"></script>
     <script>
-        var gameInstance = UnityLoader.instantiate("gameContainer", "Build/slope.json", { onProgress: UnityProgress, Module: { onRuntimeInitialized: function() { UnityProgress(gameInstance, "complete") } } });
+        var gameInstance = UnityLoader.instantiate("gameContainer", "/games/slope/Build/slope.json", { onProgress: UnityProgress, Module: { onRuntimeInitialized: function() { UnityProgress(gameInstance, "complete") } } });
     </script>
 </head>
 <body style="margin: 0; overflow: hidden;">
