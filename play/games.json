@@ -28,5 +28,11 @@
         "img": "/games/eaglercraft/splash.jpeg",
         "place": 5,
         "url": "/games/eaglercraft/index.html"
+    },
+    {
+        "game": "Run 3",
+        "img": "/games/run3/img/menu/Run3.png",
+        "place": 6,
+        "url": "/games/run3/index.html"
     }
 ]
