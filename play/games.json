@@ -16,5 +16,11 @@
         "img": "/games/paperclips/title.png",
         "place": 3,
         "url": "/games/paperclips/index.html"
+    },
+    {
+        "game": "Slope",
+        "img": "/games/slope/title.png",
+        "place": 4,
+        "url": "/games/slope/index.html"
     }
 ]
