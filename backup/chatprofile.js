@@ -1,4 +1,4 @@
-import { db, auth } from "./chatfirebase.js";
+import { db, auth } from "./firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 const displayNameEl = document.getElementById("displayName");
 const bioEl = document.getElementById("bio");
@@ -22,6 +22,7 @@ function createBadge(profile, isVerified) {
     	{ key: "isHAdmin", icon: "fa-solid fa-shield-halved", title: "Head Admin", color: "#00cc99" },
     	{ key: "isAdmin", icon: "bi bi-shield", title: "Admin", color: "dodgerblue" },
     	{ key: "isDev", icon: "bi bi-code-square", title: "This User Is A Developer For Infinitecampus.xyz", color: "green" },
+		{ key: "premium", icon: "bi bi-currency-dollar", title: "This User Has Infinite Campus Premium", color: "aquamarine"},
     	{ key: "mileStone", icon: "bi bi-award", title: "This User Is The 100Th Signed Up User", color: "yellow" }
   	];
   	roles.forEach(r => {
@@ -133,16 +134,10 @@ async function loadUserProfile(uid) {
       		messageBtn.style.display = "inline-block";
       		messageBtn.onclick = () => {
         		localStorage.setItem("openPrivateChatUid", uid);
-        		window.location.href = "chat.html";
+        		window.location.href = "InfiniteChatters.html";
       		};
     	}
   	} catch (err) {
     	showError("Error Loading Profile: " + err.message);
   	}
-}
-function showError(msg) {
-  	loadingEl.style.display = "none";
-  	profileContent.style.display = "none";
-	errorEl.style.display = "block";
-  	errorEl.textContent = msg;
 }

@@ -153,7 +153,7 @@ body {
 .dropdown button {
     background: none;
     border: none;
-    color: white;
+    color: inherit;
     text-align: left;
     padding: 8px;
     cursor: pointer;
@@ -748,6 +748,7 @@ select {
     pointer-events: none;
 }
 .snowflake {
+    color:red !important;
     position: absolute;
     top: -10px;
     background: transparent;

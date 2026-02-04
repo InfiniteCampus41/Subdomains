@@ -1,4 +1,4 @@
-import { auth, db } from "./chatfirebase.js";
+import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 import { ref, push, onChildAdded, onChildRemoved, onChildChanged, remove, update, set, get, runTransaction, onValue, off } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 const channelList = document.getElementById("channels");
@@ -30,6 +30,7 @@ let isTester = false;
 let isCoOwner = false;
 let isOwner = false;
 let isDev = false;
+let premium = false;
 let currentPrivateUid = null;
 let currentPrivateName = null;
 let metadataListenerRef = null;
@@ -77,35 +78,6 @@ chatInput.insertAdjacentElement("beforebegin", typingIndicator);
 let typingTimeout = null;
 let typingRef = null;
 document.head.appendChild(style);
-let currentErrorDiv = null;
-function showError(message) {
-    if (currentErrorDiv) currentErrorDiv.remove();
-    const errorDiv = document.createElement("div");
-    errorDiv.textContent = message;
-    Object.assign(errorDiv.style, {
-        position: "fixed",
-        top: "10px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        backgroundColor: "salmon",
-        color: "black",
-        border: "2px solid red",
-        borderRadius: "8px",
-        padding: "10px 20px",
-        zIndex: 9999,
-        cursor: "pointer",
-        maxWidth: "90%",
-        textAlign: "center",
-        fontWeight: "bold",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.3)"
-    });
-    errorDiv.addEventListener("click", () => {
-        errorDiv.remove();
-        currentErrorDiv = null;
-    });
-    document.body.appendChild(errorDiv);
-    currentErrorDiv = errorDiv;
-}
 chatLog.addEventListener("scroll", () => {
     const nearBottom = chatLog.scrollHeight - chatLog.scrollTop - chatLog.clientHeight < 50;
     autoScrollEnabled = nearBottom;
@@ -470,7 +442,7 @@ async function renderMessageInstant(id, msg) {
     div.appendChild(editedSpan);
     (async () => {
         try {
-            const [nameSnap, colorSnap, picSnap, badgeSnap, adminSnap, ownerSnap, coOwnerSnap, hAdminSnap, devSnap, testerSnap, hSnap] = await Promise.all([
+            const [nameSnap, colorSnap, picSnap, badgeSnap, adminSnap, ownerSnap, coOwnerSnap, hAdminSnap, devSnap, preSnap, testerSnap, hSnap] = await Promise.all([
                 get(ref(db, `users/${msg.sender}/profile/displayName`)),
                 get(ref(db, `users/${msg.sender}/settings/color`)),
                 get(ref(db, `users/${msg.sender}/profile/pic`)),
@@ -480,6 +452,7 @@ async function renderMessageInstant(id, msg) {
                 get(ref(db, `users/${msg.sender}/profile/isCoOwner`)),
                 get(ref(db, `users/${msg.sender}/profile/isHAdmin`)),
                 get(ref(db, `users/${msg.sender}/profile/isDev`)),
+                get(ref(db, `users/${msg.sender}/profile/premium`)),
                 get(ref(db, `users/${msg.sender}/profile/isTester`)),
                 get(ref(db, `users/${msg.sender}/profile/mileStone`))
             ]);
@@ -491,6 +464,7 @@ async function renderMessageInstant(id, msg) {
             let badgeText = null;
             const senderIsAdmin = adminSnap.exists() ? adminSnap.val() : false;
             const senderIsDev = devSnap.exists() ? devSnap.val() : false;
+            const senderPre = preSnap.exists() ? preSnap.val() :false;
             const senderIsCoOwner = coOwnerSnap.exists() ? coOwnerSnap.val() : false;
             const senderIsOwner = ownerSnap.exists() ? ownerSnap.val() : false;
             const senderIsHAdmin = hAdminSnap.exists() ? hAdminSnap.val() : false;
@@ -502,6 +476,7 @@ async function renderMessageInstant(id, msg) {
             else if (senderIsHAdmin) badgeText = "HADMIN";
             else if (senderIsAdmin) badgeText = "ADMN";
             else if(senderIsDev) badgeText = "Developer";
+            else if (senderPre) badgeText = "Premium";
             else if (senderIsHUser) badgeText = "100";
             if (badgeSnap.exists() && badgeSnap.val().trim() !== "") {
                 badgeText = badgeSnap.val();
@@ -644,6 +619,10 @@ async function renderMessageInstant(id, msg) {
                     badgeSpan.innerHTML = '<i class="bi bi-code-square"></i>';
                     badgeSpan.style.color = "green";
                     badgeSpan.title = "This User Is A Developer For Infinitecampus.xyz"
+                } else if (badgeText === "Premium") {
+                    badgeSpan.innerHTML = '<i class="bi bi-currency-dollar"></i>';
+                    badgeSpan.style.color = 'aquamarine';
+                    badgeSpan.title = 'This User Has Infinite Campus Premium';
                 } else if (badgeText === "100") {
                     badgeSpan.innerHTML = '<i class="bi bi-award"></i>';
                     badgeSpan.style.color = "yellow";
@@ -1378,32 +1357,3 @@ document.addEventListener("click", (e) => {
         mentionActive = false;
     }
 });
-let currentSuccessDiv = null;
-function showSuccess(message) {
-    if (currentSuccessDiv) currentSuccessDiv.remove();
-    const successDiv = document.createElement("div");
-    successDiv.textContent = message;
-    Object.assign(successDiv.style, {
-        position: "fixed",
-        top: "10px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        backgroundColor: "seagreen",
-        color: "black",
-        border: "2px solid green",
-        borderRadius: "8px",
-        padding: "10px 20px",
-        zIndex: 9999,
-        cursor: "pointer",
-        maxWidth: "90%",
-        textAlign: "center",
-        fontWeight: "bold",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.3)"
-    });
-    successDiv.addEventListener("click", () => {
-        successDiv.remove();
-        currentSuccessDiv = null;
-    });
-    document.body.appendChild(successDiv);
-    currentSuccessDiv = successDiv;
-}

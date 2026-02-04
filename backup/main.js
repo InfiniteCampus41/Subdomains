@@ -89,7 +89,7 @@ function safeGetItem(key) {
             `);
             win.document.close();
             const iframe = win.document.createElement("iframe");
-            iframe.src = "https://www.infinitecampus.xyz";
+            iframe.src = window.location.origin;
             iframe.style.width = "100vw";
             iframe.style.height = "100vh";
             iframe.style.border = "none";
@@ -126,6 +126,7 @@ console.log('%cC', `
     color: #8BC53F;
     background-color: #121212;
 `);
+localStorage.setItem("replit-pill-preference", "hidden");
 function showError(err) {
     const existing = document.getElementById("errDiv");
     if (existing) existing.remove();
