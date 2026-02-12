@@ -30,7 +30,10 @@ let isTester = false;
 let isCoOwner = false;
 let isOwner = false;
 let isDev = false;
-let premium = false;
+let isPre3 = false;
+let isPre2 = false;
+let isPre1 = false;
+let isSus = false;
 let currentPrivateUid = null;
 let currentPrivateName = null;
 let metadataListenerRef = null;
@@ -222,7 +225,7 @@ function formatTimestamp(ts) {
     else return `${d.toLocaleDateString()} ${timeString}`;
 }
 function isRestrictedChannel(ch) {
-    return ch === "Admin-Chat";
+    return (ch === "Admin-Chat" || ch === "Premium-Chat");
 }
 async function getUidByDisplayName(name) {
     const snap = await get(ref(db, "users"));
@@ -327,7 +330,7 @@ async function renderMessageInstant(id, msg) {
                 showError("User Profile Not Found.");
                 return;
             }
-            window.location.href = `profile.html?user=${uid}`;
+            window.location.href = `InfiniteAccounts.html?user=${uid}`;
         });
     });
     textDiv.querySelectorAll(".channel-mention").forEach(span => {
@@ -442,7 +445,7 @@ async function renderMessageInstant(id, msg) {
     div.appendChild(editedSpan);
     (async () => {
         try {
-            const [nameSnap, colorSnap, picSnap, badgeSnap, adminSnap, ownerSnap, coOwnerSnap, hAdminSnap, devSnap, preSnap, testerSnap, hSnap] = await Promise.all([
+            const [nameSnap, colorSnap, picSnap, badgeSnap, adminSnap, ownerSnap, coOwnerSnap, hAdminSnap, devSnap, pre1Snap, pre2Snap, pre3Snap, testerSnap, hSnap, susSnap] = await Promise.all([
                 get(ref(db, `users/${msg.sender}/profile/displayName`)),
                 get(ref(db, `users/${msg.sender}/settings/color`)),
                 get(ref(db, `users/${msg.sender}/profile/pic`)),
@@ -452,9 +455,12 @@ async function renderMessageInstant(id, msg) {
                 get(ref(db, `users/${msg.sender}/profile/isCoOwner`)),
                 get(ref(db, `users/${msg.sender}/profile/isHAdmin`)),
                 get(ref(db, `users/${msg.sender}/profile/isDev`)),
-                get(ref(db, `users/${msg.sender}/profile/premium`)),
+                get(ref(db, `users/${msg.sender}/profile/premium1`)),
+                get(ref(db, `users/${msg.sender}/profile/premium2`)),
+                get(ref(db, `users/${msg.sender}/profile/premium3`)),
                 get(ref(db, `users/${msg.sender}/profile/isTester`)),
-                get(ref(db, `users/${msg.sender}/profile/mileStone`))
+                get(ref(db, `users/${msg.sender}/profile/mileStone`)),
+                get(ref(db, `users/${msg.sender}/profile/isSus`))
             ]);
             let displayName = nameSnap.exists() ? nameSnap.val() : "User";
             if (!displayName || displayName.trim() === "") {
@@ -464,19 +470,25 @@ async function renderMessageInstant(id, msg) {
             let badgeText = null;
             const senderIsAdmin = adminSnap.exists() ? adminSnap.val() : false;
             const senderIsDev = devSnap.exists() ? devSnap.val() : false;
-            const senderPre = preSnap.exists() ? preSnap.val() :false;
+            const senderPre1 = pre1Snap.exists() ? pre1Snap.val() :false;
+            const senderPre2 = pre2Snap.exists() ? pre2Snap.val() :false;
+            const senderPre3 = pre3Snap.exists() ? pre3Snap.val() :false;
+            const senderIsSus = susSnap.exists() ? susSnap.val() : false;
             const senderIsCoOwner = coOwnerSnap.exists() ? coOwnerSnap.val() : false;
             const senderIsOwner = ownerSnap.exists() ? ownerSnap.val() : false;
             const senderIsHAdmin = hAdminSnap.exists() ? hAdminSnap.val() : false;
             const senderIsTester = testerSnap.exists() ? testerSnap.val() : false;
             const senderIsHUser = hSnap.exists() ? hSnap.val() : false;
-            if (senderIsOwner) badgeText = "OWNR";
+            if (senderIsSus) badgeText = "Sus";
+            else if (senderIsOwner) badgeText = "OWNR";
             else if (senderIsTester) badgeText = "TSTR";
             else if (senderIsCoOwner) badgeText = "COWNR";
             else if (senderIsHAdmin) badgeText = "HADMIN";
             else if (senderIsAdmin) badgeText = "ADMN";
-            else if(senderIsDev) badgeText = "Developer";
-            else if (senderPre) badgeText = "Premium";
+            else if (senderIsDev) badgeText = "Developer";
+            else if (senderPre3) badgeText = "Premium3";
+            else if (senderPre2) badgeText = "Premium2";
+            else if (senderPre1) badgeText = "Premium1";
             else if (senderIsHUser) badgeText = "100";
             if (badgeSnap.exists() && badgeSnap.val().trim() !== "") {
                 badgeText = badgeSnap.val();
@@ -488,13 +500,13 @@ async function renderMessageInstant(id, msg) {
             nameSpan.style.color = color;
             const openProfile = () => {
                 const cleanName = encodeURIComponent(displayName.replace(/ /g, ""));
-                window.location.href = `profile.html?user=${msg.sender}`;
+                window.location.href = `InfiniteAccounts.html?user=${msg.sender}`;
             };
             nameSpan.onclick = openProfile;
             profilePic.onclick = openProfile;
             nameSpan.textContent = displayName;
             nameSpan.style.color = color;
-            if ((isOwner || isCoOwner || isHAdmin || isTester) && !senderIsOwner) {
+            if (((isOwner || isTester) && !senderIsOwner) || (isCoOwner && !senderIsOwner && !senderIsTester && !senderIsCoOwner) || (isHAdmin && !senderIsOwner && !senderIsTester && !senderIsCoOwner && !senderIsHAdmin) || (isAdmin && !senderIsOwner && !senderIsTester && !senderIsCoOwner && !senderIsHAdmin && !senderIsAdmin)) {
                 nameSpan.addEventListener("contextmenu", async (e) => {
                     e.preventDefault();
                     const alreadyMuted = await isUserMuted(msg.sender);
@@ -595,42 +607,56 @@ async function renderMessageInstant(id, msg) {
                 badgeSpan.textContent = `${badgeText}`;
                 badgeSpan.style.marginLeft = "6px";
                 badgeSpan.style.fontWeight = "bold";
-                if (badgeText === "OWNR") {
-                    badgeSpan.innerHTML = '<i class="bi bi-shield-plus">';
+                let dontShowOthers = false;
+                if (badgeText === "Sus") {
+                    let dontShowOthers = true;
+                    badgeSpan.innerHTML = '<i class="bi bi-shield-exclamation"></i>';
+                    badgeSpan.style.color = 'red';
+                    badgeSpan.title = 'This User Is Currently Under Investigation, Please Do Not Interact With This User';
+                } else if (badgeText === "OWNR" && dontShowOthers === false) {
+                    badgeSpan.innerHTML = '<i class="bi bi-shield-plus"></i>';
                     badgeSpan.style.color = "lime";
                     badgeSpan.title = "Owner";
-                } else if (badgeText === "TSTR") {
+                } else if (badgeText === "TSTR" && dontShowOthers === false) {
                     badgeSpan.innerHTML = '<i class="fa-solid fa-cogs"></i>';
                     badgeSpan.style.color = "DarkGoldenRod";
                     badgeSpan.title = "Tester";
-                } else if (badgeText === "COWNR") {
+                } else if (badgeText === "COWNR" && dontShowOthers === false) {
                     badgeSpan.innerHTML = '<i class="bi bi-shield-fill"></i>';
                     badgeSpan.style.color = "lightblue";
                     badgeSpan.title = "Co-Owner";
-                } else if (badgeText ==="HADMIN") {
+                } else if (badgeText ==="HADMIN" && dontShowOthers === false) {
                     badgeSpan.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
                     badgeSpan.style.color = "#00cc99";
                     badgeSpan.title = "Head Admin";
-                } else if (badgeText === "ADMN") {
+                } else if (badgeText === "ADMN" && dontShowOthers === false) {
                     badgeSpan.innerHTML = '<i class="bi bi-shield"></i>';
                     badgeSpan.style.color = "dodgerblue";
                     badgeSpan.title = "Admin";
-                } else if (badgeText === "Developer") {
+                } else if (badgeText === "Developer" && dontShowOthers === false) {
                     badgeSpan.innerHTML = '<i class="bi bi-code-square"></i>';
                     badgeSpan.style.color = "green";
                     badgeSpan.title = "This User Is A Developer For Infinitecampus.xyz"
-                } else if (badgeText === "Premium") {
-                    badgeSpan.innerHTML = '<i class="bi bi-currency-dollar"></i>';
-                    badgeSpan.style.color = 'aquamarine';
-                    badgeSpan.title = 'This User Has Infinite Campus Premium';
-                } else if (badgeText === "100") {
+                } else if (badgeText === "Premium3" && dontShowOthers === false) {
+                    badgeSpan.innerHTML = '<i class="bi bi-hearts"></i>';
+                    badgeSpan.style.color = 'red';
+                    badgeSpan.title = 'This User Has Infinite Campus Premium T3';
+                } else if (badgeText === "Premium2" && dontShowOthers === false) {
+                    badgeSpan.innerHTML = '<i class="bi bi-heart-fill"></i>';
+                    badgeSpan.style.color = 'orange';
+                    badgeSpan.title = 'This User Has Infinite Campus Premium T2';
+                } else if (badgeText === "Premium1" && dontShowOthers === false) {
+                    badgeSpan.innerHTML = '<i class="bi bi-heart-half"></i>';
+                    badgeSpan.style.color = 'yellow';
+                    badgeSpan.title = 'This User Has Infinite Campus Premium T1';
+                } else if (badgeText === "100" && dontShowOthers === false) {
                     badgeSpan.innerHTML = '<i class="bi bi-award"></i>';
                     badgeSpan.style.color = "yellow";
-                    badgeSpan.title = "This User Is The 100Th Signed Up User";
+                    badgeSpan.title = "This User Is The 100th Signed Up User";
                 } else {
-                    badgeSpan.innerHTML = '<i class="bi bi-shield-exclamation"></i>';
-                    badgeSpan.style.color = "red";
-                    badgeSpan.title = "Spam User";
+                    badgeSpan.innerHTML = `${badgeText}`;
+                    badgeSpan.style.color = "pink";
+                    badgeSpan.title = "Custom Badge";
                 }
                 leftWrapper.appendChild(badgeSpan);
             }
@@ -955,7 +981,7 @@ async function renderChannelsFromDB() {
     }
     const keys = Object.keys(chans).sort();
     keys.forEach(ch => {
-        if (isRestrictedChannel(ch) && !(isAdmin || isOwner || isCoOwner || isHAdmin || isTester)) return;
+        if (isRestrictedChannel(ch) && !(isAdmin || isOwner || isCoOwner || isHAdmin || isTester || isPre2 || isPre3)) return;
         const li = document.createElement("li");
         const textNode = document.createTextNode("" + ch);
         li.appendChild(textNode);
@@ -1011,7 +1037,7 @@ async function renderChannelsFromDB() {
     }
 }
 function switchChannel(ch) {
-    if (isRestrictedChannel(ch) && !(isAdmin || isOwner || isCoOwner || isHAdmin || isTester || isDev )) {
+    if (isRestrictedChannel(ch) && !(isAdmin || isOwner || isCoOwner || isHAdmin || isTester || isDev || isPre2 || isPre3)) {
         showError("You Don't Have Permission To Access That Channel.");
         ch = "General";
     }
@@ -1019,7 +1045,7 @@ function switchChannel(ch) {
     currentPrivateName = null;
     chatLog.innerHTML = "";
     currentPath = `messages/${ch}`;
-    if (isRestrictedChannel(ch) && !(isAdmin || isOwner || isCoOwner || isHAdmin || isTester || isDev )) {
+    if (isRestrictedChannel(ch) && !(isAdmin || isOwner || isCoOwner || isHAdmin || isTester || isDev || isPre2 || isPre3)) {
         return;
     } else {
         attachMessageListeners(ref(db, currentPath));
@@ -1097,8 +1123,8 @@ sendBtn.onclick = async () => {
     if (currentPrivateUid) {
         await sendPrivateMessage(currentPrivateUid, outgoingText);
     } else {
-        if (currentPath === "messages/Admin-Chat" && !(isAdmin || isOwner || isCoOwner || isHAdmin || isTester || isDev )) {
-            showError("You Cannot Send Messages To Admin Chat.");
+        if ((currentPath === "messages/Admin-Chat" || currentPath === "messages/Premium-Chat") && !(isAdmin || isOwner || isCoOwner || isHAdmin || isTester || isDev || isPre2 || isPre3)) {
+            showError("You Cannot Send Messages To Restricted Channels");
             chatInput.value = "";
             return;
         }
@@ -1191,14 +1217,18 @@ chatInput.addEventListener("blur", () => {
 onAuthStateChanged(auth, async user => {
     if (!user) { 
         showError("Not Logged In!"); 
-        setTimeout(() => location.href = "login.html", 1000);
+        setTimeout(() => location.href = "InfiniteLogins.html?chat=true", 1000);
         return; 
     }
+    const pre1snap = await get(ref(db, `users/${user.uid}/profile/premium1`));
+    const pre2snap = await get(ref(db, `users/${user.uid}/profile/premium2`));
+    const pre3snap = await get(ref(db, `users/${user.uid}/profile/premium3`));
     const devSnap = await get(ref(db, `users/${user.uid}/profile/isDev`));
     const adminSnap = await get(ref(db, `users/${user.uid}/profile/isAdmin`));
     const coOwnerSnap = await get(ref(db, `users/${user.uid}/profile/isCoOwner`));
     const hAdminSnap = await get(ref(db, `users/${user.uid}/profile/isHAdmin`));
     const testerSnap = await get(ref(db, `users/${user.uid}/profile/isTester`));
+    const susSnap = await get(ref(db, `users/${user.uid}/profile/isSus`));
     currentUser = user;
     const ownerSnap = await get(ref(db, `users/${user.uid}/profile/isOwner`));
     isOwner = ownerSnap.exists() && ownerSnap.val() === true;
@@ -1208,6 +1238,10 @@ onAuthStateChanged(auth, async user => {
     isHAdmin = hAdminSnap.exists() ? hAdminSnap.val() : false;
     isTester = testerSnap.exists() ? testerSnap.val() : false;
     isDev = devSnap.exists() ? devSnap.val() : false;
+    isPre1 = pre1snap.exists() ? pre1snap.val() : false;
+    isPre2 = pre2snap.exists() ? pre2snap.val() : false;
+    isPre3 = pre3snap.exists() ? pre3snap.val() : false;
+    isSus = susSnap.exists() ? susSnap.val() : false;
     adminControls.style.display = (isAdmin || isOwner || isCoOwner || isHAdmin || isTester) ? "block" : "none";
     newChannelName.style.display = (isCoOwner || isOwner || isTester) ? "inline-block" : "none";
     addChannelBtn.style.display = (isCoOwner || isOwner || isTester) ? "inline-block" : "none";
@@ -1216,7 +1250,7 @@ onAuthStateChanged(auth, async user => {
     await loadAllUsernames(); 
     startChannelListeners();
     await renderChannelsFromDB();
-    if (currentPath && currentPath.includes("messages/Admin-Chat") && !(isAdmin || isOwner || isCoOwner || isHAdmin || isTester || isDev)) {
+    if (currentPath && ((currentPath.includes("messages/Admin-Chat")) || (currentPath.includes("messages/Premium-Chat"))) && !(isAdmin || isOwner || isCoOwner || isHAdmin || isTester || isDev || isPre3 || isPre2)) {
         switchChannel("General");
     }
     if (!currentPath) switchChannel("General");
@@ -1243,8 +1277,8 @@ onAuthStateChanged(auth, async user => {
     isOwner = ownerSnap.exists() ? ownerSnap.val() : false;
     isHAdmin = hAdminSnap.exists() ? hAdminSnap.val() : false;
     isTester = testerSnap.exists() ? testerSnap.val() : false;
-    roleSpan.textContent = isOwner ? "Owner" : (isAdmin ? "Admin" : (isCoOwner ? "Co-Owner" : (isHAdmin ? "Head Admin" : (isTester ? "Tester" : (isDev ? "Developer" : "User")))));
-    roleSpan.style.color = isOwner ? "lime" : (isAdmin ? "dodgerblue" : (isCoOwner ? "lightblue" : (isHAdmin ? "#00cc99" : (isTester ? "darkGoldenRod" : (isDev ? "green" : "white")))));
+    roleSpan.textContent = isSus ? "Suspicious Account" : (isOwner ? "Owner" : (isAdmin ? "Admin" : (isCoOwner ? "Co-Owner" : (isHAdmin ? "Head Admin" : (isTester ? "Tester" : (isDev ? "Developer" :(isPre3 ? "Premium T3" :(isPre2 ? "Premium T2" :(isPre1 ? "Premium T1" : "User")))))))));
+    roleSpan.style.color = isSus ? "red" : (isOwner ? "lime" : (isAdmin ? "dodgerblue" : (isCoOwner ? "lightblue" : (isHAdmin ? "#00cc99" : (isTester ? "darkGoldenRod" : (isDev ? "green" :(isPre3 ? "red" :(isPre2 ? "orange" :(isPre1 ? "yellow" :"white")))))))));
     bioSpan.textContent = bioDisplay;
     bioSpan.style.color = "gray";
     bioSpan.style.fontSize = "60%";

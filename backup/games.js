@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
         { name: "Universal Paperclips", method: ["1", "2"], url: "https://play.infinitecampus.xyz/games/paperclips/index.html" },
         { name: "Plants Vs Zombies", method: ["1", "2"], url: "https://games.gombis.com/plants-vs-zombies-3?hl=en" },
         { name: "Polytrack", method: ["1", "2"], url: "https://www.kodub.com/apps/polytrack" },
+        { name: "Polytrack (2)", method: ["1", "2"], url: "https://poly-track.io/" },
         { name: "Gridland", method: ["1", "2"], url: "https://gridland.doublespeakgames.com/" },
         { name: "8 Ball Pool Multiplayer", method: ["1", "2"], url: "https://foony.com/games/8-ball-pool-online-billiards?&platform=crazygames" },
         { name: "Gulper.io", method: ["1", "2"], url: "https://gulper.io/" },
@@ -195,10 +196,23 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
                         }
                         fullscreen.onclick = function () {
-                            const iframe = document.querySelector("iframe");
-                            if (!iframe) return;
+                            const allIframes = document.querySelectorAll("iframe");
+                            let gameIframe = null;
+                            for (let i = allIframes.length - 1; i >= 0; i--) {
+                                const src = allIframes[i].src || '';
+                                if (!src.includes('google') && !src.includes('doubleclick') && 
+                                    !src.includes('ads') && !src.includes('ad-') &&
+                                    allIframes[i].offsetWidth > 100 && allIframes[i].offsetHeight > 100) {
+                                    gameIframe = allIframes[i];
+                                    break;
+                                }
+                            }
+                            if (!gameIframe) return;
                             if (!document.fullscreenElement) {
-                                iframe.requestFullscreen().catch(err => console.error(err));
+                                gameIframe.setAttribute("allowfullscreen", "");
+                                gameIframe.requestFullscreen().catch(err => {
+                                    document.body.requestFullscreen().catch(err2 => console.error(err2));
+                                });
                             } else {
                                 document.exitFullscreen();
                             }
@@ -248,12 +262,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         fullscreen.style.cursor = "pointer";
                         document.body.appendChild(fullscreen);
                         const iframe = document.createElement("iframe");
+                        iframe.id = "gameFrame";
                         iframe.style.width = "100vw";
                         iframe.style.height = "85vh";
                         iframe.src = game.url;
                         document.body.appendChild(iframe);
                         fullscreen.onclick = function () {
-                            const iframe = document.querySelector("iframe");
+                            const iframe = document.getElementById("gameFrame");
                             if (!iframe) return;
                             if (!document.fullscreenElement) {
                                 iframe.requestFullscreen().catch(err => console.error(err));
@@ -262,8 +277,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
                         };
                         backButton.onclick = function () {
-                            const iframes = document.querySelectorAll("iframe");
-                            iframes.forEach(iframe => iframe.remove());
+                            const iframe = document.getElementById("gameFrame");
+                            if (iframe) iframe.remove();
                             backButton.remove();
                             fullscreen.remove();
                             container.style.display = "flex";

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>
+            Endpoints
+        </title>
+        <link rel="stylesheet" href="css/theme.css" />
+        <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <aside class="sidebar" id="sidebar">
+        </aside>
+        <main class="content">
+            <h1 class="doc-header">
+                Endpoints
+            </h1>
+            <input id="endpointSearch" class="search" placeholder="Search endpoint..." />
+            <section class="endpoint" id="send-discord">
+                <h2 class="doc-header">
+                    POST /send
+                </h2>
+                <p class="doc-body">
+                    Sends A Message To The Discord
+                    <br>
+                    Post Request Format
+                </p>
+                <pre class="language-json">
+                    <code>
+    {
+        "message": "Hello, Discord!",
+        "channelId": "1389703415810101308"
+    }
+                    </code>
+                </pre>
+                <br>
+                <p class="doc-body">
+                    You Can Only Use Allowed Channel Ids
+                    <br>
+                    Here Is A Complete List Of The Allowed Channel Ids For This Endpoint
+                </p>
+                <pre class="language-js">
+                    <code>
+    const ALLOWED_CHANNELS = new Set([
+        '1464689808717774970',
+        '1456025656558092372',
+        '1334376148087603294',
+        '1334376903179767860',
+        '1334377094876237918',
+        '1334377158789042226',
+        '1334377258609147967',
+        '1018614763250520127',
+        '1389334335114580229',
+        '1389630067457527879',
+        '1389703415810101308',
+        '1392882466351616153',
+        '1309160050904006696',
+        '1309164699417448550',
+        '1007051892821594183',
+        '1086362556203028540',
+        '1390991482650886215',
+        '1391898825588740108',
+        '1401659961880088668'
+    ]);
+                    </code>
+                </pre>
+            </section>
+            <section class="endpoint" id="upload-discord">
+                <h2 class="doc-header">
+                    POST /upload
+                </h2>
+                <p class="doc-body">
+                    Uploads A File Under 10MB To The Discord
+                    <br>
+                    Example File Upload Code
+                </p>
+                <pre class="language-js">
+                    <code>
+    uploadForm.addEventListener('submit', e=>{
+        e.preventDefault();
+        if(!fileInput.files.length) return showError('No File Selected');
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('channelId', currentChannelId);
+        fetch(`${backendUrl}/upload`, {
+            method:'POST',
+            body:formData
+        }).then(res=>{
+            if(!res.ok) res.text().then(text=>showError('Upload Failed:'+text));
+            fileInput.value=''; fileLabel.textContent='Select A File';
+        })
+    });
+                    </code>
+                </pre>
+                <br>
+                <p class="doc-body">
+                    You Can Only Use Allowed Channel Ids
+                    <br>
+                    Here Is A Complete List Of The Allowed Channel Ids For This Endpoint
+                </p>
+                <pre class="language-js">
+                    <code>
+    const ALLOWED_CHANNELS = new Set([
+        '1464689808717774970',
+        '1389703415810101308',
+        '1389334335114580229',
+        '1309160050904006696',
+        '1309164699417448550',
+        '1007051892821594183',
+        '1086362556203028540',
+        '1334945403912720586',
+        '1390991482650886215',
+        '1391898825588740108',
+        '1401659961880088668',
+        '1334377158789042226'
+    ]);
+                    </code>
+                </pre>
+            </section>
+            <section class="endpoint" id="get-discord-messages">
+                <h2 class="doc-header">
+                    GET /api/messages?channelId=${channel}
+                </h2>
+                <p class="doc-body">
+                    This Endpoint Gets Messages From The Discord Based On The Channel ID
+                    <br>
+                    To Get The Messages, Just Get To The Url https://api.infinitecampus.xyz/api/messages?channelId=${channel}
+                    <br>
+                    You Need To Replace The Channel With A Valid Channel ID
+                    <br>
+                    Here Is A List Of Valid Channel Ids
+                </p>
+                <pre class="language-js">
+                    <code>
+    const ALLOWED_CHANNELS = new Set([
+        '1464689808717774970',
+        '1456025656558092372',
+        '1334376148087603294',
+        '1334376903179767860',
+        '1334377094876237918',
+        '1334377158789042226',
+        '1334377258609147967',
+        '1018614763250520127',
+        '1389334335114580229',
+        '1389630067457527879',
+        '1389703415810101308',
+        '1392882466351616153',
+        '1309160050904006696',
+        '1309164699417448550',
+        '1007051892821594183',
+        '1086362556203028540',
+        '1390991482650886215',
+        '1391898825588740108',
+        '1401659961880088668'
+    ]);
+                    </code>
+                </pre>
+            </section>
+            <section class="endpoint" id="weather">
+                <h2 class="doc-header">
+                    GET /weather
+                </h2>
+                <br>
+                <p class="doc-body">
+                    To Get The Weather Of A Location, You Must First Get The User's City And State
+                    <br>
+                    You Then Need To Send It In This Url Format
+                    <br>
+                    https://api.infinitecampus.xyz/weather?city=${city}&state=${state}
+                    <br>
+                    Example:
+                    <br>
+                    https://api.infinitecampus.xyz/weather?city=New%20York&state=New%20York
+                </p>
+                <br>
+                <p class="doc-body">
+                    Example JSON Response:
+                    <br>
+                    <pre class="language-json">
+                        <code>
+    {
+        "location": "New York, New York",
+        "temperature": {
+            "fahrenheit": 39,
+            "celsius": 4
+        },
+        "condition": "Cloudy",
+        "emoji": "☁️",
+        "display": "New York, New York:☁️ 39",
+        "station": "KNYC",
+        "time": "2026-02-11T20:51:00+00:00"
+    }
+                        </code>
+                    </pre>
+                </p>
+            </section>
+            <section class="endpoint" id="stream-movies">
+                <h2 class="doc-header">
+                    GET /movies/x9a7b2/:name
+                </h2>
+                <p class="doc-body">
+                    This Endpoint Is For Streaming Movies
+                </p>
+                <p class="doc-body">
+                    It Just Returns The File
+                </p>
+            </section>
+            <section class="endpoint" id="list-movies">
+                <h2 class="doc-header">
+                    GET /list_videos_x9a7b2
+                </h2>
+                <p class="doc-body">
+                    This Endpoint Is For Listing The Available Movies
+                    <br>
+                    It Returns The Full File Name As "file"
+                    <br>
+                    It Returns The File Name Without .mp4 at "name"
+                    <br>
+                    It Returns The Size In Bytes At "size"
+                    <br>
+                    It Returns The Time The Video Was Uploaded At "mtime"
+                    <br>
+                    It Returns The Formatted Size In Kb, Mb, Gb, Or TB At "humanSize"
+                    <br>
+                    It Returns The Order Of The Movie In The List At "order"
+                    <br>
+                    Here Is An Example Response
+                </p>
+                <pre class="language-json">
+                    <code>
+    {
+        "ok": true,
+        "videos": [
+            {
+                "file": "Fnaf.mp4",
+                "name": "Fnaf",
+                "size": 254112313,
+                "mtime": "2026-02-06T09:25:19.899Z",
+                "humanSize": "242.3 MB",
+                "order": 10
+            },
+            {
+                "file": "Fnaf2.mp4",
+                "name": "Fnaf2",
+                "size": 254548186,
+                "mtime": "2026-02-06T20:57:41.093Z",
+                "humanSize": "242.8 MB",
+                "order": 20
+            }
+        ]
+    }
+                    </code>
+                </pre>
+            </section>
+            <section class="endpoint" id="list-movies">
+                <h2 class="doc-header">
+                    GET /download/x9a7b2/:name
+                </h2>
+                <p class="doc-body">
+                    This Endpoint Is Used To Download Movies By Name
+                    <br>
+                    It Uses The Name Without .mp4
+                    <br>
+                    The Response Is Just Downloading The File
+                </p>
+            </section>
+            <p style="color:grey; font-size:.75em;">
+                This Absolutely Sucked To Make And All These Endpoints Are Only The Publicly Accesable And Easy To Use Ones.
+                <br>
+                The Rest Of The Endpoints Are Either, Admin Endpoints, Or Somewhat Complex To Use
+            </p>
+        </main>
+        <script src="js/sidebar.js">
+        </script>
+        <script src="js/apiSearch.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js">
+        </script>
+    </body>
+</html>
