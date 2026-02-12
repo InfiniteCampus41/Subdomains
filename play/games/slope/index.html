@@ -3,6 +3,14 @@
     <link rel="stylesheet" href="/games/slope/TemplateData/style.css">
     <script src="/games/slope/TemplateData/UnityProgress.js"></script>
     <script src="/games/slope/TemplateData/unityloader41.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7SV03ZXJ9R">
+    </script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-7SV03ZXJ9R');
+    </script>
     <script>
         var gameInstance = UnityLoader.instantiate("gameContainer", "/games/slope/Build/slope.json", { onProgress: UnityProgress, Module: { onRuntimeInitialized: function() { UnityProgress(gameInstance, "complete") } } });
     </script>
