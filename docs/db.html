@@ -393,6 +393,17 @@
                                 root.child('users').child(auth.uid).child('profile').child('isTester').val() === true
                             "
                         },
+                        "dUsername": {
+                            ".read": true,
+                            ".write": "
+            	                auth != null && (
+              	                    auth.uid === $uid ||
+              	                    root.child('users').child(auth.uid).child('profile').child('isOwner').val() === true ||
+              	                    root.child('users').child(auth.uid).child('profile').child('isTester').val() === true
+                                ) &&
+                                newData.val().length <= 50
+                            "  
+                        },
                         "mileStone": {
                             ".read": true,
                             ".write": "
