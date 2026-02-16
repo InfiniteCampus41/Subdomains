@@ -138,6 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
         { name: "Wordle", method: ["1", "2"], url: "https://wordleunlimited.org/" },
         { name: "Worldguessr", method: ["1", "2"], url: "https://www.worldguessr.com/" },
         { name: "DELTARUNE", method: ["1", "2"], url: "https://g-mcb.github.io/deltarune/index.html" },
+        { name: "Hollow Knight", method: ["1", "2"], url: "https://orbit.foo.ng/games/hollowknight/index.html" },
         { name: "Tomb Of The Mask", method: ["1", "2"], url: "https://mountain658.github.io/g/tombofthemask/index.html" } 
     ];
     function showGames(method) {
@@ -296,3 +297,23 @@ document.addEventListener("DOMContentLoaded", function () {
         showGames("1");
     });
 })
+window.logProxyVisit = async function(input) {
+    let logUrl;
+    try {
+        const parsedUrl = new URL(input.startsWith("http") ? input : `https://${input}`);
+        logUrl = `https://${parsedUrl.hostname.toLowerCase()}`;
+    } catch {
+        logUrl = input.toLowerCase();
+    }
+    const payload = {
+        url: logUrl,
+        timestamp: new Date().toISOString()
+    };
+    try {
+        await fetch("/logs", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify(payload)
+        });
+    } catch {}
+};

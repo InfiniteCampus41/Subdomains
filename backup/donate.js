@@ -1,7 +1,7 @@
 import { auth } from "./firebase.js";
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 const backend = `${a}`;
-const stripe = Stripe("pk_live_51SwqnVI9WcNth2N5fglWiLYrwZ9Eshebvr7UCENzOJyfjk39tmNaMoVqecNa2sXRFYJYrgpsRlG0n7mQWdPktw1y00AWcjltXi");
+const stripe = Stripe("pk_live_51T0BHXBYxOIeQqwPGMQ05ZHFdlAJyK4k1drz0H5PxY6zCii6aIjcsbPrFqsu1208HrYGBEpkcZGtFKDQqMgSdH6a00RvADSXaA");
 let currentUser = null;
 onAuthStateChanged(auth, user => {
     currentUser = user;
@@ -11,26 +11,6 @@ onAuthStateChanged(auth, user => {
     document.getElementById("authUI").style.display = user ? "none" : "block";
     document.getElementById("donateUI").style.display = user ? "block" : "none";
 });
-function signup() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    createUserWithEmailAndPassword(auth, email, password)
-    .then(userCredential => {
-        currentUser = userCredential.user;
-        sessionStorage.setItem("donUID", currentUser.uid);
-    })
-    .catch(err => showError(err.message));
-}
-function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    signInWithEmailAndPassword(auth, email, password)
-    .then(userCredential => {
-        currentUser = userCredential.user;
-        sessionStorage.setItem("donUID", currentUser.uid);
-    })
-    .catch(err => showError(err.message));
-}
 function logout() {
     signOut(auth);
     sessionStorage.removeItem("donUID");
@@ -116,15 +96,15 @@ if (email) {
 const amount = document.getElementById("amount");
 if (amount) {
     amount.addEventListener("keydown", (e) => {
-      	if (e.key === "Enter") {
-        	e.preventDefault();
-        	donate();
-      	}
+        if ((amount.value > 0) && (amount.value < 999999)) {
+            if (e.key === "Enter") {
+        	    e.preventDefault();
+        	    donate();
+      	    }
+        }
     });
 }
 window.donate = donate;
-window.login = login;
-window.signup = signup;
 window.logout = logout;
 const perks1 = document.getElementById('perks1');
 const perks2 = document.getElementById('perks2');
