@@ -415,11 +415,9 @@
                         "isGuesser": {
                             ".read": true,
                             ".write": "
-            	                auth != null && (
-              	                    auth.uid === $uid ||
+            	                auth != null &&
                                     root.child('users').child(auth.uid).child('profile').child('isOwner').val() === true ||
                                     root.child('users').child(auth.uid).child('profile').child('isTester').val() === true
-                                )
                             "
                         },
                         "isDonater": {
