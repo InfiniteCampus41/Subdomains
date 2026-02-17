@@ -441,3 +441,43 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.style.display = 'none';
     });
 });
+const LOADER_CONFIG = {
+    mode: "auto", 
+};
+const loader = document.createElement("div");
+loader.id = "planet-loader";
+loader.innerHTML = `
+    <div class="planet-wrapper">
+        <div class="ring ring1">
+        </div>
+        <div class="ring ring2">
+        </div>
+        <div class="ring ring3">
+        </div>
+        <div class="letter">
+            C
+        </div>
+    </div>
+`;
+document.body.prepend(loader);
+function showLoader() {
+    if (!document.getElementById("planet-loader")) {
+        document.body.prepend(loader);
+    }
+    loader.style.display = "flex";
+    loader.style.opacity = "1";
+}
+function hideLoader() {
+    loader.style.opacity = "0";
+    setTimeout(() => {
+        loader.style.display = "none";
+    }, 600);
+}
+if (LOADER_CONFIG.mode === "auto") {
+    window.addEventListener("load", hideLoader);
+}
+else if (LOADER_CONFIG.mode === "time") {
+    setTimeout(hideLoader, LOADER_CONFIG.duration);
+}
+else if (LOADER_CONFIG.mode === "infinite") {
+}

@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     const before = document.getElementById("before");
     const games = [
-        { name: "Slope", method: ["1", "2"], url: "https://play.infinitecampus.xyz/games/slope/index.html"},
+        { name: "Slope", method: ["2"], url: "https://play.infinitecampus.xyz/games/slope/index.html"},
         { name: "Slope 2", method: ["2"], url: "https://mathadventure1.github.io/slope/slope/index.html"},
         { name: "NettleWeb (1)", method: ["2"], url: "https://nettleweb.com"},
         { name: "NettleWeb (2)", method: ["2"], url: "https://sigmasigmatoiletedge.github.io" },
@@ -165,6 +165,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     button.style.cursor = "pointer";
                     button.onclick = function () {
                         container.style.display = "none";
+                        showLoader();
                         const backButton = document.createElement("button");
                         backButton.textContent = "← Back";
                         backButton.className = "button";
@@ -194,6 +195,18 @@ document.addEventListener("DOMContentLoaded", function () {
                             if (form) {
                                 const event = new Event("submit", { bubbles: true, cancelable: true });
                                 form.dispatchEvent(event);
+                                const waitForIframe = setInterval(() => {
+                                    const gameIframe = document.getElementById("sj-frame");
+                                    if (gameIframe) {
+                                        clearInterval(waitForIframe);
+                                        gameIframe.addEventListener("load", () => {
+                                            hideLoader();
+                                        });
+                                        setTimeout(() => {
+                                            hideLoader();
+                                        }, 10000);
+                                    }
+                                }, 100);
                             }
                         }
                         fullscreen.onclick = function () {
@@ -219,6 +232,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
                         };
                         backButton.onclick = function () {
+                            hideLoader();
                             const iframes = document.querySelectorAll("iframe");
                             iframes.forEach(iframe => iframe.remove());
                             backButton.remove();
