@@ -308,7 +308,7 @@ document.addEventListener("DOMContentLoaded", function () {
         showGames("2");
     });
     launchButton.addEventListener("click", function () {
-        showGames("1");
+        showError('The First Games Method Is Not Available Right Now');
     });
 })
 window.logProxyVisit = async function(input) {
