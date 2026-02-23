@@ -1,3 +1,6 @@
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 const backendUrl = `${a}`;
 const apiMessagesUrl = `${backendUrl}/api/messages`;
 const widgetUrl = 'https://discord.com/api/guilds/1002698920809463808/widget.json';
@@ -11,6 +14,23 @@ let isProcessingQueue = false;
 const RATE_LIMIT_DELAY = 3000;
 const messageCache = new Map();
 const MESSAGE_CACHE_TTL = 10_000;
+const nameInput = document.getElementById('nameInput');
+onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    try {
+        const displayNameRef = ref(db, `users/${user.uid}/profile/displayName`);
+        const snapshot = await get(displayNameRef);
+        if (snapshot.exists()) {
+            nameInput.value = snapshot.val();
+        } else {
+            if (user.displayName) {
+                nameInput.value = user.displayName;
+            }
+        }
+    } catch (error) {
+        showError("Error Fetching Display Name:", error);
+    }
+});
 async function processQueue() {
     if (isProcessingQueue || requestQueue.length === 0) return;
     isProcessingQueue = true;
@@ -73,9 +93,7 @@ async function renderMessage(msg, list){
     list.prepend(li);
     const avatarImg = document.createElement('img');
     avatarImg.classList.add('avatar');
-    avatarImg.src = msg.author.avatar
-        ? `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`
-        : `/res/default.png`;
+    avatarImg.src = msg.author.avatar ? `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png` : `/res/discord.png`;
     li.appendChild(avatarImg);
     const contentDiv = document.createElement('div');
     contentDiv.classList.add('content');
@@ -231,7 +249,7 @@ async function fetchDiscordPresence() {
     try {
         const response = await fetch(m);
         if (!response.ok) {
-            throw new Error("ERR#13 Failed To Fetch Data: " + response.status);
+            throw new Error("Error: Failed To Fetch Data: " + response.status);
         }
         const data = await response.json();
         if (Array.isArray(data.members) && data.members.length > 0) {
@@ -243,7 +261,7 @@ async function fetchDiscordPresence() {
             presenceCountEl.textContent = "No Members Online.";
         }
     } catch (error) {
-        presenceCountEl.textContent = "ERR#13 Error Fetching Presence Count.";
+        presenceCountEl.textContent = "Error: Error Fetching Presence Count.";
         console.error(error);
     }
 }

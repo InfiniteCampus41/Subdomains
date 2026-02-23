@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", function () {
         { name: "Bad Time Simulator", method: ["1", "2"], url: "https://jcw87.github.io/c2-sans-fight/"},
         { name: "OVO", method: ["1", "2"], url: "https://www.hoodamath.com/mobile/games/ovo/game.html?nocheckorient=1" },
         { name: "Pixel Gun 3D", method: ["1", "2"], url: "https://games.crazygames.com/en_US/pixel-gun-3d/index.html" },
-        { name: "Rooftop Snipers", method: ["1", "2"], url: "https://rooftop-snipers.github.io/file/" },
         { name: "Stickman Hook", method: ["1", "2"], url: "https://mountain658.github.io/g/stickmanhook/index.html" },
         { name: "Universal Paperclips", method: ["1", "2"], url: "https://play.infinitecampus.xyz/games/paperclips/index.html" },
         { name: "Plants Vs Zombies", method: ["1", "2"], url: "https://games.gombis.com/plants-vs-zombies-3?hl=en" },
@@ -42,7 +41,6 @@ document.addEventListener("DOMContentLoaded", function () {
         { name: "Brutal.io", method: ["1", "2"], url: "https://brutal.io/" },
         { name: "Bonk.io", method: ["1", "2"], url: "https://bonk.io/" },
         { name: "Slither.io", method: ["1", "2"], url: "https://slithergame.io/slither-io.embed" },
-        { name: "Ninja.io", method: ["1", "2"], url: "https://ninja.io/" },
         { name: "Wings.io", method: ["1", "2"], url: "https://wings.io/" },
         { name: "Mope.io", method: ["1", "2"], url: "https://mope.io/" },
         { name: "Warbot.io", method: ["1", "2"], url: "https://warbot.io/"},
@@ -164,10 +162,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     button.style.fontSize = "16px";
                     button.style.cursor = "pointer";
                     button.onclick = function () {
+                        const proxyContainer = document.getElementById('proxy-container');
+                        if (proxyContainer) {
+                            proxyContainer.style.display = 'block';
+                        }
                         container.style.display = "none";
                         showLoader();
                         const backButton = document.createElement("button");
-                        backButton.textContent = "← Back";
+                        backButton.innerHTML = "<i class='bi bi-arrow-left'></i>";
                         backButton.className = "button";
                         backButton.style.position = "fixed";
                         backButton.style.top = "70px";
@@ -178,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         backButton.style.cursor = "pointer";
                         document.body.appendChild(backButton);
                         const fullscreen = document.createElement("button");
-                        fullscreen.textContent = "⛶";
+                        fullscreen.innerHTML = "<i class='bi bi-fullscreen'></i>";
                         fullscreen.className = "button";
                         fullscreen.style.position = "fixed";
                         fullscreen.style.bottom = "10px";
@@ -232,6 +234,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
                         };
                         backButton.onclick = function () {
+                            const proxyContainer = document.getElementById('proxy-container');
+                            proxyContainer.style.display = 'none';
                             hideLoader();
                             const iframes = document.querySelectorAll("iframe");
                             iframes.forEach(iframe => iframe.remove());
@@ -255,7 +259,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     button.onclick = function () {
                         container.style.display = "none";
                         const backButton = document.createElement("button");
-                        backButton.textContent = "← Back";
+                        backButton.innerHTML = "<i class='bi bi-arrow-left'></i>";
                         backButton.className = "button";
                         backButton.style.position = "fixed";
                         backButton.style.top = "70px";
@@ -266,7 +270,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         backButton.style.cursor = "pointer";
                         document.body.appendChild(backButton);
                         const fullscreen = document.createElement("button");
-                        fullscreen.textContent = "⛶";
+                        fullscreen.innerHTML = "<i class='bi bi-fullscreen'></i>";
                         fullscreen.className = "button";
                         fullscreen.style.position = "fixed";
                         fullscreen.style.bottom = "60px";
@@ -308,7 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
         showGames("2");
     });
     launchButton.addEventListener("click", function () {
-        showError('The First Games Method Is Not Available Right Now');
+        showError("The First Games Method Is Not Currently Available");
     });
 })
 window.logProxyVisit = async function(input) {

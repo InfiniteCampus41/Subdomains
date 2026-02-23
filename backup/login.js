@@ -18,6 +18,7 @@ onAuthStateChanged(auth, async (user) => {
             profile.isOwner === true ||
             profile.isTester === true ||
             profile.isCoOwner === true ||
+            profile.isHAdmin === true ||
             profile.isDev === true;
         if (isAllowed) {
             if (window.location.pathname == '/InfiniteLogins.html') {
@@ -27,7 +28,7 @@ onAuthStateChanged(auth, async (user) => {
             window.location.href = "InfiniteAccounts.html";
         }
     } catch (err) {
-        console.error("Permission Check Failed:", err);
+        showError("Permission Check Failed:", err);
         window.location.href = "InfiniteLogins.html";
     }
 });
