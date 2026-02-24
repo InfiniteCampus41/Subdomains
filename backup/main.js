@@ -147,7 +147,7 @@ function showError(err) {
     errDiv.style.fontWeight = "bold";
     errDiv.style.maxWidth = "fit-content";
     errDiv.style.height = "35px";
-    errDiv.style.top = "70";
+    errDiv.style.top = "90px";
     errDiv.style.justifySelf = "center";
     errDiv.addEventListener("click", () => {
         errDiv.remove();
@@ -172,12 +172,134 @@ function showSuccess(success) {
     successDiv.style.fontWeight = "bold";
     successDiv.style.maxWidth = "fit-content";
     successDiv.style.height = "35px";
-    successDiv.style.top = "70";
+    successDiv.style.top = "90px";
     successDiv.style.justifySelf = "center";
     successDiv.addEventListener("click", () => {
         successDiv.remove();
     });
     document.body.insertBefore(successDiv, document.body.firstChild);
+}
+function showConfirm(message, callback) {
+    const existing = document.getElementById("confirmDiv");
+    if (existing) existing.remove();
+    const confirmDiv = document.createElement("div");
+    confirmDiv.id = "confirmDiv";
+    confirmDiv.textContent = message;
+    confirmDiv.style.background = "#222";
+    confirmDiv.style.color = "white";
+    confirmDiv.style.border = "3px solid #666";
+    confirmDiv.style.borderRadius = "5px";
+    confirmDiv.style.padding = "10px";
+    confirmDiv.style.position = "fixed";
+    confirmDiv.style.top = "-150px";
+    confirmDiv.style.left = "50%";
+    confirmDiv.style.transform = "translateX(-50%)";
+    confirmDiv.style.textAlign = "center";
+    confirmDiv.style.fontWeight = "bold";
+    confirmDiv.style.zIndex = "9999";
+    confirmDiv.style.transition = "top 0.4s ease";
+    confirmDiv.style.display = "flex";
+    confirmDiv.style.flexDirection = "column";
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.marginTop = "8px";
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.justifyContent = "space-between";
+    const yesBtn = document.createElement("button");
+    yesBtn.textContent = "Ok";
+    yesBtn.id = "confirmBtns";
+    yesBtn.style.marginRight = "5px";
+    yesBtn.style.cursor = "pointer";
+    const noBtn = document.createElement("button");
+    noBtn.textContent = "Cancel";
+    noBtn.id = "confirmBtns";
+    noBtn.style.cursor = "pointer";
+    yesBtn.addEventListener("click", () => {
+        confirmDiv.remove();
+        callback(true);
+    });
+    noBtn.addEventListener("click", () => {
+        confirmDiv.remove();
+        callback(false);
+    });
+    buttonContainer.appendChild(noBtn);
+    buttonContainer.appendChild(yesBtn);
+    confirmDiv.appendChild(buttonContainer);
+    document.body.insertBefore(confirmDiv, document.body.firstChild);
+    setTimeout(() => {
+        confirmDiv.style.top = "50%";
+    }, 10);
+}
+function customPrompt(message, hidden = false, value) {
+    return new Promise((resolve) => {
+        const existing = document.getElementById("customPromptOverlay");
+        if (existing) existing.remove();
+        const overlay = document.createElement("div");
+        overlay.id = "customPromptOverlay";
+        overlay.style.position = "fixed";
+        overlay.style.top = "0";
+        overlay.style.left = "0";
+        overlay.style.width = "100%";
+        overlay.style.height = "100%";
+        overlay.style.background = "rgba(0,0,0,0.5)";
+        overlay.style.display = "flex";
+        overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
+        overlay.style.zIndex = "9999";
+        const box = document.createElement("div");
+        box.style.background = "#333";
+        box.style.color = "white";
+        box.style.padding = "20px";
+        box.style.borderRadius = "10px";
+        box.style.width = "300px";
+        box.style.textAlign = "center";
+        box.style.border = "1px solid white";
+        box.style.boxShadow = "0 0 15px rgba(0,0,0,0.3)";
+        const text = document.createElement("div");
+        text.textContent = message;
+        text.style.marginBottom = "10px";
+        const div = document.createElement("div");
+        div.style.display = "flex";
+        div.style.justifyContent = "space-between";
+        const input = document.createElement("input");
+        input.type = hidden ? "password" : "text";
+        input.style.borderRadius = "10px";
+        input.style.background = "#666";
+        input.style.color = "white";
+        input.style.border = "1px solid white";
+        input.value = value ? `${value}` : "";
+        input.style.width = "90%";
+        input.style.padding = "5px";
+        input.style.marginBottom = "10px";
+        const okBtn = document.createElement("button");
+        okBtn.textContent = "Ok";
+        okBtn.id = "cuPromptBtns";
+        okBtn.style.marginRight = "10px";
+        const cancelBtn = document.createElement("button");
+        cancelBtn.textContent = "Cancel";
+        cancelBtn.id = "cuPromptBtns";
+        okBtn.onclick = () => {
+            resolve(input.value);
+            overlay.remove();
+        };
+        cancelBtn.onclick = () => {
+            resolve(null);
+            overlay.remove();
+            showSuccess("Canceled");
+        };
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                okBtn.click();
+            }
+        });
+        box.appendChild(text);
+        box.appendChild(input);
+        div.appendChild(cancelBtn);
+        div.appendChild(okBtn);
+        box.appendChild(div);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+        input.focus();
+    });
 }
 window.addEventListener('DOMContentLoaded', () => {
     if (e.includes(window.location.host)) {

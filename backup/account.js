@@ -332,14 +332,19 @@ if (mode) {
     const params = new URLSearchParams(window.location.search);
     const chaturl = params.get("chat");
     const donUrl = params.get("donate");
+    const pollUrl = params.get("poll");
     const donBtn = document.getElementById('donBtn');
     const adminBtn = document.getElementById('adminBtn');
     const chatBtn = document.getElementById('chatBtn');
+    const pollBtn = document.getElementById('pollBtn');
     if (donUrl) {
         donBtn.style.display = 'block';
     }
     if (chaturl) {
         chatBtn.style.display = 'block';
+    }
+    if (pollUrl) {
+        pollBtn.style.display = 'block';
     }
     let currentDisplay = "";
     window.appSettings = {
@@ -514,7 +519,7 @@ if (mode) {
     let currentBio = "";
     function autoResizeBio() {
         bioInput.style.height = "auto";
-        bioInput.style.height = bioInput.scrollHeight + "px";
+        bioInput.style.height = "52px";
     }
     async function loadUserBio(uid) {
         const bioRef = ref(db, `users/${uid}/profile/bio`);
@@ -524,6 +529,7 @@ if (mode) {
             setSetting("bio", currentBio);
             bioInput.value = currentBio;
             bioInput.style.color = "white";
+            autoResizeBio();
         } else {
             bioInput.value = "";
             bioInput.placeholder = "Enter Bio Here";
