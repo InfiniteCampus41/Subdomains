@@ -24,22 +24,18 @@ let currentUserEditUID = null;
 let userProfiles = {};
 let userSettings = {};
 let activeChatListener = null;
-const profilePics = [
-    "/pfps/1.jpeg",
-    "/pfps/2.jpeg",
-    "/pfps/3.jpeg",
-    "/pfps/4.jpeg",
-    "/pfps/5.jpeg",
-    "/pfps/6.jpeg",
-    "/pfps/7.jpeg",
-    "/pfps/8.jpeg",
-    "/pfps/9.jpeg",
-    "/pfps/10.jpeg",
-    "/pfps/11.jpeg",
-    "/pfps/12.jpeg",
-    "/pfps/13.jpeg",
-    "/pfps/14.jpeg"
-];
+let profilePics = [];
+async function loadProfilePics() {
+    try {
+        const res = await fetch(`https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/index.json?${Date.now()}`);
+        const files = await res.json();
+        profilePics = files.map(f => `https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/${f}?t=${Date.now()}`);
+        console.log("Loaded profile pics:", profilePics);
+    } catch (err) {
+        console.error("Failed to load profile pics:", err);
+        profilePics = [`https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/1.jpeg?t=${Date.now()}`];
+    }
+}
 async function logMutedUsers() {
     try {
         const snapshot = await get(ref(db, "mutedUsers"));
@@ -67,7 +63,7 @@ async function logMutedUsers() {
             const emailVal = emailSnap.exists() ? emailSnap.val() : "No Email";
             const header = document.createElement('div');
             let picIndex = parseInt(picVal);
-            let picSrc = "/pfps/1.jpeg";
+            let picSrc = `https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/1.jpeg?t=${Date.now()}`;
             if (!isNaN(picIndex) && picIndex > 0 && picIndex <= profilePics.length) {
                 picSrc = profilePics[picIndex];
             }
@@ -495,6 +491,7 @@ if (deleteTypingBtn) {
     };
 }
 onAuthStateChanged(auth, async (user) => {
+    await loadProfilePics();
     if (!user) {
         showError("You Must Be Logged In To View This Page.");
         window.location.href = "InfiniteChatters.html";

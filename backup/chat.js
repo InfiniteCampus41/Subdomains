@@ -1,7 +1,6 @@
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-import { ref, push, onChildAdded, onChildRemoved, onChildChanged, remove, update, set, get, runTransaction, onValue, off } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
-const channelList = document.getElementById("channels");
+import { ref, push, onChildAdded, onChildRemoved, onChildChanged, remove, update, set, get, runTransaction, onValue, off, query, orderByChild, limitToLast, endAt } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";const channelList = document.getElementById("channels");
 const chatLog = document.getElementById("chatLog");
 let lastMessageTimestamp = 0;
 const MESSAGE_COOLDOWN = 3000;
@@ -39,6 +38,10 @@ let currentPrivateUid = null;
 let currentPrivateName = null;
 let metadataListenerRef = null;
 let autoScrollEnabled = true;
+const PAGE_SIZE = 50;
+let oldestLoadedTimestamp = null;
+let loadingOlderMessages = false;
+let hasMoreMessages = true;
 const privateListeners = new Set();
 const channelMentionSet = new Set();
 const mentionMenu = document.getElementById("mentionMenu");
@@ -83,8 +86,37 @@ let typingTimeout = null;
 let typingRef = null;
 document.head.appendChild(style);
 chatLog.addEventListener("scroll", () => {
-    const nearBottom = chatLog.scrollHeight - chatLog.scrollTop - chatLog.clientHeight < 50;
-    autoScrollEnabled = nearBottom;
+    const distanceFromBottom =
+        chatLog.scrollHeight - chatLog.scrollTop - chatLog.clientHeight;
+    autoScrollEnabled = distanceFromBottom < 40;
+});
+chatLog.addEventListener("scroll", async () => {
+    if (chatLog.scrollTop > 50) return;
+    if (!hasMoreMessages || loadingOlderMessages || !oldestLoadedTimestamp) return;
+    loadingOlderMessages = true;
+    const previousHeight = chatLog.scrollHeight;
+    const olderQuery = query(
+        currentMsgRef,
+        orderByChild("timestamp"),
+        endAt(oldestLoadedTimestamp - 1),
+        limitToLast(PAGE_SIZE)
+    );
+    const snapshot = await get(olderQuery);
+    if (!snapshot.exists()) {
+        hasMoreMessages = false;
+        loadingOlderMessages = false;
+        return;
+    }
+    const msgs = snapshot.val();
+    const entries = Object.entries(msgs).sort((a, b) => a[1].timestamp - b[1].timestamp);
+    oldestLoadedTimestamp = entries[0][1].timestamp;
+    for (const [id, msg] of entries.reverse()) {
+        const div = await renderMessageInstant(id, msg);
+        if (div) chatLog.insertBefore(div, chatLog.firstChild);
+    }
+    const newHeight = chatLog.scrollHeight;
+    chatLog.scrollTop = newHeight - previousHeight;
+    loadingOlderMessages = false;
 });
 function scrollToBottom(smooth = false) {
     requestAnimationFrame(() => {
@@ -189,8 +221,16 @@ mentionNotif.addEventListener("click", () => {
 function messageMentionsYou(text) {
     if (!text || !currentName) return false;
     const lowerMsg = text.toLowerCase();
-    const plain = currentName.toLowerCase().replace(" 💎", "");
-    return lowerMsg.includes(`@${plain}`) || lowerMsg.includes(`@${plain} 💎`);
+    const plain = currentName.toLowerCase().replace(" 💎","");
+    const normalMention =
+        lowerMsg.includes(`@${plain}`) ||
+        lowerMsg.includes(`@${plain} 💎`);
+    const supportMention =
+        lowerMsg.includes("@support") &&
+        currentPath &&
+        currentPath.startsWith("messages/") &&
+        (isDev || isOwner || isTester);
+    return normalMention || supportMention;
 }
 async function processChannelMentions(htmlText) {
     const channelRegex = /#([A-Za-z0-9_\-]+)/g;
@@ -266,22 +306,19 @@ async function renderMessageInstant(id, msg) {
     profilePic.style.border = "2px solid white";
     profilePic.style.objectFit = "cover";
     profilePic.style.cursor = "pointer";
-    const profilePics = [
-        "/pfps/1.jpeg",
-        "/pfps/2.jpeg",
-        "/pfps/3.jpeg",
-        "/pfps/4.jpeg",
-        "/pfps/5.jpeg",
-        "/pfps/6.jpeg",
-        "/pfps/7.jpeg",
-        "/pfps/8.jpeg",
-        "/pfps/9.jpeg",
-        "/pfps/10.jpeg",
-        "/pfps/11.jpeg",
-        "/pfps/12.jpeg",
-        "/pfps/13.jpeg",
-        "/pfps/14.jpeg"
-    ];
+    let profilePics = [];
+    async function loadProfilePics() {
+        const pfpDate = Date.now();
+        try {
+            const res = await fetch(`https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/index.json?t=${pfpDate}`);
+            const files = await res.json();
+            profilePics = files.map(file => `https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/${file}`);
+        } catch (e) {
+            console.error("Failed To Load Profile Pics:", e);
+            profilePics = [`https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/1.jpeg?t=${pfpDate}`];
+        }
+    }
+    await loadProfilePics();
     leftWrapper.appendChild(profilePic);
     leftWrapper.appendChild(nameSpan);
     const timeSpan = document.createElement("span");
@@ -293,20 +330,44 @@ async function renderMessageInstant(id, msg) {
     textDiv.style.whiteSpace = "pre-wrap";
     textDiv.style.marginLeft = "40px";
     textDiv.style.marginTop = "-7px";
-    let safeText = (msg.text || "");
-    safeText = safeText
+    let safeText = (msg.text || "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
     safeText = safeText.replace(
-        /&lt;i class="([^"]*(?:fa|bi)[^"]+)"&gt;&lt;\/i&gt;/g,
-        '<i class="$1"></i>'
+        /&lt;i\s+class="([^"]*(?:fa|bi)[^"]+)"(?:\s+style="([^"]*)")?(?:\s+title="([^"]*)")?\s*&gt;&lt;\/i&gt;/g,
+        (match, cls, style, title) => {
+            let attrs = `class="${cls}"`;
+            if (style) attrs += ` style="${style}"`;
+            if (title) attrs += ` title="${title}"`;
+            return `<i ${attrs}></i>`;
+        }
+    );
+    safeText = safeText.replace(
+        /&lt;p\s+style="color:\s*([^";]+)\s*;"\s*&gt;([\s\S]*?)&lt;\/p&gt;/gi,
+        (match, color, content) => {
+            const safeColor = color.replace(/[^a-zA-Z0-9#(),.%\s]/g, "");
+            return `<p style="color:${safeColor}">${content}</p>`;
+        }
     );
     safeText = safeText.replace(/\n/g, "<br>");
     const mentionRegex = /@([^\s<]+)/g;
     safeText = safeText.replace(mentionRegex, (match, name) => {
-        const isSelfMention = currentName && (currentName.toLowerCase() === name.toLowerCase() ||
-            currentName.toLowerCase() === name.toLowerCase().replace(" 💎", ""));
+        const lower = name.toLowerCase();
+        if (
+            lower === "support" &&
+            currentPath &&
+            currentPath.startsWith("messages/") &&
+            (isDev || isOwner || isTester)
+        ) {
+            return `<span class="mention-self">@support</span>`;
+        }
+        const isSelfMention =
+            currentName &&
+            (
+                currentName.toLowerCase() === lower ||
+                currentName.toLowerCase() === lower.replace(" 💎","")
+            );
         const cls = isSelfMention ? "mention-self" : "mention";
         return `<span class="${cls} mention-user" data-name="${name}">@${name}</span>`;
     });
@@ -488,8 +549,8 @@ async function renderMessageInstant(id, msg) {
             else if (senderIsHAdmin) badgeText = "HADMIN";
             else if (senderIsAdmin) badgeText = "ADMN";
             const picVal = picSnap.exists() ? picSnap.val() : 0;
-            const picIndex = (picVal >= 0 && picVal <= 13) ? picVal : 0;
-            profilePic.src = profilePics[picIndex];
+            const picIndex = (picVal >= 0 && picVal < profilePics.length) ? picVal : 0;
+            profilePic.src = profilePics[picIndex] + "?t=" + Date.now();
             nameSpan.textContent = displayName;
             nameSpan.style.color = color;
             const openProfile = () => {
@@ -783,13 +844,13 @@ async function renderMessageInstant(id, msg) {
     try {
         const mentionedYou = messageMentionsYou(msg.text);
         if (mentionedYou && msg.sender !== currentUser.uid && mentionToggle.checked) {
+            const alreadyViewing =
+                currentPath &&
+                currentPath === `messages/${currentPath?.split("/")[1]}`;
             const mentionRef = ref(db, `metadata/${currentUser.uid}/mentions/${id}`);
             get(mentionRef).then((snapshot) => {
                 const data = snapshot.val();
                 if (!data || data.seen === false) {
-                    if (currentPath && currentPath.startsWith("messages/")) {
-                        const channelName = currentPath.split("/")[1];
-                    }
                     mentionNotif.style.display = "inline";
                     mentionNotif.dataset.msgid = id;
                     if (!data) {
@@ -800,12 +861,20 @@ async function renderMessageInstant(id, msg) {
                     }
                     (async () => {
                         const nm = await getDisplayName(msg.sender);
-                        mentionNotif.textContent = `You Were Mentioned By ${nm}!`;
+                        mentionNotif.textContent =
+                            `You Were Mentioned By ${nm}!`;
                         mentionNotif.animate(
-                            [{ opacity: 0 }, { opacity: 1 }, { opacity: 0.5 }, { opacity: 1 }],
+                            [
+                                { opacity: 0 },
+                                { opacity: 1 },
+                                { opacity: 0.5 },
+                                { opacity: 1 }
+                            ],
                             { duration: 1000 }
                         );
-                        playNotificationSound()
+                        if (!alreadyViewing) {
+                            playNotificationSound();
+                        }
                     })();
                 }
             });
@@ -870,17 +939,30 @@ async function attachMessageListeners(msgRef) {
     detachCurrentMessageListeners();
     currentMsgRef = msgRef;
     chatLog.innerHTML = "";
-    const snapshot = await get(msgRef);
-    const msgs = snapshot.exists() ? snapshot.val() : {};
-    const entries = Object.entries(msgs).sort((a, b) => a[1].timestamp - b[1].timestamp);
-    const renderPromises = entries.map(([id, msg]) => renderMessageInstant(id, msg));
-    const createdDivs = await Promise.all(renderPromises);
-    createdDivs.forEach(d => { if (d) chatLog.appendChild(d); });
+    oldestLoadedTimestamp = null;
+    hasMoreMessages = true;
+    const initialQuery = query(
+        msgRef,
+        orderByChild("timestamp"),
+        limitToLast(PAGE_SIZE)
+    );
+    const snapshot = await get(initialQuery);
+    if (!snapshot.exists()) return;
+    const msgs = snapshot.val();
+    const entries = Object.entries(msgs)
+        .sort((a, b) => a[1].timestamp - b[1].timestamp);
+    oldestLoadedTimestamp = entries[0][1].timestamp;
+    for (let i = entries.length - 1; i >= 0; i--) {
+        const [id, msg] = entries[i];
+        const div = await renderMessageInstant(id, msg);
+        if (div) chatLog.insertBefore(div, chatLog.firstChild);
+    }
     scrollToBottom(true);
     currentListeners.added = onChildAdded(msgRef, async snap => {
         if (msgRef !== currentMsgRef) return;
         const key = snap.key;
         const val = snap.val();
+        if (val.timestamp <= oldestLoadedTimestamp) return;
         if (!document.getElementById("msg-" + key)) {
             const newDiv = await renderMessageInstant(key, val);
             if (!newDiv) return;
@@ -896,10 +978,8 @@ async function attachMessageListeners(msgRef) {
                 }
             }
             if (!inserted) chatLog.appendChild(newDiv);
-            const mentionsYou = messageMentionsYou(val.text);
-            if (!mentionsYou && autoScrollEnabled) {
+            if (autoScrollEnabled) {
                 scrollToBottom(true);
-            } else {
             }
         }
     });
@@ -915,19 +995,32 @@ async function attachMessageListeners(msgRef) {
             const textDiv = el.querySelector("div:nth-child(3)");
             const editedSpan = el.querySelector(".edited-label");
             const updatedMsg = snap.val();
-            let safeText = (updatedMsg.text || "");
-            safeText = safeText
+            let safeText = (updatedMsg.text || "")
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;");
             safeText = safeText.replace(
-                /&lt;i class="([^"]*(?:fa|bi)[^"]+)"&gt;&lt;\/i&gt;/g,
-                '<i class="$1"></i>'
+                /&lt;i\s+class="([^"]*(?:fa|bi)[^"]+)"(?:\s+style="([^"]*)")?(?:\s+title="([^"]*)")?\s*&gt;&lt;\/i&gt;/g,
+                (match, cls, style, title) => {
+                    let attrs = `class="${cls}"`;
+                    if (style) attrs += ` style="${style}"`;
+                    if (title) attrs += ` title="${title}"`;
+                    return `<i ${attrs}></i>`;
+                }
+            );
+            safeText = safeText.replace(
+                /&lt;p\s+style="color:\s*([^";]+)\s*;"\s*&gt;([\s\S]*?)&lt;\/p&gt;/gi,
+                (match, color, content) => {
+                    const safeColor = color.replace(/[^a-zA-Z0-9#(),.%\s]/g, "");
+                    return `<p style="color:${safeColor}">${content}</p>`;
+                }
             );
             safeText = safeText.replace(/\n/g, "<br>");
             const mentionRegex = /@([^\s<]+)/g;
             safeText = safeText.replace(mentionRegex, (match, name) => {
-                const isSelfMention = currentName && (currentName.toLowerCase() === name.toLowerCase() ||
+                const isSelfMention =
+                    currentName &&
+                    (currentName.toLowerCase() === name.toLowerCase() ||
                     currentName.toLowerCase() === name.toLowerCase().replace(" 💎", ""));
                 const cls = isSelfMention ? "mention-self" : "mention";
                 return `<span class="${cls}">@${name}</span>`;
@@ -1385,25 +1478,26 @@ onAuthStateChanged(auth, async user => {
     usernameSpan.style.color = DNC;
     const pfpSnap = await get(ref(db, `users/${user.uid}/profile/pic`));
     const pfpIndex = pfpSnap.exists() ? pfpSnap.val() : 0;
-    const profilePics = [
-        "/pfps/1.jpeg",
-        "/pfps/2.jpeg",
-        "/pfps/3.jpeg",
-        "/pfps/4.jpeg",
-        "/pfps/5.jpeg",
-        "/pfps/6.jpeg",
-        "/pfps/7.jpeg",
-        "/pfps/8.jpeg",
-        "/pfps/9.jpeg",
-        "/pfps/10.jpeg",
-        "/pfps/11.jpeg",
-        "/pfps/12.jpeg",
-        "/pfps/13.jpeg",
-        "/pfps/14.jpeg"
-    ];
+    let profilePics = [];
+    async function loadProfilePics() {
+        const pfpDate = Date.now();
+        try {
+            const res = await fetch(`https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/index.json?t=${pfpDate}`);
+            const files = await res.json();
+            profilePics = files.map(file => `https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/${file}`);
+        } catch (e) {
+            console.error("Failed To Load Profile Pics:", e);
+            profilePics = [`https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/1.jpeg?t=${pfpDate}`];
+        }
+    }
+    await loadProfilePics();
     const sidebarPfp = document.getElementById("sidebarPfp");
     if (sidebarPfp) {
-        sidebarPfp.src = profilePics[pfpIndex];
+        const safeIndex =
+            pfpIndex >= 0 && pfpIndex < profilePics.length
+                ? pfpIndex
+                : 0;
+        sidebarPfp.src = profilePics[safeIndex] + "?t=" + Date.now();    
     }
 });
 async function loadAllUsernames() {
@@ -1458,6 +1552,37 @@ chatInput.addEventListener("input", () => {
 });
 function renderMentionMenu(names) {
     mentionMenu.innerHTML = "";
+    const supportItem = document.createElement("div");
+    supportItem.className = "mention-item";
+    supportItem.style.padding = "5px 8px";
+    supportItem.style.cursor = "pointer";
+    supportItem.style.borderBottom = "1px solid rgb(51,51,51)";
+    supportItem.style.display = "flex";
+    supportItem.style.justifyContent = "space-between";
+    supportItem.style.alignItems = "center";
+    const left = document.createElement("span");
+    left.textContent = "@support";
+    const right = document.createElement("span");
+    right.textContent = "Request Support From Staff";
+    right.style.fontSize = "0.75em";
+    right.style.color = "#888";
+    supportItem.appendChild(left);
+    supportItem.appendChild(right);
+    supportItem.onmouseenter = () => supportItem.style.background = "#333";
+    supportItem.onmouseleave = () => supportItem.style.background = "transparent";
+    supportItem.onclick = () => {
+        const start = triggerIndex;
+        const end = chatInput.selectionStart;
+        const before = chatInput.value.substring(0, start);
+        const after = chatInput.value.substring(end);
+        const insert = "@support ";
+        chatInput.value = before + insert + after;
+        const newPos = before.length + insert.length;
+        chatInput.selectionStart = chatInput.selectionEnd = newPos;
+        mentionMenu.style.display = "none";
+        mentionActive = false;
+    };
+    mentionMenu.appendChild(supportItem);
     names.forEach(name => {
         const item = document.createElement("div");
         item.textContent = name;
