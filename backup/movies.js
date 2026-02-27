@@ -1,3 +1,5 @@
+import { auth, db } from "/firebase.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 let BACKEND = `${a}`;
 let applyBK = `${a}`;
 let MOVIE_CACHE = [];
@@ -13,6 +15,15 @@ document.getElementById("applyFile").addEventListener("change", () => {
         label.innerText = "";
     }
 });
+function sanitizeUsername(name) {
+    if (!name) return "User";
+    return name
+        .normalize("NFKD")
+        .replace(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu, "")
+        .replace(/\s+/g, "")
+        .replace(/[^\w-]/g, "")
+        .trim() || "User";
+}
 async function uploadApply() {
     const file = document.getElementById("applyFile").files[0];
     if (!file) return showError("Choose A File");
@@ -34,14 +45,30 @@ async function uploadApply() {
         const start = i * chunkSize;
         const end = Math.min(start + chunkSize, file.size);
         const chunk = file.slice(start, end);
+        const currentUser = auth.currentUser;
+        let displayName = "User";
+        let uid = "unknown";
+        if (currentUser) {
+            uid = currentUser.uid;
+            try {
+                const snap = await get(ref(db,"users/" + uid + "/profile/displayName"));
+                if (snap.exists()) {
+                    displayName = sanitizeUsername(snap.val());
+                }
+            } catch (err) {
+                console.error("Failed To Fetch DisplayName:", err);
+            }
+        }
         const res = await fetch(uploadURL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/octet-stream",
-                "fileId": fileId,
-                "chunkIndex": i,
-                "totalChunks": totalChunks,
-                "filename": file.name,
+                fileId: fileId,
+                chunkIndex: i,
+                totalChunks: totalChunks,
+                filename: file.name,
+                uploadedBy: displayName,
+                "x-user-id": uid,
                 "ngrok-skip-browser-warning": "true"
             },
             body: chunk
@@ -100,28 +127,64 @@ async function loadMovies() {
             return;
         }
         MOVIE_CACHE = data.videos;
-        renderMovies(data.videos);
+        await renderMovies(data.videos);
     } catch (e) {
         showError("Failed To Load Movies, Check Server Status")
         box.innerHTML = "Could Not Reach Server.";
     }
 }
-function renderMovies(list) {
+async function renderMovies(list) {
     const box = document.getElementById("movies");
+    box.innerHTML = "Loading...";
     box.innerHTML = "";
-    list.forEach(v => {
+    for (const v of list) {
         const dlURL = `${BACKEND}/download/x9a7b2/${v.name}`;
+        let uploaderName = "User";
+        if (v.uploadedBy && v.uploadedBy !== "") {
+            try {
+                const snap = await get(
+                    ref(db, "users/" + v.uploadedBy + "/profile/displayName")
+                );
+                if (snap.exists()) {
+                    uploaderName = snap.val();
+                }
+            } catch (err) {
+                console.error("Failed To Fetch Uploader Name:", err);
+            }
+        }
         const div = document.createElement("div");
         div.className = "file-item";
         div.innerHTML = `
-            <b>${v.name}</b> — ${v.humanSize}<br><br>
-            <button class="button" onclick="openWatchPanel('${v.name}')">Watch</button>
+            <div style="display:inline-flex; width:100%;">
+                <span style="width:100%; text-align:center">
+                    <b>
+                        ${v.name}
+                    </b> 
+                    — 
+                    ${v.humanSize}
+                </span>
+                <span id="upByIcon" style="width:0; margin-left:-20px;">
+                    <i class="bi bi-question-circle" title="Uploaded By: @${uploaderName}">
+                    </i>
+                </span>
+            </div>
+            <br>
+            <br>
+            <button class="button" onclick="openWatchPanel('${v.name}')">
+                Watch
+            </button>
             <a href="${dlURL}">
-                <button class="button">Download</button>
+                <button class="button">
+                    Download
+                </button>
             </a>
+            <br>
+            <small id="upByTxt" style="display:none;">
+                Uploaded By: @${uploaderName}
+            </small>
         `;
         box.appendChild(div);
-    });
+    }
 }
 function filterMovies() {
     const term = document.getElementById("search").value.toLowerCase();
@@ -205,5 +268,10 @@ async function checkNetworkSpeed() {
         networkWarning.style.display = "block";
     }
 }
+window.openWatchPanel = openWatchPanel;
+window.closeWatchPanel = closeWatchPanel;
+window.loadMovies = loadMovies;
+window.filterMovies = filterMovies;
+window.uploadApply = uploadApply;
 checkNetworkSpeed();
 setInterval(checkNetworkSpeed, 5000);
