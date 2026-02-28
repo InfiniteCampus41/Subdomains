@@ -1,3 +1,4 @@
+import { db, auth, ref, onValue, get, onAuthStateChanged } from "./imports.js";
 let rightFtMsg = `Pissing Off Your Teachers Since 2024`;
 let leftFtMsg = `Made With All The Love We Are Legally Allowed To Give!`;
 const frameToday = new Date();
@@ -457,31 +458,40 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", updateHeaderFooterHeights);
 });
 const LOADER_CONFIG = {
-    mode: "auto", 
+    mode: "auto",
 };
 const loader = document.createElement("div");
 loader.id = "planet-loader";
 loader.innerHTML = `
     <div class="planet-wrapper">
-        <div class="ring ring1">
-        </div>
-        <div class="ring ring2">
-        </div>
-        <div class="ring ring3">
-        </div>
-        <div class="letter">
-            C
-        </div>
+        <div class="ring ring1"></div>
+        <div class="ring ring2"></div>
+        <div class="ring ring3"></div>
+        <div class="letter">C</div>
+    </div>
+    <div id="loader-maint-content" style="display:none; flex-direction:column; align-items:center; margin-top:20px;">
+        <div id="loader-maint-message" style="margin-bottom:15px; font-size:18px; text-align:center;"></div>
+        <a href="https://status.infinitecampus.xyz" id="loader-maint-btn" class="discord">Check Statuses</a>
     </div>
 `;
 document.body.prepend(loader);
+const maintContent = loader.querySelector("#loader-maint-content");
+const maintMessage = loader.querySelector("#loader-maint-message");
+const maintBtn = loader.querySelector("#loader-maint-btn");
+let isLoaded = false;
 function showLoader() {
-    if (!document.getElementById("planet-loader")) {
-        document.body.prepend(loader);
-    }
-    loader.style.top = '60px';
     loader.style.display = "flex";
+    loader.style.flexDirection = "column";
     loader.style.opacity = "1";
+    loader.style.color = "white";
+    loader.style.top = "60px";
+}
+function hideLoader() {
+    loader.style.opacity = "0";
+    loader.style.top = "60px";
+    setTimeout(() => {
+        loader.style.display = "none";
+    }, 600);
 }
 function showPxyLoader() {
     if (!document.getElementById("planet-loader")) {
@@ -498,18 +508,77 @@ function hidePxyLoader() {
         loader.style.display = "none";
     }, 600);
 }
-function hideLoader() {
-    loader.style.opacity = "0";
-    loader.style.top = '60px';
-    setTimeout(() => {
-        loader.style.display = "none";
-    }, 600);
+let bypassLoader = false;
+function applyLoaderMode(mode, message = "") {
+    LOADER_CONFIG.mode = mode || "auto";
+    if (bypassLoader && (mode === "maint" || mode === "infinite" || mode === "time")) {
+        hideLoader();
+        return;
+    }
+    if (mode === "maint") {
+        showLoader();
+        maintContent.style.display = "flex";
+        maintMessage.textContent = message || "Maintenance Mode Enabled";
+    }
+    else if (mode === "infinite") {
+        maintContent.style.display = "none";
+        showLoader();
+    }
+    else if (mode === "time") {
+        maintContent.style.display = "none";
+        showLoader();
+        setTimeout(hideLoader, 3000);
+    }
+    else if (mode === "auto") {
+        if (isLoaded) {
+            hideLoader();
+        } else {
+            maintContent.style.display = "none";
+            showLoader();
+        }
+    }
 }
-if (LOADER_CONFIG.mode === "auto") {
-    window.addEventListener("load", hideLoader);
-}
-else if (LOADER_CONFIG.mode === "time") {
-    setTimeout(hideLoader, LOADER_CONFIG.duration);
-}
-else if (LOADER_CONFIG.mode === "infinite") {
-}
+applyLoaderMode("auto");
+window.addEventListener("load", () => {
+    isLoaded = true;
+    if (LOADER_CONFIG.mode === "auto") {
+        hideLoader();
+    }
+});
+const loaderModeRef = ref(db, "/site/loader/mode");
+const loaderMessageRef = ref(db, "/site/loader/message");
+let currentMessage = "";
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        bypassLoader = false;
+        return;
+    }
+    try {
+        const profileSnap = await get(ref(db, `/users/${user.uid}/profile`));
+        const profile = profileSnap.val();
+        if (profile && (profile.isOwner || profile.isTester || profile.isCoOwner || profile.isDev)) {
+            bypassLoader = true;
+            hideLoader();
+        } else {
+            bypassLoader = false;
+        }
+    } catch (err) {
+        console.error("Role Check Failed:", err);
+        bypassLoader = false;
+    }
+});
+onValue(loaderMessageRef, (snap) => {
+    currentMessage = snap.val() || "";
+    if (LOADER_CONFIG.mode === "maint") {
+        maintMessage.textContent = currentMessage;
+    }
+    if (LOADER_CONFIG.mode === "auto") {
+        maintMessage.textContent = currentMessage;
+    }
+});
+onValue(loaderModeRef, (snap) => {
+    const mode = snap.val() || "auto";
+    applyLoaderMode(mode, currentMessage);
+});
+window.showPxyLoader = showPxyLoader;
+window.hidePxyLoader = hidePxyLoader;

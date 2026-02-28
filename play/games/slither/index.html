@@ -1,0 +1,149 @@
+<html>
+    <head>
+        <title>
+            Infinite Campus
+        </title>
+        <script src="https://26515722-282596139816136697.preview.editmysite.com/uploads/b/7547235-562404422326578714/files/offlineClient.js">
+        </script>
+        <meta charset="UTF-8">
+	    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+	    <meta content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" name="viewport">
+		<meta content="true" name="HandheldFriendly">
+		<meta content="yes" name="mobile-web-app-capable">
+        <style>
+            * {
+                padding:0;
+                margin:0;
+            }
+            html, body, canvas {
+                touch-action: none;
+            }
+            canvas {
+                touch-action:none;
+                -ms-touch-action: none;
+            }
+            html, body {
+                padding:0;
+                margin: 0;
+                overflow: hidden;
+                background: black;
+                color:white;
+                touch-action:none;
+                -ms-touch-action: none;
+            }
+            #button {
+                display:none;
+            }
+            .imgb_vis {
+                animation: imgb-animation 7s linear;
+            }
+            @font-face {
+                font-family: Oswald Regular;
+                src: url(https://26515722-282596139816136697.preview.editmysite.com/uploads/b/7547235-562404422326578714/files/oswald_regular.ttf);
+            }
+            @keyframes imgb-animation {
+                10% {
+                    transform: translateX(0px);
+                }
+                20% {
+                    transform: translateX(100px);
+                }
+                90% {
+                    transform: translateX(100px);
+                }
+                100% {
+                    transform: translateX(0px);
+                }
+            }
+        </style>
+    </head>
+    <body dir="ltr" style="cursor: auto;"> 
+	    <div id="fb-root">
+        </div>
+	    <script>
+            let isGameLoaded = false;
+            function On_GameLoaded() {
+                isGameLoaded = true;
+            }
+	        function Show_Ads() {
+            }
+	        (function() {
+		        if (window.location.protocol.substr(0, 4) ==="file")
+		        { 
+                    alert("Exported Games Won't Work Until You Upload Them. (When Running On The file:// Protocol, Browsers Block Many Features From Working For Security Reasons.)");
+		        }
+	        })();
+	    </script>
+	    <div id="c2canvasdiv" style="width: 1262px; height: 928px; margin-left: 0px; margin-top: 0px;">
+		    <canvas height="928" id="c2canvas" width="1262" style="width: 1262px; height: 928px;">
+			    <h1>
+                    Your Browser Does Not Support HTML5. Try Upgrading Your Browser To A Newer Version.  
+                    <a href="http://www.whatbrowser.org">
+                        What Is A Browser?
+                    </a>
+			        <br>
+                    <br>
+                    <a href="http://www.microsoft.com/windows/internet-explorer/default.aspx">
+                        Internet Explorer
+                    </a>
+                    <br>
+			        <a href="http://www.mozilla.com/firefox/">
+                        Firefox
+                    </a>
+                    <br>
+			        <a href="http://www.google.com/chrome/">
+                        Chrome
+                    </a>
+                    <br>
+			        <a href="http://www.apple.com/safari/download/">
+                        Safari
+                    </a>
+                </h1>
+		    </canvas>
+	        <input type="text" id="" autocomplete="off" placeholder="Your Name Here" title="" spellcheck="false" style="position: absolute; top: 432px; left: 436px; width: 373px; height: 35px; border: none; background-color: rgba(0, 0, 0, 0); color: rgb(255, 255, 255); font-size: 20px; font-family: Oswald; padding: 10px; border-radius: 100px;">
+        </div>	
+	    <script src="https://26515722-282596139816136697.preview.editmysite.com/uploads/b/7547235-562404422326578714/files/jquery-2.1.1.min.js">
+        </script>
+        <script src="https://26515722-282596139816136697.preview.editmysite.com/uploads/b/7547235-562404422326578714/files/c2runtime.js">
+        </script>
+        <script>
+		    jQuery(document).ready(function () {			
+			    cr_createRuntime("c2canvas");
+		    });
+		    function onVisibilityChanged() {
+			    if (document.hidden || document.mozHidden || document.webkitHidden || document.msHidden)
+				    cr_setSuspended(true);
+			    else
+				    cr_setSuspended(false);
+		    };
+		    document.addEventListener("visibilitychange", onVisibilityChanged, false);
+		    document.addEventListener("mozvisibilitychange", onVisibilityChanged, false);
+		    document.addEventListener("webkitvisibilitychange", onVisibilityChanged, false);
+		    document.addEventListener("msvisibilitychange", onVisibilityChanged, false);
+		    function OnRegisterSWError(e) {
+			    console.warn("Failed to register service worker: ", e);
+		    };
+		    window.C2_RegisterSW = function C2_RegisterSW() {
+			    if (!navigator.serviceWorker)
+				    return;
+			    try {
+				    navigator.serviceWorker.register("sw.js", { scope: "./" })
+				    .then(function (reg)
+				    {
+					    console.log("Registered Service Worker On " + reg.scope);
+				    })
+				    .catch(OnRegisterSWError);
+			    }
+			    catch (e) {
+				    OnRegisterSWError(e);
+			    }
+		    };
+        </script> 
+        <script>
+            gadgets.util.runOnLoadHandlers();
+        </script>
+        <script>
+            window.google.csi.tickDl();
+        </script>
+    </body>
+</html>

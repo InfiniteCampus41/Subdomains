@@ -1,6 +1,4 @@
-import { ref, push, onValue, remove, get, update } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-import { auth, db } from "./firebase.js";
+import { auth, db, ref, push, onValue, remove, get, update, onAuthStateChanged } from "./imports.js";
 const noteInput = document.getElementById('noteInput');
 const saveBtn = document.getElementById('saveBtn');
 const notesContainer = document.getElementById('notesContainer');
@@ -64,10 +62,20 @@ onValue(ref(db, 'notes'), (snapshot) => {
         const div = document.createElement('div');
         div.className = 'note';
         div.innerHTML = `
-            <div class="btxt" data-key="${key}">${note.text}</div>
-            <button class="edit-btn button" data-key="${key}" style="display:none"><i class='bi bi-pencil-square'></i></button>
-            <button class="save-edit-btn button" data-key="${key}" style="display:none">Save</button>
-            <button class="delete-btn button" data-key="${key}" style="display:none"><i class='bi bi-trash-fill'></i></button>
+            <div class="btxt" data-key="${key}">
+                ${note.text}
+            </div>
+            <button class="edit-btn button" data-key="${key}" style="display:none">
+                <i class='bi bi-pencil-square'>
+                </i>
+            </button>
+            <button class="save-edit-btn button" data-key="${key}" style="display:none">
+                Save
+            </button>
+            <button class="delete-btn button" data-key="${key}" style="display:none">
+                <i class='bi bi-trash-fill'>
+                </i>
+            </button>
         `;
         notesContainer.appendChild(div);
     });

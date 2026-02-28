@@ -28,5 +28,71 @@
         "img": "/games/eaglercraft/splash.jpeg",
         "place": 5,
         "url": "/games/eaglercraft/index.html"
+    },
+    {
+        "game": "Super Mario 64",
+        "img": "/games/mario64/favicon.ico",
+        "place": 6,
+        "url": "/games/mario64/index.html"
+    },
+    {
+        "game": "Snake",
+        "img": "/games/slither/favicon.ico",
+        "place": 7,
+        "url": "/games/slither/index.html"
+    },
+    {
+        "game": "Pokemon Emerald",
+        "img": "/games/pokeemr/favicon.ico",
+        "place": 8,
+        "url": "/games/pokeemr/index.html"
+    },
+    {
+        "game": "Five Nights At Freddy's",
+        "img": "/games/fnaf1/favicon.ico",
+        "place": 9,
+        "url": "/games/fnaf1/index.html"
+    },
+    {
+        "game": "ULTRAKILL",
+        "img": "/games/ultrakill/favicon.ico",
+        "place": 10,
+        "url": "/games/ultrakill/index.html"
+    },
+    {
+        "game": "Iron Lung",
+        "img": "/games/ironlung/favicon.ico",
+        "place": 10,
+        "url": "/games/ironlung/index.html"
+    },
+    {
+        "game": "Hollow Knight",
+        "img": "/games/hollowknight/favicon.ico",
+        "place": 11,
+        "url": "/games/hollowknight/index.html"
+    },
+    {
+        "game": "Five Nights At Epstien's",
+        "img": "/games/fnae/favicon.ico",
+        "place": 12,
+        "url": "/games/fnae/index.html"
+    },
+    {
+        "game": "Buckshot Roulette",
+        "img": "/games/bsr/favicon.ico",
+        "place": 13,
+        "url": "/games/bsr/index.html"
+    },
+    {
+        "game": "The Legend of Zelda Ocarina of Time",
+        "img": "/games/oot/favicon.ico",
+        "place": 14,
+        "url": "/games/oot/index.html"
+    },
+    {
+        "game": "Run 3",
+        "img": "/games/run3/favicon.ico",
+        "place": 15,
+        "url": "/games/run3/index.html"
     }
 ]
