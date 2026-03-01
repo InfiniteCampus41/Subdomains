@@ -19,7 +19,7 @@
     },
     {
         "game": "Slope",
-        "img": "/games/slope/title.png",
+        "img": "/games/slope/favicon.ico",
         "place": 4,
         "url": "/games/slope/index.html"
     },
@@ -94,5 +94,41 @@
         "img": "/games/run3/favicon.ico",
         "place": 15,
         "url": "/games/run3/index.html"
+    },
+    {
+        "game": "Tunnel Rush",
+        "img": "/games/tunnelrush/favicon.ico",
+        "place": 16,
+        "url": "/games/tunnelrush/index.html"
+    },
+    {
+        "game": "Tomb Of The Mask",
+        "img": "/games/totm/favicon.ico",
+        "place": 17,
+        "url": "/games/totm/index.html"
+    },
+    {
+        "game": "The Legend Of Zelda Majora's Mask",
+        "img": "/games/tlozmjm/favicon.ico",
+        "place": 18,
+        "url": "/games/tlozmjm/index.html"
+    },
+    {
+        "game": "Terraria",
+        "img": "/games/terraria/favicon.ico",
+        "place": 19,
+        "url": "/games/terraria/index.html"
+    },
+    {
+        "game": "Retro Bowl",
+        "img": "/games/retrobowl/favicon.ico",
+        "place": 20,
+        "url": "/games/retrobowl/index.html"
+    },
+    {
+        "game": "Pokemon Red",
+        "img": "/games/pokered/favicon.ico",
+        "place": 21,
+        "url": "/games/pokered/index.html"
     }
 ]
