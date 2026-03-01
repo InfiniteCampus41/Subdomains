@@ -130,5 +130,17 @@
         "img": "/games/pokered/favicon.ico",
         "place": 21,
         "url": "/games/pokered/index.html"
+    },
+    {
+        "game": "Madalin Stunt Cars 2",
+        "img": "/games/msc2/favicon.ico",
+        "place": 22,
+        "url": "/games/msc2/index.html"
+    },
+    {
+        "game": "Getting Over It",
+        "img": "/games/goi/favicon.ico",
+        "place": 23,
+        "url": "/games/goi/index.html"
     }
 ]
