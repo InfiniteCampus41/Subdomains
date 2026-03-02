@@ -24,10 +24,10 @@
         "url": "/games/slope/index.html"
     },
     {
-        "game": "Eaglercraft",
-        "img": "/games/eaglercraft/splash.jpeg",
+        "game": "Eaglercraft (1.12.2)",
+        "img": "/games/eg1/favicon.ico",
         "place": 5,
-        "url": "/games/eaglercraft/index.html"
+        "url": "/games/eg1/index.html"
     },
     {
         "game": "Super Mario 64",
@@ -142,5 +142,47 @@
         "img": "/games/goi/favicon.ico",
         "place": 23,
         "url": "/games/goi/index.html"
+    },
+    {
+        "game": "A Difficult Game About Climbing",
+        "img": "/games/adgac/favicon.ico",
+        "place": 24,
+        "url": "/games/adgac/index.html"
+    },
+    {
+        "game": "Angry Birds",
+        "img": "/games/abirds/favicon.ico",
+        "place": 25,
+        "url": "/games/abirds/index.html"
+    },
+    {
+        "game": "Basketball Stars",
+        "img": "/games/bkstars/favicon.ico",
+        "place": 26,
+        "url": "/games/bkstars/index.html"
+    },
+    {
+        "game": "BitLife",
+        "img": "/games/bitlife/favicon.ico",
+        "place": 27,
+        "url": "/games/bitlife/index.html"
+    },
+    {
+        "game": "Block Blast",
+        "img": "/games/bblast/favicon.ico",
+        "place": 28,
+        "url": "/games/bblast/index.html"
+    },
+    {
+        "game": "Cookie Clicker",
+        "img": "/games/cclick/favicon.ico",
+        "place": 29,
+        "url": "/games/cclick/index.html"
+    },
+    {
+        "game": "Crossy Road",
+        "img": "/games/crossyroad/favicon.ico",
+        "place": 30,
+        "url": "/games/crossyroad/index.html"
     }
 ]
