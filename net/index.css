@@ -607,11 +607,11 @@ div.user[data-vip="diamond"]::after {
 #logo {
 	position: absolute;
 	display: block;
-	width: 150px;
-	height: 50px;
+	width: 256px;
+	height: 100px;
 	left: 20px;
 	background-image: url("res/logo.png");
-	background-size: 150px 50px;
+	background-size: 100px;
 	background-repeat: no-repeat;
 	background-position: 0px 0px;
 }
@@ -1073,7 +1073,7 @@ div.user[data-vip="diamond"]::after {
 	width: 240px;
 	height: 24px;
 	right: 0px;
-	bottom: 0px;
+	bottom: -20px;
 	color: #808080;
 	content: "Your ultimate internet hub!";
 	font-size: 18px;
