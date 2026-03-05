@@ -438,6 +438,10 @@ body {
     position: relative;
     transition:0.3s all;
 }
+.edit-input {
+    width:95%;
+    text-align:center;
+}
 #editMoviesContainer {
     right:-500px;
     display:none;
@@ -762,6 +766,17 @@ main {
         margin:0px auto;
         margin-bottom:4px;
     }
+    .mbInp3 {
+        width:55% !important;
+        margin:0px auto;
+        margin-bottom:4px;
+    }
+    .meta {
+        flex-direction:column;
+    }
+    .meta span:not(#person span) {
+        text-align:center;
+    }
     .mobile-menu-btn {
         display:block;
     }
@@ -834,6 +849,12 @@ main {
         width:45% !important;
         margin:-5px auto;
     }
+    .meta {
+        flex-direction:row;
+    }
+    .meta span:not(#person span) {
+        text-align:right;
+    }
     .mobile-menu-btn{
         display:none;
     }
@@ -862,14 +883,12 @@ main {
 .meta {
     display: flex;
     align-items:center;
-    flex-direction: row;
     gap: 10px;
     overflow: auto;
     color:white;
 }
 .meta span:not(#person span) {
     width:100%;
-    text-align:right;
 }
 #minute {
     width: 120px;

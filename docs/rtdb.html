@@ -37,10 +37,12 @@
     {
         "rules": {
             ".read": "
+                auth != null &&
                 root.child('users').child(auth.uid).child('profile').child('isOwner').val() === true ||
                 root.child('users').child(auth.uid).child('profile').child('isTester').val() === true
             ",
             ".write": "
+                auth != null &&
                 root.child('users').child(auth.uid).child('profile').child('isOwner').val() === true ||
                 root.child('users').child(auth.uid).child('profile').child('isTester').val() === true
             ",
@@ -371,12 +373,14 @@
             "private": {
                 "$uid1": {
                     "$uid2": {
+                        ".indexOn": ["timestamp", "uid"],
                         ".read": "
           	                auth != null && (
           		                root.child('users').child(auth.uid).child('profile').child('verified').val() === true
           	                ) && 
                             (
-                                auth.uid === $uid1 || auth.uid === $uid2
+                                auth.uid === $uid1 || 
+                                auth.uid === $uid2
                             )
                         ",
                         "$msg": {
@@ -406,7 +410,9 @@
                 "$iconNum": {
                     "$voteId": {
                         ".read":true,
-                        ".write": "auth != null"
+                        ".write": "
+                            auth != null
+                        "
                     }
                 }
             },
@@ -557,12 +563,9 @@
                         "dUsername": {
                             ".read": true,
                             ".write": "
-            	                auth != null && (
-              	                    auth.uid === $uid ||
+            	                auth != null &&
               	                    root.child('users').child(auth.uid).child('profile').child('isOwner').val() === true ||
               	                    root.child('users').child(auth.uid).child('profile').child('isTester').val() === true
-                                ) &&
-                                newData.val().length <= 50
                             "  
                         },
                         "mileStone": {
