@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet type="text/css" href="index.css" ?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+	<title>NettleWeb</title>
+	<foreignObject x="0" y="0" width="1280" height="720"><div xmlns="http://www.w3.org/1999/xhtml">
+		<header>
+			<div id="logo"></div>
+			<div id="status"></div>
+			<div id="version"></div>
+			<input id="side-menu" type="checkbox" />
+			<label for="side-menu" id="hamb">Menu</label>
+			<nav>
+				<ul>
+					<li><button id="home-btn" type="button">Home</button></li>
+					<li><button id="game-btn" type="button">Games</button></li>
+					<li><button id="strm-btn" type="button">Videos</button></li>
+					<li><button id="apps-btn" type="button">Apps</button></li>
+					<li><button id="chat-btn" type="button">Chat</button></li>
+					<li><button id="info-btn" type="button">About &amp; FAQ</button></li>
+				</ul>
+			</nav>
+			<button id="accn-btn" type="button" title="Login"></button>
+			<button id="nmsg-btn" type="button" title="Notifications"></button>
+		</header>
+		<div id="loading">Loading...</div>
+		<div id="content">
+			<main id="content-page">
+				<h1>NettleWeb - Your ultimate internet hub!</h1>
+				<a href="https://nettleweb.com/" target="_blank" rel="noopener">Main Website</a>
+			</main>
+			<footer>
+				<div>
+					<div>
+						<a href="https://github.com/nettleweb" target="_blank" rel="noopener"><img src="res/github.svg" width="36" height="36" loading="lazy" decoding="async" draggable="false" alt="GitHub" title="GitHub" /></a>
+						<a href="https://discord.gg/djdH3kVd4v" target="_blank" rel="noopener"><img src="res/discord.svg" width="36" height="36" loading="lazy" decoding="async" draggable="false" alt="Discord" title="Discord" /></a>
+						<a href="https://www.youtube.com/@nettleweb" target="_blank" rel="noopener"><img src="res/youtube.svg" width="36" height="36" loading="lazy" decoding="async" draggable="false" alt="YouTube" title="YouTube" /></a>
+						<a href="https://www.facebook.com/nettleweb" target="_blank" rel="noopener"><img src="res/facebook.svg" width="36" height="36" loading="lazy" decoding="async" draggable="false" alt="Facebook" title="Facebook" /></a>
+						<a href="https://www.instagram.com/nettleweb" target="_blank" rel="noopener"><img src="res/instagram.svg" width="36" height="36" loading="lazy" decoding="async" draggable="false" alt="Instagram" title="Instagram" /></a>
+					</div>
+					<div>&#xa9;2025 NettleWeb Development Team; All rights reserved.</div>
+					<div>We are working hard to improve your user experience.</div>
+					<div><b>Liberty</b> - <b>Privacy</b> - <b>Community</b></div>
+				</div>
+				<div>
+					<h2>Support</h2>
+					<ul>
+						<li><a href="https://discord.gg/djdH3kVd4v" target="_blank" rel="noopener">Get help</a></li>
+						<li><a href="mailto:support@nettleweb.com" target="_blank" rel="noopener">Contact us</a></li>
+						<li><a href="https://nettleweb.com/reportbug" target="_blank" rel="noopener">Report an issue</a></li>
+					</ul>
+				</div>
+				<div>
+					<h2>Policies</h2>
+					<ul>
+						<li><a href="mailto:admin@nettleweb.com?subject=Report%20Content%20Abuse" target="_blank" rel="noopener">Report abuse</a></li>
+						<li><a href="https://nettleweb.com/privacy" target="_blank" rel="noopener">Privacy Policy</a></li>
+						<li><a href="https://nettleweb.com/terms" target="_blank" rel="noopener">Terms of Service</a></li>
+					</ul>
+				</div>
+			</footer>
+		</div>
+		<div id="error">Error Message</div>
+		<noscript><div>Error: This page could not function unless JavaScript is supported and enabled in your browser.</div></noscript>
+		<button id="install" type="button"><span>Install App</span></button>
+		<button id="settings" type="button" title="Settings"></button>
+		<div id="overlay"></div>
+		<div id="nwidget">
+			<h2>Notifications</h2>
+			<div id="notif"></div>
+			<button id="nclear" type="button">Clear All</button>
+		</div>
+		<div id="frame-view">
+			<div id="frame"></div>
+			<button id="frame-close" type="button" title="Close"></button>
+			<button id="frame-expand" type="button" title="Enter fullscreen"></button>
+		</div>
+		<script type="text/javascript" src="main.js" blocking="render"></script>
+	</div></foreignObject>
+</svg>
