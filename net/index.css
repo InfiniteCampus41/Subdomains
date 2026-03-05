@@ -1066,7 +1066,6 @@ div.user[data-vip="diamond"]::after {
 	background-repeat: no-repeat;
 	background-position: center;
 }
-
 #banner::after {
 	position: absolute;
 	display: block;
