@@ -184,5 +184,11 @@
         "img": "/games/crossyroad/favicon.ico",
         "place": 30,
         "url": "/games/crossyroad/index.html"
+    },
+    {
+        "game": "BuildNow.gg",
+        "img": "/games/buildnow/favicon.ico",
+        "place": 31,
+        "url": "/games/buildnow/index.html"
     }
 ]
