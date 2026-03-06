@@ -264,9 +264,9 @@ const a = "object"
   , dd = "eager"
   , de = "sync"
   , df = "image/jpeg"
-  , dg = "https://nettleweb.com"
+  , dg = "https://net.infinitecampus.xyz"
   , dh = "html5"
-  , di = "https://nettleweb.com/"
+  , di = "https://net.infinitecampus.xyz/"
   , dj = 'url("'
   , dk = "Failed to launch game. Message: "
   , dl = "img"
@@ -291,7 +291,7 @@ const a = "object"
   , dF = "/?m=1"
   , dG = "no-cache"
   , dH = "readystatechange"
-  , dI = "https://nettleweb.com/icon.png"
+  , dI = "https://net.infinitecampus.xyz/res/logo.png"
   , dJ = "__mf_version"
   , dK = "__secrets_"
   , dL = "_Zetta"
@@ -11801,7 +11801,7 @@ const a = "object"
                     he.removeAttribute(cs),
                     hg.removeAttribute(cs),
                     hf.style.display = da,
-                    hh.style.display = i,
+                    hh.style.display = "block",
                     hn.disabled = !1,
                     ho.disabled = !1,
                     hp.disabled = !1,
