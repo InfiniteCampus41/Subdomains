@@ -2113,7 +2113,7 @@ div.user[data-vip="diamond"]::after {
 
 #ufile {
 	position: absolute;
-	display: block;
+	display: block !important;
 	width: 30px;
 	height: 30px;
 	top: 5px;

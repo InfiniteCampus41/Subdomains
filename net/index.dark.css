@@ -160,6 +160,7 @@ footer,
 
 #ufile {
 	background-image: url("res/add-file-w.svg");
+	display:block !important;
 }
 
 #loadmore:hover,
