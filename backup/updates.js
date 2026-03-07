@@ -342,12 +342,12 @@ if (x3tfypage === '/InfiniteUpdaters.html') {
 	async function loadProfilePics() {
 		const pfpDate = Date.now();
 		try {
-			const res = await fetch(`/pfps/index.json?t=${pfpDate}`);
+			const res = await fetch(`https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/index.json?t=${pfpDate}`);
 			const files = await res.json();
-			profilePics = files.map(file => `/pfps/${file}?t=${pfpDate}`);
+			profilePics = files.map(file => `https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/${file}?t=${pfpDate}`);
 		} catch (e) {
 			console.error("Failed To Load Profile Pics:", e);
-			profilePics = [`/pfps/1.jpeg?t=${pfpDate}`];
+			profilePics = [`https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/1.jpeg?t=${pfpDate}`];
 		}
 	}
 	function slugify(text) {
