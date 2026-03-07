@@ -1,7 +1,6 @@
 @import url("common.css");
 @import url("lib/jsdos/js-dos.css");
 @import url("lib/emulatorjs/emulator.min.css");
-
 embed, ruffle-player {
 	position: absolute;
 	display: block;
@@ -10,7 +9,6 @@ embed, ruffle-player {
 	border: none;
 	overflow: hidden;
 }
-
 body>div {
 	position: absolute;
 	width: 100%;

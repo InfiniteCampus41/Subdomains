@@ -10,24 +10,20 @@
 			doc.addEventListener("readystatechange", callback, { passive: true });
 		});
 	}
-
 	const sid = new URLSearchParams(win.location.search).get("s");
 	const his = win.history;
 	const body = doc.body;
 	const parent = win.parent || win;
-
 	win.stop();
 	win.focus();
 	doc.title = "NettleWeb";
 	his.scrollRestoration = "manual";
 	his.replaceState(void 0, "", "/");
 	body.innerHTML = "Loading... (1)";
-
 	if (sid == null || sid.length < 2 || parent === win) {
-		body.innerHTML = "Error: Invalid session context";
+		body.innerHTML = "Error: Invalid Session Context";
 		return;
 	}
-
 	/** @param {string} url */
 	function loadJS(url) {
 		return new Promise((resolve, reject) => {
@@ -36,7 +32,6 @@
 			elem.type = "text/javascript";
 			elem.async = true;
 			elem.defer = true;
-
 			elem.onload = () => {
 				resolve(null);
 				elem.onload = null;
@@ -47,11 +42,9 @@
 				elem.onload = null;
 				elem.onerror = null;
 			};
-
 			body.appendChild(elem);
 		});
 	}
-
 	/** @param {string} url */
 	async function fetchBuf(url) {
 		const res = await fetch(url);
@@ -60,18 +53,14 @@
 
 		return new Uint8Array(await res.arrayBuffer());
 	}
-
 	/** @param {string} url */
 	async function loadPs2(url) {
 		body.innerHTML = "<canvas id=\"outputCanvas\" width=\"1280\" height=\"720\" tabIndex=\"1\"></canvas>";
-
 		const data = await fetchBuf(url);
 		if (url.startsWith("blob:"))
 			URL.revokeObjectURL(url);
-
 		const module = await (await import("/lib/playjs/Play.js")).default();
 		await module.ccall("initVm", "", [], []);
-
 		module.discImageDevice = {
 			getFileSize: () => data.byteLength,
 			isDone: () => true,
@@ -81,7 +70,6 @@
 		};
 		module.bootDiscImage("file.iso");
 	}
-
 	/** @param {string} url */
 	async function loadSwf(url) {
 		await loadJS("/lib/ruffle/ruffle.js");

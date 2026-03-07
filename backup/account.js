@@ -1,12 +1,17 @@
-import { auth, db, onAuthStateChanged, signOut, sendPasswordResetEmail, updateProfile, ref, get, set, update, onValue, sendEmailVerification, applyActionCode, confirmPasswordReset } from './imports.js';
+import { messaging, getToken, auth, db, onAuthStateChanged, signOut, sendPasswordResetEmail, updateProfile, ref, get, set, update, onValue, sendEmailVerification, applyActionCode, confirmPasswordReset } from './imports.js';
 const urlParams = new URLSearchParams(window.location.search);
 const mode = urlParams.get('mode');
 const oobCode = urlParams.get('oobCode');
 const continueUrl = urlParams.get('continueUrl') || "/InfiniteAccounts.html";
 const uid = urlParams.get("user");
+const notif = urlParams.get("notif");
 const settingsPage = document.getElementById('settingsPage');
 const profileView = document.getElementById('profileView');
 const authcontainer = document.getElementById('authContainer');
+const enableNotifBtn = document.getElementById('enableNotifBtn');
+if (Notification.permission === "granted") {
+    enableNotifBtn.style.setProperty("display", "none", "important");
+}
 let profileImages = [];
 async function loadProfileImages() {
     try {
@@ -18,7 +23,27 @@ async function loadProfileImages() {
         return [`https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps/1.jpeg?t=${Date.now()}`];
     }
 }
-if (mode) {
+if (notif) {
+    async function enableNotifications() {
+        const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+            const token = await getToken(messaging, {
+                vapidKey: "BFzJJQnddg7dRJlByA9q76_jhw5XHgSydywvChgLXI6a6jSUimHA3vhMLRS0VtBRMWl_EfZx6BSvNVtTdVbXhOg",
+                serviceWorkerRegistration: registration
+            });
+            const user = auth.currentUser;
+            if (user) {
+                set(ref(db, "pushTokens/" + user.uid + "/" + token), true);
+                showSuccess("Notifications Have Been Enabled");
+            } else {
+                window.location.href = 'InfiniteLogins.html';
+            }
+            window.location.href = 'InfiniteAccounts.html';
+        }
+    }
+    enableNotifications();
+} else if (mode) {
     authcontainer.style.display = 'block';
     settingsPage.style.display = 'none';
     const resetPasswordContainer = document.getElementById('resetPasswordContainer');

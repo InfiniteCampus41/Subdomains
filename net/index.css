@@ -1,5 +1,4 @@
 @import url("common.css");
-
 header {
 	position: absolute;
 	display: block;
@@ -11,7 +10,6 @@ header {
 	background: #f0f0f0;
 	user-select: none;
 }
-
 header>nav {
 	position: absolute;
 	display: block;
@@ -22,14 +20,12 @@ header>nav {
 	right: 85px;
 	border-right: 2px solid #808080;
 }
-
 header>nav>ul, #game-category>ul {
 	position: relative;
 	display: block;
 	width: fit-content;
 	height: fit-content;
 }
-
 header>nav>ul>li, #game-category>ul>li {
 	position: relative;
 	display: inline-block;
@@ -39,7 +35,6 @@ header>nav>ul>li, #game-category>ul>li {
 	padding: 3px 0px;
 	vertical-align: top;
 }
-
 header>nav>ul>li>button, #game-category>ul>li>button {
 	position: relative;
 	display: block;
@@ -53,20 +48,16 @@ header>nav>ul>li>button, #game-category>ul>li>button {
 	line-height: 18px;
 	letter-spacing: 0px;
 }
-
 header>nav>ul>li>button:hover, #game-category>ul>li>button:hover {
 	color: #a0a0a0;
 }
-
 header>nav>ul>li>button:active, #game-category>ul>li>button:active {
 	color: #c0c0c0;
 }
-
 header>nav>ul>li>button[data-current], #game-category>ul>li>button[data-current] {
 	color: #303030;
 	font-weight: 600;
 }
-
 footer {
 	position: relative;
 	display: flex;
@@ -81,7 +72,6 @@ footer {
 	align-items: center;
 	justify-content: space-around;
 }
-
 footer>div {
 	position: relative;
 	display: block;
@@ -96,7 +86,6 @@ footer>div {
 	line-height: 20px;
 	letter-spacing: 0px;
 }
-
 footer>div>h2 {
 	position: relative;
 	display: block;
@@ -108,25 +97,21 @@ footer>div>h2 {
 	line-height: 18px;
 	letter-spacing: 0px;
 }
-
 a {
 	color: unset;
 	cursor: pointer;
 	text-decoration: underline;
 }
-
 hr {
 	margin: 20px 0px;
 	border: none;
 	border-bottom: 1px solid #808080;
 }
-
 video {
 	background: #000000;
 	object-fit: contain;
 	object-position: center;
 }
-
 input, select, option, button, textarea {
 	font-size: inherit;
 	font-style: inherit;
@@ -138,7 +123,6 @@ input, select, option, button, textarea {
 	background: rgba(0, 0, 0, 0);
 	box-sizing: content-box;
 }
-
 .text-body {
 	position: relative;
 	display: block;
@@ -146,7 +130,6 @@ input, select, option, button, textarea {
 	height: fit-content;
 	padding: 10px 0px;
 }
-
 .text-body>* {
 	position: relative;
 	display: block;
@@ -156,43 +139,36 @@ input, select, option, button, textarea {
 	line-height: 1;
 	letter-spacing: 0px;
 }
-
 .text-body>h2 {
 	font-size: 18px;
 	font-weight: 600;
 	line-height: 24px;
 }
-
 .text-body>h3 {
 	font-size: 18px;
 	font-weight: 600;
 	line-height: 24px;
 }
-
 .text-body>h4 {
 	font-size: 16px;
 	font-weight: 600;
 	line-height: 24px;
 }
-
 .text-body>h5 {
 	font-size: 14px;
 	font-weight: 600;
 	line-height: 24px;
 }
-
 .text-body>hr, .input-body>hr, #content>div>hr {
 	width: 100%;
 	height: 1px;
 	margin: 20px 0px;
 	border-bottom: 1px solid #c0c0c0;
 }
-
 .text-body>p {
 	font-size: 14px;
 	line-height: 20px;
 }
-
 .text-body>ul {
 	position: relative;
 	display: block;
@@ -203,7 +179,6 @@ input, select, option, button, textarea {
 	line-height: 20px;
 	letter-spacing: 0px;
 }
-
 .text-body>code {
 	position: relative;
 	display: block;
@@ -217,7 +192,6 @@ input, select, option, button, textarea {
 	letter-spacing: -1px;
 	overflow-wrap: break-word;
 }
-
 .list-body {
 	position: relative;
 	display: block;
@@ -225,7 +199,6 @@ input, select, option, button, textarea {
 	height: fit-content;
 	margin: 20px 0px;
 }
-
 .list-body>div {
 	position: relative;
 	display: block;
@@ -235,15 +208,12 @@ input, select, option, button, textarea {
 	padding: 10px;
 	cursor: pointer;
 }
-
 .list-body>div:hover, #menu>div:hover, #services-page>div:hover {
 	background: #f8f8f8;
 }
-
 .list-body>div:active, #menu>div:active, #services-page>div:active {
 	background: #f0f0f0;
 }
-
 .list-body>div>img {
 	position: relative;
 	display: inline-block;
@@ -253,7 +223,6 @@ input, select, option, button, textarea {
 	object-fit: cover;
 	vertical-align: top;
 }
-
 .list-body>div>div {
 	position: relative;
 	display: inline-block;
@@ -261,7 +230,6 @@ input, select, option, button, textarea {
 	height: fit-content;
 	vertical-align: top;
 }
-
 .list-body>div>div>.title {
 	position: relative;
 	display: block;
@@ -272,7 +240,6 @@ input, select, option, button, textarea {
 	line-height: 18px;
 	letter-spacing: 0px;
 }
-
 .list-body>div>div>.desc {
 	position: relative;
 	display: block;
@@ -283,7 +250,6 @@ input, select, option, button, textarea {
 	line-height: 16px;
 	letter-spacing: 0px;
 }
-
 .list-body>div>div>.time {
 	position: relative;
 	display: block;
@@ -295,7 +261,6 @@ input, select, option, button, textarea {
 	line-height: 14px;
 	letter-spacing: 0px;
 }
-
 .input-body {
 	position: relative;
 	display: block;
@@ -303,7 +268,6 @@ input, select, option, button, textarea {
 	height: fit-content;
 	margin: 15px 0px;
 }
-
 .input-body>h3 {
 	position: relative;
 	display: block;
@@ -311,7 +275,6 @@ input, select, option, button, textarea {
 	height: fit-content;
 	margin: 25px 0px 15px;
 }
-
 .input-body>div {
 	position: relative;
 	display: block;
@@ -319,7 +282,6 @@ input, select, option, button, textarea {
 	height: fit-content;
 	margin: 10px 0px;
 }
-
 .input-body>div>label {
 	position: relative;
 	display: inline-block;
@@ -330,7 +292,6 @@ input, select, option, button, textarea {
 	letter-spacing: 0px;
 	vertical-align: middle;
 }
-
 .input-body>div>textarea, #add-comm>textarea {
 	position: relative;
 	display: block;
@@ -345,7 +306,6 @@ input, select, option, button, textarea {
 	line-height: 15px;
 	letter-spacing: 0px;
 }
-
 .input-body>div>select, .input-body>div>input[type="text"], .input-body>div>input[type="number"] {
 	position: relative;
 	display: inline-block;
@@ -359,11 +319,9 @@ input, select, option, button, textarea {
 	border-radius: 25px;
 	vertical-align: middle;
 }
-
 .input-body>div>select:focus, .input-body>div>input[type="text"]:focus, .input-body>div>input[type="number"]:focus, #add-comm>textarea:focus {
 	border-color: #808080;
 }
-
 .pri-button {
 	position: relative;
 	display: block;
@@ -380,20 +338,16 @@ input, select, option, button, textarea {
 	border-radius: 25px;
 	background-color: #004080;
 }
-
 .pri-button:not(:disabled):hover {
 	background-color: #0050a0;
 }
-
 .pri-button:not(:disabled):active {
 	background-color: #0060c0;
 }
-
 .pri-button:disabled {
 	cursor: default;
 	background-color: #808080;
 }
-
 .game {
 	position: relative;
 	display: inline-block;
@@ -410,15 +364,12 @@ input, select, option, button, textarea {
 	background-repeat: no-repeat;
 	background-position: 0px 0px;
 }
-
 .game:hover {
 	border-color: #808080;
 }
-
 .game:active {
 	border-color: #303030;
 }
-
 .game>img {
 	position: absolute;
 	display: block;
@@ -427,7 +378,6 @@ input, select, option, button, textarea {
 	top: 2px;
 	left: 2px;
 }
-
 .game>span {
 	position: absolute;
 	display: block;
@@ -444,7 +394,6 @@ input, select, option, button, textarea {
 	border-radius: 5px;
 	text-transform: uppercase;
 }
-
 .game>div {
 	position: absolute;
 	display: block;
@@ -457,7 +406,6 @@ input, select, option, button, textarea {
 	line-height: 14px;
 	letter-spacing: 0px;
 }
-
 .dialog {
 	position: relative;
 	display: block;
@@ -468,7 +416,6 @@ input, select, option, button, textarea {
 	border: 1px solid #808080;
 	border-radius: 10px;
 }
-
 .dialog>h3 {
 	position: relative;
 	display: block;
@@ -479,7 +426,6 @@ input, select, option, button, textarea {
 	line-height: 18px;
 	letter-spacing: 0px;
 }
-
 .dialog>input[type="text"], .dialog>input[type="email"], .dialog>input[type="password"] {
 	position: relative;
 	display: block;
@@ -493,11 +439,9 @@ input, select, option, button, textarea {
 	line-height: 20px;
 	letter-spacing: 0px;
 }
-
 .dialog>input[type="text"]:focus, .dialog>input[type="email"]:focus, .dialog>input[type="password"]:focus {
 	border-color: #808080;
 }
-
 .dialog>input[type="checkbox"] {
 	position: relative;
 	display: inline-block;
@@ -506,7 +450,6 @@ input, select, option, button, textarea {
 	margin: 1px 3px;
 	vertical-align: middle;
 }
-
 .dialog>label {
 	position: relative;
 	display: inline;
@@ -515,7 +458,6 @@ input, select, option, button, textarea {
 	font-size: 13px;
 	line-height: 16px;
 }
-
 .dialog>button {
 	position: relative;
 	display: block;
@@ -524,7 +466,6 @@ input, select, option, button, textarea {
 	margin: 10px 0px;
 	padding: 5px 20px;
 }
-
 .dialog>div {
 	position: relative;
 	display: block;
@@ -537,7 +478,6 @@ input, select, option, button, textarea {
 	letter-spacing: 0px;
 	text-decoration: underline;
 }
-
 .dialog>span {
 	position: relative;
 	display: block;
@@ -545,7 +485,6 @@ input, select, option, button, textarea {
 	height: fit-content;
 	margin: 10px 0px;
 }
-
 .search {
 	position: relative;
 	display: block;
@@ -554,7 +493,6 @@ input, select, option, button, textarea {
 	margin: 20px auto;
 	border: 1px solid #808080;
 }
-
 .search>input {
 	position: absolute;
 	display: block;
@@ -568,7 +506,6 @@ input, select, option, button, textarea {
 	line-height: 20px;
 	letter-spacing: 0px;
 }
-
 .search>button {
 	position: absolute;
 	display: block;
@@ -583,7 +520,6 @@ input, select, option, button, textarea {
 	background-repeat: no-repeat;
 	background-position: center;
 }
-
 div.user[data-vip]::after {
 	position: relative;
 	display: inline-block;
@@ -595,15 +531,12 @@ div.user[data-vip]::after {
 	letter-spacing: 0px;
 	vertical-align: top;
 }
-
 div.user[data-vip="gold"]::after {
 	content: "\01f451";
 }
-
 div.user[data-vip="diamond"]::after {
 	content: "\01f48e";
 }
-
 #logo {
 	position: absolute;
 	display: block;
@@ -615,7 +548,6 @@ div.user[data-vip="diamond"]::after {
 	background-repeat: no-repeat;
 	background-position: 0px 0px;
 }
-
 #status {
 	position: absolute;
 	display: block;
@@ -629,7 +561,6 @@ div.user[data-vip="diamond"]::after {
 	line-height: 30px;
 	letter-spacing: 0px;
 }
-
 #version {
 	position: absolute;
 	display: block;
@@ -643,11 +574,9 @@ div.user[data-vip="diamond"]::after {
 	line-height: 30px;
 	letter-spacing: 0px;
 }
-
 #side-menu, #hamb {
 	display: none;
 }
-
 #accn-btn {
 	position: absolute;
 	display: block;
@@ -663,11 +592,9 @@ div.user[data-vip="diamond"]::after {
 	background-repeat: no-repeat;
 	background-position: 0px 0px;
 }
-
 #accn-btn[data-ac] {
 	background-image: url("res/account.svg");
 }
-
 #nmsg-btn {
 	position: absolute;
 	display: block;
@@ -683,11 +610,9 @@ div.user[data-vip="diamond"]::after {
 	background-repeat: no-repeat;
 	background-position: 0px 0px;
 }
-
 #nmsg-btn[data-unread] {
 	background-image: url("res/bell.svg");
 }
-
 #nmsg-btn[data-unread]::after {
 	position: absolute;
 	display: block;
@@ -699,19 +624,15 @@ div.user[data-vip="diamond"]::after {
 	background: #ff0000;
 	border-radius: 5px;
 }
-
 #accn-btn:hover, #nmsg-btn:hover {
 	filter: brightness(300%);
 }
-
 #accn-btn:active, #nmsg-btn:active {
 	filter: brightness(350%);
 }
-
 #accn-btn[data-current], #nmsg-btn[data-current] {
 	filter: none;
 }
-
 #loading {
 	position: absolute;
 	display: block;
@@ -724,7 +645,6 @@ div.user[data-vip="diamond"]::after {
 	line-height: 24px;
 	letter-spacing: 0px;
 }
-
 #loading::before {
 	position: absolute;
 	display: block;
@@ -735,7 +655,6 @@ div.user[data-vip="diamond"]::after {
 	content: "";
 	background: #f0f0f0;
 }
-
 #content {
 	position: absolute;
 	display: none;
@@ -746,7 +665,6 @@ div.user[data-vip="diamond"]::after {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
-
 #content>div {
 	position: relative;
 	display: none;
@@ -756,7 +674,6 @@ div.user[data-vip="diamond"]::after {
 	padding: 10px 30px 20px;
 	background: #ffffff;
 }
-
 #content>div>h2 {
 	position: relative;
 	display: block;
@@ -768,7 +685,6 @@ div.user[data-vip="diamond"]::after {
 	font-weight: 600;
 	line-height: 40px;
 }
-
 #content>div>h3 {
 	position: relative;
 	display: block;
@@ -779,7 +695,6 @@ div.user[data-vip="diamond"]::after {
 	line-height: 24px;
 	letter-spacing: 0px;
 }
-
 #error, noscript>div {
 	position: relative;
 	display: block;
@@ -793,11 +708,9 @@ div.user[data-vip="diamond"]::after {
 	line-height: 18px;
 	letter-spacing: 0px;
 }
-
 #error {
 	display: none;
 }
-
 #anchor {
 	position: absolute;
 	display: block;
@@ -809,7 +722,6 @@ div.user[data-vip="diamond"]::after {
 	touch-action: none;
 	pointer-events: none;
 }
-
 #overlay {
 	position: absolute;
 	display: none;
@@ -821,11 +733,9 @@ div.user[data-vip="diamond"]::after {
 	background: #ffffff;
 	pointer-events: none;
 }
-
 #overlay[data-x], #content[data-x], #content>div[data-current], #nwidget[data-current] {
 	display: block;
 }
-
 #overlay>iframe {
 	position: absolute;
 	display: block;
@@ -834,7 +744,6 @@ div.user[data-vip="diamond"]::after {
 	border: none;
 	overflow: hidden;
 }
-
 #nwidget {
 	position: absolute;
 	display: none;
@@ -845,7 +754,6 @@ div.user[data-vip="diamond"]::after {
 	border: 1px solid #808080;
 	background: #ffffff;
 }
-
 #nwidget>h2 {
 	position: absolute;
 	display: block;
@@ -858,7 +766,6 @@ div.user[data-vip="diamond"]::after {
 	line-height: 18px;
 	letter-spacing: 0px;
 }
-
 #nwidget>div {
 	position: absolute;
 	display: block;
@@ -869,7 +776,6 @@ div.user[data-vip="diamond"]::after {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
-
 #nwidget>div>div {
 	position: relative;
 	display: block;
@@ -878,7 +784,6 @@ div.user[data-vip="diamond"]::after {
 	margin: 15px 10px;
 	cursor: pointer;
 }
-
 #nwidget>div>div>div {
 	position: relative;
 	display: block;
@@ -889,7 +794,6 @@ div.user[data-vip="diamond"]::after {
 	line-height: 18px;
 	letter-spacing: 0px;
 }
-
 #nwidget>div>div>span {
 	position: relative;
 	display: block;
@@ -901,7 +805,6 @@ div.user[data-vip="diamond"]::after {
 	line-height: 15px;
 	letter-spacing: 0px;
 }
-
 #nwidget>button {
 	position: absolute;
 	display: block;
@@ -917,7 +820,6 @@ div.user[data-vip="diamond"]::after {
 	letter-spacing: 0px;
 	text-decoration: underline;
 }
-
 #frame-view {
 	position: absolute;
 	display: none;
@@ -931,7 +833,6 @@ div.user[data-vip="diamond"]::after {
 	overflow-y: auto;
 	background: rgba(0, 0, 0, 0.7);
 }
-
 #frame {
 	position: absolute;
 	display: block;
@@ -1037,20 +938,23 @@ div.user[data-vip="diamond"]::after {
 #settings {
 	position: absolute;
 	display: block;
+	border:1px solid white;
 	width: 48px;
 	height: 48px;
 	right: 20px;
 	bottom: 22px;
 	cursor: pointer;
 	outline: none;
-	box-shadow: 2px 2px #808080;
 	border-radius: 25px;
 	background-image: url("res/settings.svg");
 	background-size: 48px 48px;
 	background-repeat: no-repeat;
 	background-position: 0px 0px;
+	transition:0.4s ease;
 }
-
+#settings:hover {
+    transform: rotate(180deg);
+}
 #settings:active {
 	box-shadow: -2px -2px #808080;
 }

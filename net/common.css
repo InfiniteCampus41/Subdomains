@@ -7,7 +7,6 @@
 	font-display: swap;
 	unicode-range: U+0000-007F;
 }
-
 @font-face {
 	src: url("res/ubuntu.woff2") format("woff2");
 	font-style: normal;
@@ -17,7 +16,6 @@
 	font-display: swap;
 	unicode-range: U+0000-007F;
 }
-
 * {
 	margin: 0px;
 	padding: 0px;
@@ -25,29 +23,23 @@
 	-webkit-font-smoothing: none;
 	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
-
 ::selection {
 	color: #ffffff;
 	background: #004080;
 }
-
 ::-webkit-scrollbar {
 	width: 10px;
 }
-
 ::-webkit-scrollbar-thumb {
 	background: #c0c0c0;
 	border-radius: 5px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
 	background: #b0b0b0;
 }
-
 ::-webkit-scrollbar-thumb:active {
 	background: #a0a0a0;
 }
-
 body, svg {
 	position: absolute;
 	display: block;
