@@ -123,15 +123,13 @@ let typingTimeout = null;
 let typingRef = null;
 document.head.appendChild(style);
 chatLog.addEventListener("scroll", () => {
-    const distanceFromBottom =
-        chatLog.scrollHeight - chatLog.scrollTop - chatLog.clientHeight;
+    const distanceFromBottom = chatLog.scrollHeight - chatLog.scrollTop - chatLog.clientHeight;
     autoScrollEnabled = distanceFromBottom < 40;
 });
 chatLog.addEventListener("scroll", async () => {
     if (chatLog.scrollTop > 50) return;
     if (!hasMoreMessages || loadingOlderMessages || !oldestLoadedTimestamp) return;
     loadingOlderMessages = true;
-    const previousHeight = chatLog.scrollHeight;
     const olderQuery = query(
         currentMsgRef,
         orderByChild("timestamp"),
@@ -147,12 +145,16 @@ chatLog.addEventListener("scroll", async () => {
     const msgs = snapshot.val();
     const entries = Object.entries(msgs).sort((a, b) => a[1].timestamp - b[1].timestamp);
     oldestLoadedTimestamp = entries[0][1].timestamp;
-    for (const [id, msg] of entries.reverse()) {
+    const bottomOffset = chatLog.scrollHeight - chatLog.scrollTop;
+    const fragment = document.createDocumentFragment();
+    for (const [id, msg] of entries) {
         const div = await renderMessageInstant(id, msg);
-        if (div) chatLog.insertBefore(div, chatLog.firstChild);
+        if (div) fragment.appendChild(div);
     }
-    const newHeight = chatLog.scrollHeight;
-    chatLog.scrollTop = newHeight - previousHeight;
+    chatLog.prepend(fragment);
+    requestAnimationFrame(() => {
+        chatLog.scrollTop = chatLog.scrollHeight - bottomOffset;
+    });
     loadingOlderMessages = false;
 });
 function scrollToBottom(smooth = false) {
@@ -408,6 +410,37 @@ async function renderMessageInstant(id, msg) {
             if (height) finalStyle += `height:${height}px;`;
             if (radius !== null) finalStyle += `border-radius:${radius}px;`;
             return `<img src="${safeSrc}" alt="${safeAlt}" class="chat-img" style="${finalStyle}">`;
+        }
+    );
+    safeText = safeText.replace(
+        /&lt;video\s+src="([^"]+)"(?:\s+alt="([^"]*)")?(?:\s+style="([^"]*)")?\s*&gt;/gi,
+        (match, src, alt, style) => {
+            const safeSrc = src.replace(/"/g, "");
+            const safeAlt = alt ? alt.replace(/"/g, "") : "";
+            let width = null;
+            let height = null;
+            let radius = null;
+            if (style) {
+                const w = style.match(/width\s*:\s*([0-9]+)px/i);
+                const h = style.match(/height\s*:\s*([0-9]+)px/i);
+                const r = style.match(/border-radius\s*:\s*([0-9]+)px/i);
+                if (w) width = Math.min(parseInt(w[1]), 100);
+                if (h) height = Math.min(parseInt(h[1]), 100);
+                if (r) radius = parseInt(r[1]);
+            }
+            let finalStyle = "margin-top:6px;cursor:pointer;";
+            if (width) finalStyle += `width:${width}px;`;
+            if (height) finalStyle += `height:${height}px;`;
+            if (radius !== null) finalStyle += `border-radius:${radius}px;`;
+            return `<video src="${safeSrc}" class="chat-vid" style="${finalStyle}" controls loop>`;
+        }
+    );
+    safeText = safeText.replace(
+        /&lt;audio\s+src="([^"]+)"(?:\s+alt="([^"]*)")?(?:\s+style="([^"]*)")?\s*&gt;/gi,
+        (match, src, alt, style) => {
+            const safeSrc = src.replace(/"/g, "");
+            let finalStyle = "margin-top:6px;cursor:pointer;";
+            return `<audio src="${safeSrc}" class="chat-aud" style="${finalStyle}" controls>`;
         }
     );
     safeText = safeText.replace(/\n/g, "<br>");
@@ -1053,12 +1086,13 @@ async function attachMessageListeners(msgRef) {
     const entries = Object.entries(msgs)
         .sort((a, b) => a[1].timestamp - b[1].timestamp);
     oldestLoadedTimestamp = entries[0][1].timestamp;
-    for (let i = entries.length - 1; i >= 0; i--) {
-        const [id, msg] = entries[i];
+    const fragment = document.createDocumentFragment();
+    for (const [id, msg] of entries) {
         const div = await renderMessageInstant(id, msg);
-        if (div) chatLog.insertBefore(div, chatLog.firstChild);
+        if (div) fragment.appendChild(div);
     }
-    scrollToBottom(true);
+    chatLog.appendChild(fragment);
+    scrollToBottom(false);
     currentListeners.added = onChildAdded(msgRef, async snap => {
         if (msgRef !== currentMsgRef) return;
         const key = snap.key;
@@ -1067,7 +1101,7 @@ async function attachMessageListeners(msgRef) {
         if (!document.getElementById("msg-" + key)) {
             const newDiv = await renderMessageInstant(key, val);
             if (!newDiv) return;
-            const newTs = Number(val.timestamp || Date.now());
+            const newTs = Number(val.timestamp);
             const msgsEls = Array.from(chatLog.querySelectorAll(".msg"));
             let inserted = false;
             for (const el of msgsEls) {
@@ -1137,6 +1171,37 @@ async function attachMessageListeners(msgRef) {
                     if (height) finalStyle += `height:${height}px;`;
                     if (radius !== null) finalStyle += `border-radius:${radius}px;`;
                     return `<img src="${safeSrc}" alt="${safeAlt}" class="chat-img" style="${finalStyle}">`;
+                }
+            );
+            safeText = safeText.replace(
+                /&lt;video\s+src="([^"]+)"(?:\s+alt="([^"]*)")?(?:\s+style="([^"]*)")?\s*&gt;/gi,
+                (match, src, alt, style) => {
+                    const safeSrc = src.replace(/"/g, "");
+                    const safeAlt = alt ? alt.replace(/"/g, "") : "";
+                    let width = null;
+                    let height = null;
+                    let radius = null;
+                    if (style) {
+                        const w = style.match(/width\s*:\s*([0-9]+)px/i);
+                        const h = style.match(/height\s*:\s*([0-9]+)px/i);
+                        const r = style.match(/border-radius\s*:\s*([0-9]+)px/i);
+                        if (w) width = Math.min(parseInt(w[1]), 100);
+                        if (h) height = Math.min(parseInt(h[1]), 100);
+                        if (r) radius = parseInt(r[1]);
+                    }
+                    let finalStyle = "margin-top:6px;cursor:pointer;";
+                    if (width) finalStyle += `width:${width}px;`;
+                    if (height) finalStyle += `height:${height}px;`;
+                    if (radius !== null) finalStyle += `border-radius:${radius}px;`;
+                    return `<video src="${safeSrc}" class="chat-vid" style="${finalStyle}" controls loop>`;
+                }
+            );
+            safeText = safeText.replace(
+                /&lt;audio\s+src="([^"]+)"(?:\s+alt="([^"]*)")?(?:\s+style="([^"]*)")?\s*&gt;/gi,
+                (match, src, alt, style) => {
+                    const safeSrc = src.replace(/"/g, "");
+                    let finalStyle = "margin-top:6px;cursor:pointer;";
+                    return `<audio src="${safeSrc}" class="chat-aud" style="${finalStyle}" controls>`;
                 }
             );
             safeText = safeText.replace(/\n/g, "<br>");

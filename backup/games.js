@@ -1,10 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
     const launchButton = document.getElementById("launchGames");
     const launch2 = document.getElementById("launchGames2");
-    const OfficialSites = ['infinitecampus.xyz', 'www.infinitecampus.xyz', 'instructure.space'];
+    const OfficialSites = e;
     const def = "https://play.infinitecampus.xyz/games/";
     const main = document.body.querySelector("main");
-    if (OfficialSites.includes(window.location.host)) {
+    if (OfficialSites.includes(f)) {
         launch2.textContent = 'Games (Method 2)';
     } else {
         launchButton.style.display = 'none';
@@ -13,8 +13,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const games = [
         { name: "Slope", method: ["1","2"], url: `${def}slope/index.html`},
         { name: "Slope 2", method: ["2"], url: `https://mathadventure1.github.io/slope/slope/index.html`},
-        { name: "NettleWeb (1)", method: ["2"], url: `https://nettleweb.com`},
-        { name: "NettleWeb (2)", method: ["2"], url: `https://sigmasigmatoiletedge.github.io` },
+        { name: "Nettleweb", method: ["2"], url: `https://net.infinitecampus.xyz`},
+        { name: "NettleWeb 2", method: ["2"], url: `https://nettleweb.com`},
+        { name: "NettleWeb 3", method: ["2"], url: `https://sigmasigmatoiletedge.github.io` },
         { name: "Ngon", method: ["1", "2"], url: `https://landgreen.github.io/n-gon/` },
         { name: "Eaglercraft (1.12.2)", method: ["1","2"], url: `${def}eg1/index.html` },
         { name: "Eaglercraft ( 1.5.2 )", method: ["1", "2"], url: `https://sd592g.github.io/zj684od4lfg/` },
@@ -298,7 +299,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         };
                         backButton.onclick = function () {
                             const proxyContainer = document.getElementById('proxy-container');
-                            proxyContainer.style.display = 'none';
+                            if (proxyContainer) {
+                                proxyContainer.style.display = 'none';
+                            }
                             hideLoader();
                             const iframes = document.querySelectorAll("iframe");
                             iframes.forEach(iframe => iframe.remove());
