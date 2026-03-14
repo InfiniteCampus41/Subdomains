@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /xr/
-
-Sitemap: https://nettleweb.com/sitemap.txt

@@ -33,48 +33,6 @@
         <script src="theme.js">
         </script>
         <style>
-            .chat-img{
-                width:100px;
-                height:100px;
-                object-fit:cover;
-                border-radius:15px;
-                cursor:pointer;
-                transition:transform 0.15s;
-            }
-            .chat-vid {
-                width:50%;
-                height:200px;
-            }
-            .chat-img:hover{
-                transform:scale(1.05);
-            }
-            .edited-label {
-                font-size: 0.7em;
-                color: #aaa;
-                margin-top: 2px;
-                margin-left: 35px;
-            }
-            .msg button:not(#mobileMenuBtn):not(#closeMobilePanel):not(.dropdown-toggle):not(.dropdown.test button):not(#weatherContainer div button) {
-                padding: 2px 3px;
-                border-radius: 6px;
-                background: #333;
-                color: white;
-                cursor: pointer;
-            }
-            .msg { 
-                margin: 6px 0; 
-                transition:0.3s all;
-            }
-            #topRow {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 2px;
-                align-items:self-end;
-            }
-            #msgName {
-                color: #aaa;
-                cursor: pointer;
-            }
             body {
                 background: #111;
                 color: black;
@@ -85,119 +43,12 @@
                 height: calc(100vh - (var(--headerHeight) + var(--footerHeight)));
                 overflow: hidden;
             }
-            #sidebar {
-                width: 400px;
-                flex-shrink:0;
-                background: #181818;
-                border-right: 1px solid #333;
-                overflow-y: auto;
-                padding: 15px;
-            }
-            @media(max-width: 768px) {
-                #sidebar {
-                    position: fixed;
-                    left: -400px;
-                    top: 60px;
-                    height: 85vh;
-                    z-index: 999;
-                    transition: 0.3s ease;
-                }
-                #sidebar.open {
-                    left: 0;
-                }
-                #mobileToggle {
-                    display: block !important;
-                }
-            }
-            #mobileToggle {
-                display: none;
-                position: fixed;
-                left: 10px;
-                top: 70px;
-                z-index: 1000;
-            }
-            #profileSection {
-                padding: 15px;
-                border: 1px solid #333;
-                border-radius: 12px;
-                background: #202020;
-                cursor:pointer;
-                margin-bottom: 15px;
-            }
-            #profileSection:hover {
-                background: #2a2a2a;
-            }
-            #profileRow {
-                display: flex;
-                align-items: center;
-            }
-            #sidebarPfp {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                border: 2px solid white;
-                margin-right: 12px;
-                object-fit: cover;
-            }
-            #mentionsList {
-                max-height: 150px;
-                overflow-y: auto;
-                background: #141414;
-                padding: 10px;
-                border-radius: 8px;
-                border: 1px solid #333;
-            }
-            #channels li, 
-            #privateList li {
-                border-top:1px solid gray;
-                border-bottom:1px solid gray;
-                padding: 10px;
-                justify-content:space-between;
-                list-style: none;
-                cursor: pointer;
-                display:flex;
-                transition: 0.2s;
-            }
-            #channels li:hover,
-            #privateList li:hover {
-                background: #2a2a2a;
-            }
-            #channels .active,
-            #privateList .active {
-                background: #2a2a2a;
-            }
             #messages {
                 min-width: 0;
                 flex: 1;
                 display: flex;
                 flex-direction: column;
                 height: 100%;
-            }
-            #chatLog {
-                overflow-x:hidden;
-                flex: 1;
-                padding: 20px;
-            }
-            #chatInput {
-                width: 100%;
-                background: #1a1a1a;
-                border: 1px solid #444;
-                color: #eee;
-                padding: 10px;
-                border-radius: 8px;
-            }
-            #sendBtn {
-                width: 100%;
-                margin-top: 8px;
-                background: #444;
-                border: none;
-                color: white;
-                padding: 12px;
-                border-radius: 8px;
-                transition: 0.2s;
-            }
-            #sendBtn:hover {
-                background: #666;
             }
             button:not(#mobileMenuBtn):not(#closeMobilePanel):not(.dropdown-toggle):not(.dropdown.test button):not(#weatherContainer div button) {
                 background: #333;
@@ -215,13 +66,6 @@
             }
             button:not(#mobileMenuBtn):not(#closeMobilePanel):not(.dropdown-toggle):not(.dropdown.test button):not(#weatherContainer div button):active {
                 background: #222;
-            }
-            #chatLog > div {
-                border-bottom: 1px solid #333;
-                padding: 10px 0;
-            }
-            #sidebar::-webkit-scrollbar { 
-                display: none; 
             }
             ::-webkit-scrollbar {
                 width: 15px;
@@ -241,57 +85,7 @@
                 display: none; 
             }
             .timestamp {
-                color:gray;
-                font-size:14px;
-            }
-	        #mentionMenu {
-    	    	bottom: 105px;
-    	    	left: 0;
-    	    	width: calc(100% - 20px);
-    	    	margin: 0 10px;
-    	    	background: #1b1b1b;
-    	    	border: 1px solid #333;
-    		    border-radius: 10px;
-    		    padding: 8px 0;
-    		    display: none;
-    		    flex-direction: column;
-    		    max-height: 200px;
-    		    overflow-y: auto;
-    		    z-index: 9999;
-    		    box-shadow: 0 0 15px rgba(0,0,0,0.4);
-	        }
-    	    .mentionItem {
-        		padding: 10px 14px;
-        		cursor: pointer;
-        		transition: 0.15s;
-        		font-size: 0.95em;
-        		display: flex;
-        		align-items: center;
-        		gap: 10px;
-    	    }
-    	    .mentionItem:hover {
-        		background: #2d2d2d;
-        		border-left: 3px solid #4da3ff;
-    	    }
-    	    .channel-mention:hover {
-    	        text-decoration:underline;
-    	    }
-            .mention:hover, .mention-self:hover {
-                text-decoration: underline;
-            }
-            #msgBtns {
-                height:0px;
-                justify-content:flex-end;
-                display:none;
-                transition:0.3s all;
-            }
-            #msgBtns button {
-                height:fit-content;
-                margin-top:-10px;
-                font-size:12px;
-            }
-            .msg:hover #msgBtns {
-                display:flex;
+                align-self:flex-start;
             }
         </style>
     </head>
@@ -353,6 +147,8 @@
                             Press Tab To Mention User
                         </div>
                         <div id="mentionMenu">
+                        </div>
+                        <div id="reply" style="display:none;">
                         </div>
                         <textarea id="chatInput" placeholder="Type A Message" rows="3"></textarea>
                         <button id="sendBtn">

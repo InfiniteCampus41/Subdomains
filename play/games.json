@@ -190,5 +190,11 @@
         "img": "/games/buildnow/favicon.ico",
         "place": 31,
         "url": "/games/buildnow/index.html"
+    },
+    {
+        "game": "Rocket League",
+        "img": "/games/carsoccer/favicon.ico",
+        "place": 32,
+        "url": "/games/carsoccer/index.html"
     }
 ]

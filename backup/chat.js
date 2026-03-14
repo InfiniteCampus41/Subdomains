@@ -1,80 +1,65 @@
 import { auth, db, onAuthStateChanged, ref, push, onChildAdded, onChildChanged, remove, update, onChildRemoved, set, get, runTransaction, onValue, off, query, orderByChild, limitToLast, endAt } from "./imports.js";
-const channelList = document.getElementById("channels");
-const chatLog = document.getElementById("chatLog");
-let lastMessageTimestamp = 0;
-const MESSAGE_COOLDOWN = 3000;
-const mentionNotif = document.getElementById("mentionNotif");
-const mentionToggleLabel = document.getElementById("mentionToggleLabel");
-const mentionToggle = document.getElementById("mentionToggle");
-const chatInput = document.getElementById("chatInput");
-const sendBtn = document.getElementById("sendBtn");
-const adminControls = document.getElementById("adminControls");
-const newChannelName = document.getElementById("newChannelName");
 const addChannelBtn = document.getElementById("addChannelBtn");
-const privateList = document.getElementById("privateList");
-const usernameSpan = document.getElementById("username");
+const adminControls = document.getElementById("adminControls");
 const bioSpan = document.getElementById("bio");
-const emailSpan = document.getElementById("email");
-const roleSpan = document.getElementById("role");
-let currentPath = null;
-let currentMsgRef = null;
-let currentListeners = {};
-let currentUser = null;
-let currentName = "User";
-let currentColor = "#ffffff";
-let isAdmin = false;
-let isHAdmin = false;
-let isTester = false;
-let isCoOwner = false;
-let isOwner = false;
-let isDev = false;
-let isPre3 = false;
-let isPre2 = false;
-let isPre1 = false;
-let isSus = false;
-let isPartner = false;
-let currentPrivateUid = null;
-let currentPrivateName = null;
-let metadataListenerRef = null;
-let autoScrollEnabled = true;
-const PAGE_SIZE = 50;
-let oldestLoadedTimestamp = null;
-let loadingOlderMessages = false;
-let hasMoreMessages = true;
-const privateListeners = new Set();
+const channelList = document.getElementById("channels");
 const channelMentionSet = new Set();
-const mentionMenu = document.getElementById("mentionMenu");
-let allUsernames = [];
-let mentionActive = false;
-let triggerIndex = -1;
-const style = document.createElement("style");
-style.textContent = `
-    .mention {
-        color: #4fa3ff;
-        font-weight: bold;
-        background: rgba(79,163,255,0.1);
-        padding: 2px 4px;
-        border-radius: 4px;
-    }
-    .mention-self {
-        color: gold;
-        font-weight: bold;
-        background: rgba(255,215,0,0.15);
-        padding: 2px 4px;
-        border-radius: 4px;
-    }
-    .notifDot {
-        color: red;
-        font-weight: bold;
-        margin-right: 6px;
-    }
-    .left { 
-        display:flex; 
-        align-items:center; 
-        gap:6px; 
-    }
-`;
+const chatInput = document.getElementById("chatInput");
+const chatLog = document.getElementById("chatLog");
+const downloadBtn = document.createElement("a");
 const imgViewer = document.createElement("div");
+const mentionHint = document.getElementById("mentionHint");
+const mentionMenu = document.getElementById("mentionMenu");
+const mentionNotif = document.getElementById("mentionNotif");
+const mentionToggle = document.getElementById("mentionToggle");
+const mentionToggleLabel = document.getElementById("mentionToggleLabel");
+const MESSAGE_COOLDOWN = 3000;
+const newChannelName = document.getElementById("newChannelName");
+const PAGE_SIZE = 25;
+const privateList = document.getElementById("privateList");
+const privateListeners = new Set();
+const reply = document.getElementById("reply");
+const roleSpan = document.getElementById("role");
+const sendBtn = document.getElementById("sendBtn");
+const typingIndicator = document.createElement("div");
+const userMetaCache = {};
+const usernameSpan = document.getElementById("username");
+const viewerImg = document.createElement("img");
+let allUsernames = [];
+let autoScrollEnabled = true;
+let currentColor = "#ffffff";
+let currentListeners = {};
+let currentMsgRef = null;
+let currentName = "User";
+let currentPath = null;
+let currentPrivateName = null;
+let currentPrivateUid = null;
+let currentUser = null;
+let hasMoreMessages = true;
+let isAdmin = false;
+let isCoOwner = false;
+let isDev = false;
+let isHAdmin = false;
+let isOwner = false;
+let isPartner = false;
+let isPre1 = false;
+let isPre2 = false;
+let isPre3 = false;
+let isReplyActive = false;
+let isSus = false;
+let isTester = false;
+let lastMessageTimestamp = 0;
+let loadingOlderMessages = false;
+let mentionActive = false;
+let metadataListenerRef = null;
+let oldestLoadedTimestamp = null;
+let replyMsgId = null;
+let replyMsgName = null;
+let replyMsgText = null;
+let triggerIndex = -1;
+let typingRef = null;
+let typingTimeout = null;
+let zoomed = false;
 imgViewer.style.position = "fixed";
 imgViewer.style.top = "0";
 imgViewer.style.left = "0";
@@ -86,12 +71,10 @@ imgViewer.style.alignItems = "center";
 imgViewer.style.justifyContent = "center";
 imgViewer.style.flexDirection = "column";
 imgViewer.style.zIndex = "10000";
-const viewerImg = document.createElement("img");
 viewerImg.style.maxWidth = "90%";
 viewerImg.style.maxHeight = "80%";
 viewerImg.style.cursor = "zoom-in";
 viewerImg.style.transition = "transform 0.2s";
-const downloadBtn = document.createElement("a");
 downloadBtn.textContent = "Download Image";
 downloadBtn.style.marginTop = "15px";
 downloadBtn.style.color = "white";
@@ -100,7 +83,6 @@ downloadBtn.style.cursor = "pointer";
 imgViewer.appendChild(viewerImg);
 imgViewer.appendChild(downloadBtn);
 document.body.appendChild(imgViewer);
-let zoomed = false;
 viewerImg.addEventListener("click", () => {
     zoomed = !zoomed;
     viewerImg.style.transform = zoomed ? "scale(2)" : "scale(1)";
@@ -112,16 +94,12 @@ imgViewer.addEventListener("click", (e) => {
         zoomed = false;
     }
 });
-const typingIndicator = document.createElement("div");
 typingIndicator.id = "typingIndicator";
 typingIndicator.style.fontSize = "0.8em";
 typingIndicator.style.color = "#aaa";
 typingIndicator.style.marginTop = "4px";
 typingIndicator.style.display = "none";
-chatInput.insertAdjacentElement("beforebegin", typingIndicator);
-let typingTimeout = null;
-let typingRef = null;
-document.head.appendChild(style);
+reply.insertAdjacentElement("beforebegin", typingIndicator);
 chatLog.addEventListener("scroll", () => {
     const distanceFromBottom = chatLog.scrollHeight - chatLog.scrollTop - chatLog.clientHeight;
     autoScrollEnabled = distanceFromBottom < 40;
@@ -168,15 +146,81 @@ function scrollToBottom(smooth = false) {
         }, 50);
     });
 }
-async function muteUser(uid) {
-    const muteRef = ref(db, `mutedUsers/${uid}`);
-    const expireTime = Date.now() + 24 * 60 * 60 * 1000;
-    await set(muteRef, { expires: expireTime });
-    showSuccess("User Muted For 1 Day.");
-}
 async function unmuteUser(uid) {
     await remove(ref(db, `mutedUsers/${uid}`));
     showSuccess("User Unmuted.");
+}
+async function getUserMeta(uid) {
+    const muteRef = ref(db, `mutedUsers/${uid}`);
+    if (userMetaCache[uid]) {
+        const muteSnap = await get(muteRef);
+        let muted = false;
+        if (muteSnap.exists()) {
+            const muteData = muteSnap.val();
+            if (muteData.expires && Date.now() > muteData.expires) {
+                await remove(muteRef);
+            } else {
+                muted = true;
+            }
+        }
+        userMetaCache[uid].muted = muted;
+        return userMetaCache[uid];
+    }
+    const [ nameSnap, colorSnap, picSnap, adminSnap, ownerSnap, coOwnerSnap, hAdminSnap, devSnap, pre1Snap, pre2Snap, pre3Snap, testerSnap, hSnap, susSnap, partnerSnap, discordSnap, donSnap, uploadSnap, guessSnap, muteSnap ] = await Promise.all([
+        get(ref(db, `users/${uid}/profile/displayName`)),
+        get(ref(db, `users/${uid}/settings/color`)),
+        get(ref(db, `users/${uid}/profile/pic`)),
+        get(ref(db, `users/${uid}/profile/isAdmin`)),
+        get(ref(db, `users/${uid}/profile/isOwner`)),
+        get(ref(db, `users/${uid}/profile/isCoOwner`)),
+        get(ref(db, `users/${uid}/profile/isHAdmin`)),
+        get(ref(db, `users/${uid}/profile/isDev`)),
+        get(ref(db, `users/${uid}/profile/premium1`)),
+        get(ref(db, `users/${uid}/profile/premium2`)),
+        get(ref(db, `users/${uid}/profile/premium3`)),
+        get(ref(db, `users/${uid}/profile/isTester`)),
+        get(ref(db, `users/${uid}/profile/mileStone`)),
+        get(ref(db, `users/${uid}/profile/isSus`)),
+        get(ref(db, `users/${uid}/profile/isPartner`)),
+        get(ref(db, `users/${uid}/profile/dUsername`)),
+        get(ref(db, `users/${uid}/profile/isDonater`)),
+        get(ref(db, `users/${uid}/profile/isUploader`)),
+        get(ref(db, `users/${uid}/profile/isGuesser`)),
+        get(muteRef)
+    ]);
+    let muted = false;
+    if (muteSnap.exists()) {
+        const muteData = muteSnap.val();
+        if (muteData.expires && Date.now() > muteData.expires) {
+            await remove(muteRef);
+        } else {
+            muted = true;
+        }
+    }
+    const data = {
+        displayName: nameSnap.exists() ? nameSnap.val() : "User",
+        color: colorSnap.exists() ? colorSnap.val() : "#4fa3ff",
+        pic: picSnap.exists() ? picSnap.val() : 0,
+        owner: ownerSnap.exists() && ownerSnap.val(),
+        tester: testerSnap.exists() && testerSnap.val(),
+        coOwner: coOwnerSnap.exists() && coOwnerSnap.val(),
+        hAdmin: hAdminSnap.exists() && hAdminSnap.val(),
+        admin: adminSnap.exists() && adminSnap.val(),
+        dev: devSnap.exists() && devSnap.val(),
+        premium1: pre1Snap.exists() && pre1Snap.val(),
+        premium2: pre2Snap.exists() && pre2Snap.val(),
+        premium3: pre3Snap.exists() && pre3Snap.val(),
+        milestone: hSnap.exists() && hSnap.val(),
+        sus: susSnap.exists() && susSnap.val(),
+        partner: partnerSnap.exists() && partnerSnap.val(),
+        discord: discordSnap.exists() ? discordSnap.val() : "",
+        donor: donSnap.exists() && donSnap.val(),
+        uploader: uploadSnap.exists() && uploadSnap.val(),
+        guesser: guessSnap.exists() && guessSnap.val(),
+        muted
+    };
+    userMetaCache[uid] = data;
+    return data;
 }
 async function isUserMuted(uid) {
     const muteRef = ref(db, `mutedUsers/${uid}`);
@@ -277,7 +321,7 @@ async function processChannelMentions(htmlText) {
     const allChannels = channelSnap.exists() ? Object.keys(channelSnap.val()) : [];
     return htmlText.replace(channelRegex, (match, chName) => {
         if (allChannels.includes(chName)) {
-            return `<span class="channel-mention" data-channel="${chName}">#${chName}</span>`;
+            return `<span class="channel-mention" data-channel="${chName}" title="Go To The ${chName} Channel">#${chName}</span>`;
         } else {
             return `#${chName}`;
         }
@@ -318,6 +362,31 @@ async function getUidByDisplayName(name) {
         }
     }
     return null;
+}
+function toggleReply(id = null, name = null, text = null) {
+    if (!id) {
+        reply.style.display = "none";
+        reply.innerHTML = "";
+        isReplyActive = false;
+        replyMsgId = null;
+        replyMsgName = null;
+        replyMsgText = null;
+        return;
+    }
+    replyMsgId = id;
+    replyMsgName = name;
+    replyMsgText = text;
+    reply.innerHTML = "";
+    reply.style.display = "flex";
+    const lReply = document.createElement("span");
+    lReply.textContent = `Replying To: @${name}`;
+    const rReply = document.createElement("button");
+    rReply.id = "exitReply";
+    rReply.innerHTML = `<i class="bi bi-x-circle"></i>`;
+    rReply.onclick = () => toggleReply();
+    reply.appendChild(lReply);
+    reply.appendChild(rReply);
+    isReplyActive = true;
 }
 async function renderMessageInstant(id, msg) {
     if (document.getElementById("msg-" + id)) return null;
@@ -367,8 +436,9 @@ async function renderMessageInstant(id, msg) {
     topRow.appendChild(timeSpan);
     const textDiv = document.createElement("div");
     textDiv.style.whiteSpace = "pre-wrap";
+    textDiv.style.overflowWrap = "anywhere";
     textDiv.style.marginLeft = "40px";
-    textDiv.style.marginTop = "-7px";
+    textDiv.style.marginTop = "-11px";
     let safeText = (msg.text || "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -386,7 +456,7 @@ async function renderMessageInstant(id, msg) {
         /&lt;p\s+style="color:\s*([^";]+)\s*;"\s*&gt;([\s\S]*?)&lt;\/p&gt;/gi,
         (match, color, content) => {
             const safeColor = color.replace(/[^a-zA-Z0-9#(),.%\s]/g, "");
-            return `<p style="color:${safeColor}">${content}</p>`;
+            return `<p style="color:${safeColor}; margin-bottom:0px;">${content}</p>`;
         }
     );
     safeText = safeText.replace(
@@ -437,7 +507,7 @@ async function renderMessageInstant(id, msg) {
     );
     safeText = safeText.replace(
         /&lt;audio\s+src="([^"]+)"(?:\s+alt="([^"]*)")?(?:\s+style="([^"]*)")?\s*&gt;/gi,
-        (match, src, alt, style) => {
+        (match, src) => {
             const safeSrc = src.replace(/"/g, "");
             let finalStyle = "margin-top:6px;cursor:pointer;";
             return `<audio src="${safeSrc}" class="chat-aud" style="${finalStyle}" controls>`;
@@ -602,67 +672,68 @@ async function renderMessageInstant(id, msg) {
     editedSpan.className = "edited-label";
     editedSpan.textContent = msg.edited ? "(Edited)" : "";
     div.appendChild(msgBtns);
+    if (msg.reply) {
+        try {
+            const replySnap = await get(ref(db, currentPath + "/" + msg.reply));
+            if (replySnap.exists()) {
+                const rData = replySnap.val();
+                const rName = await getDisplayName(rData.sender);
+                const replyPreview = document.createElement("div");
+                replyPreview.style.display = "flex";
+                const arrow = document.createElement("span");
+                arrow.style.width = "30px";
+                arrow.style.marginLeft = "15px";
+                arrow.style.height = "10px";
+                arrow.style.marginTop = "-2px";
+                arrow.style.borderTop = "1px solid #aaa";
+                arrow.style.borderLeft = "1px solid #aaa";
+                arrow.style.borderTopLeftRadius = "10px";
+                const reply = document.createElement("span");
+                reply.style.fontSize = "0.8em";
+                reply.style.color = "#aaa";
+                reply.style.paddingLeft = "6px";
+                reply.style.marginTop = "-11px";
+                reply.style.whiteSpace = "nowrap";
+                reply.style.overflow = "hidden";
+                reply.style.textOverflow = "ellipsis";
+                reply.style.maxWidth = "100%";
+                const previewText = (rData.text || "").substring(0, 80);
+                reply.textContent =
+                    `Replying To: @${rName}: ${previewText}`;
+                replyPreview.appendChild(arrow);
+                replyPreview.appendChild(reply);
+                div.appendChild(replyPreview);
+            }
+        } catch (e) {
+            console.warn("Reply load failed:", e);
+        }
+    }
     div.appendChild(topRow);
     div.appendChild(textDiv);
     div.appendChild(editedSpan);
     (async () => {
         try {
-            const [nameSnap, colorSnap, picSnap, adminSnap, ownerSnap, coOwnerSnap, hAdminSnap, devSnap, pre1Snap, pre2Snap, pre3Snap, testerSnap, hSnap, susSnap, partnerSnap, discordSnap, donSnap, uploadSnap, guessSnap] = await Promise.all([
-                get(ref(db, `users/${msg.sender}/profile/displayName`)),
-                get(ref(db, `users/${msg.sender}/settings/color`)),
-                get(ref(db, `users/${msg.sender}/profile/pic`)),
-                get(ref(db, `users/${msg.sender}/profile/isAdmin`)),
-                get(ref(db, `users/${msg.sender}/profile/isOwner`)),
-                get(ref(db, `users/${msg.sender}/profile/isCoOwner`)),
-                get(ref(db, `users/${msg.sender}/profile/isHAdmin`)),
-                get(ref(db, `users/${msg.sender}/profile/isDev`)),
-                get(ref(db, `users/${msg.sender}/profile/premium1`)),
-                get(ref(db, `users/${msg.sender}/profile/premium2`)),
-                get(ref(db, `users/${msg.sender}/profile/premium3`)),
-                get(ref(db, `users/${msg.sender}/profile/isTester`)),
-                get(ref(db, `users/${msg.sender}/profile/mileStone`)),
-                get(ref(db, `users/${msg.sender}/profile/isSus`)),
-                get(ref(db, `users/${msg.sender}/profile/isPartner`)),
-                get(ref(db, `users/${msg.sender}/profile/dUsername`)),
-                get(ref(db, `users/${msg.sender}/profile/isDonater`)),
-                get(ref(db, `users/${msg.sender}/profile/isUploader`)),
-                get(ref(db, `users/${msg.sender}/profile/isGuesser`))
-            ]);
-            let displayName = nameSnap.exists() ? nameSnap.val() : "User";
+            const meta = await getUserMeta(msg.sender);
+            let displayName = meta.displayName;
             if (!displayName || displayName.trim() === "") {
                 displayName = "Spam Account";
             }
-            const color = colorSnap.exists() ? colorSnap.val() : "#4fa3ff";
-            let badgeText = null;
-            const senderIsAdmin = adminSnap.exists() ? adminSnap.val() : false;
-            const senderIsSus = susSnap.exists() ? susSnap.val() : false;
-            const senderIsCoOwner = coOwnerSnap.exists() ? coOwnerSnap.val() : false;
-            const senderIsOwner = ownerSnap.exists() ? ownerSnap.val() : false;
-            const senderIsHAdmin = hAdminSnap.exists() ? hAdminSnap.val() : false;
-            const senderIsTester = testerSnap.exists() ? testerSnap.val() : false;
-            if (senderIsSus) badgeText = "Sus";
-            else if (senderIsOwner) badgeText = "OWNR";
-            else if (senderIsTester) badgeText = "TSTR";
-            else if (senderIsCoOwner) badgeText = "COWNR";
-            else if (senderIsHAdmin) badgeText = "HADMIN";
-            else if (senderIsAdmin) badgeText = "ADMN";
-            const picVal = picSnap.exists() ? picSnap.val() : 0;
+            const picVal = meta.pic;
             const picIndex = (picVal >= 0 && picVal < profilePics.length) ? picVal : 0;
             profilePic.src = profilePics[picIndex] + "?t=" + Date.now();
             nameSpan.textContent = displayName;
-            nameSpan.style.color = color;
+            nameSpan.style.color = meta.color;
             const openProfile = () => {
-                const cleanName = encodeURIComponent(displayName.replace(/ /g, ""));
                 window.location.href = `InfiniteAccounts.html?user=${msg.sender}`;
             };
             nameSpan.onclick = openProfile;
             profilePic.onclick = openProfile;
             nameSpan.textContent = displayName;
-            nameSpan.style.color = color;
-            if (((isOwner || isTester) && !senderIsOwner) || (isCoOwner && !senderIsOwner && !senderIsTester && !senderIsCoOwner) || (isHAdmin && !senderIsOwner && !senderIsTester && !senderIsCoOwner && !senderIsHAdmin) || (isAdmin && !senderIsOwner && !senderIsTester && !senderIsCoOwner && !senderIsHAdmin && !senderIsAdmin)) {
+            nameSpan.style.color = meta.color;
+            if (((isOwner || isTester) && !meta.owner) || (isCoOwner && !meta.owner && !meta.tester && !meta.coOwner) || (isHAdmin && !meta.owner && !meta.tester && !meta.coOwner && !meta.hAdmin) || (isAdmin && !meta.owner && !meta.tester && !meta.coOwner && !meta.hAdmin && !meta.admin)) {
                 nameSpan.addEventListener("contextmenu", async (e) => {
                     e.preventDefault();
-                    const alreadyMuted = await isUserMuted(msg.sender);
+                    const alreadyMuted = meta.muted;
                     const menu = document.createElement("div");
                     menu.style.position = "absolute";
                     menu.style.left = e.pageX + "px";
@@ -759,7 +830,7 @@ async function renderMessageInstant(id, msg) {
             badgeContainer.style.marginLeft = "3px";
             badgeContainer.style.fontWeight = "bold";
             badgeContainer.style.display = "inline-flex";
-            badgeContainer.style.alignItems = "center";
+            badgeContainer.style.alignItems = "flex-start";
             badgeContainer.style.gap = "3px";
             const mutedBadge = document.createElement("span");
             mutedBadge.style.color = "red";
@@ -786,34 +857,34 @@ async function renderMessageInstant(id, msg) {
                 mutedBadge.style.display = "inline";
             });
             let dontShowOthers = false;
-            if (badgeText === "Sus") {
+            if (meta.sus) {
                 dontShowOthers = true;
                 badgeContainer.innerHTML = '<i class="bi bi-shield-exclamation"></i>';
                 badgeContainer.style.color = 'red';
                 badgeContainer.title = 'This User Is Currently Under Investigation, Please Do Not Interact With This User';
-            } else if (badgeText === "OWNR" && !dontShowOthers) {
+            } else if (meta.owner && !dontShowOthers) {
                 badgeContainer.innerHTML = '<i class="bi bi-shield-plus"></i>';
                 badgeContainer.style.color = "lime";
                 badgeContainer.title = "Owner";
-            } else if (badgeText === "TSTR" && !dontShowOthers) {
+            } else if (meta.tester && !dontShowOthers) {
                 badgeContainer.innerHTML = '<i class="fa-solid fa-cogs"></i>';
                 badgeContainer.style.color = "DarkGoldenRod";
                 badgeContainer.title = "Tester";
-            } else if (badgeText === "COWNR" && !dontShowOthers) {
+            } else if (meta.coOwner && !dontShowOthers) {
                 badgeContainer.innerHTML = '<i class="bi bi-shield-fill"></i>';
                 badgeContainer.style.color = "lightblue";
                 badgeContainer.title = "Co-Owner";
-            } else if (badgeText === "HADMIN" && !dontShowOthers) {
+            } else if (meta.hAdmin && !dontShowOthers) {
                 badgeContainer.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
                 badgeContainer.style.color = "#00cc99";
                 badgeContainer.title = "Head Admin";
-            } else if (badgeText === "ADMN" && !dontShowOthers) {
+            } else if (meta.admin && !dontShowOthers) {
                 badgeContainer.innerHTML = '<i class="bi bi-shield"></i>';
                 badgeContainer.style.color = "dodgerblue";
                 badgeContainer.title = "Admin";
             } else {
             }
-            if (devSnap.exists() && devSnap.val() === true) {
+            if (meta.dev) {
                 const icon = document.createElement("i");
                 icon.className = "bi bi-code-square";
                 icon.style.color = "green";
@@ -821,7 +892,7 @@ async function renderMessageInstant(id, msg) {
                 icon.title = `This User Is A Developer For Infinitecampus.xyz`;
                 badgeContainer.appendChild(icon);
             }
-            if (pre3Snap.exists() && pre3Snap.val() === true) {
+            if (meta.premium3) {
                 const icon = document.createElement("i");
                 icon.className = "bi bi-hearts";
                 icon.style.color = "red";
@@ -829,7 +900,7 @@ async function renderMessageInstant(id, msg) {
                 icon.title = `This User Has Infinite Campus Premium T3`;
                 badgeContainer.appendChild(icon);
             }
-            if (pre2Snap.exists() && pre2Snap.val() === true) {
+            if (meta.premium2) {
                 const icon = document.createElement("i");
                 icon.className = "bi bi-heart-fill";
                 icon.style.color = "orange";
@@ -837,7 +908,7 @@ async function renderMessageInstant(id, msg) {
                 icon.title = `This User Has Infinite Campus Premium T2`;
                 badgeContainer.appendChild(icon);
             }
-            if (pre1Snap.exists() && pre1Snap.val() === true) {
+            if (meta.premium1) {
                 const icon = document.createElement("i");
                 icon.className = "bi bi-heart-half";
                 icon.style.color = "yellow";
@@ -845,7 +916,7 @@ async function renderMessageInstant(id, msg) {
                 icon.title = `This User Has Infinite Campus Premium T1`;
                 badgeContainer.appendChild(icon);
             }
-            if (donSnap.exists() && donSnap.val() === true) {
+            if (meta.donor) {
                 const icon = document.createElement("i");
                 icon.className = "bi bi-balloon-heart";
                 icon.style.color = "#00E5FF";
@@ -853,7 +924,7 @@ async function renderMessageInstant(id, msg) {
                 icon.title = `This User Has Donated To Infinite Campus`;
                 badgeContainer.appendChild(icon);
             }
-            if (partnerSnap.exists() && partnerSnap.val() === true) {
+            if (meta.partner) {
                 const icon = document.createElement("i");
                 icon.className = "fa fa-handshake";
                 icon.style.color = "cornflowerblue";
@@ -861,7 +932,7 @@ async function renderMessageInstant(id, msg) {
                 icon.title = `This User Is A Partner Of Infinite Campus`;
                 badgeContainer.appendChild(icon);
             }
-            if (uploadSnap.exists() && uploadSnap.val() === true) {
+            if (meta.uploader) {
                 const icon = document.createElement("i");
                 icon.className = "bi bi-film";
                 icon.style.color = "grey";
@@ -869,7 +940,7 @@ async function renderMessageInstant(id, msg) {
                 icon.title = "This User Has Uploaded A Movie To Infinite Campus";
                 badgeContainer.appendChild(icon);
             }
-            if (hSnap.exists() && hSnap.val() === true) {
+            if (meta.milestone) {
                 const icon = document.createElement("i");
                 icon.className = "bi bi-award";
                 icon.style.color = "yellow";
@@ -877,7 +948,7 @@ async function renderMessageInstant(id, msg) {
                 icon.title = `This User Is The 100th Signed Up User`;
                 badgeContainer.appendChild(icon);
             }
-            if (guessSnap.exists() && guessSnap.val() === true) {
+            if (meta.guesser) {
                 const icon = document.createElement("i");
                 icon.className = "bi bi-stopwatch";
                 icon.style.color = "#ff0000";
@@ -885,13 +956,12 @@ async function renderMessageInstant(id, msg) {
                 icon.title = `This User Has A Lot Of Freetime`;
                 badgeContainer.appendChild(icon);
             }
-            if (discordSnap.exists() && discordSnap.val().trim() !== "") {
-                const dUsername = discordSnap.val();
+            if (meta.discord.trim() !== "") {
                 const icon = document.createElement("i");
                 icon.className = "bi bi-discord";
                 icon.style.color = "#5865F2";
                 icon.style.marginLeft = "6px";
-                icon.title = `Known As @${dUsername} On The Infinite Campus Discord Server`;
+                icon.title = `Known As @${meta.discord} On The Infinite Campus Discord Server`;
                 badgeContainer.appendChild(icon);
             }
             badgeContainer.appendChild(mutedBadge);
@@ -901,13 +971,24 @@ async function renderMessageInstant(id, msg) {
                 let canDelete = false;
                 if (isSelf) canDelete = true;
                 else if (isOwner || isTester) canDelete = true;
-                else if (isCoOwner && !senderIsOwner && !senderIsTester && !senderIsCoOwner && !senderIsOwner) canDelete = true;
-                else if (isHAdmin && !senderIsOwner && !senderIsCoOwner && !senderIsTester && !senderIsHAdmin) canDelete = true;
-                else if (isAdmin && !senderIsHAdmin && !senderIsAdmin && !senderIsCoOwner && !senderIsOwner && senderIsTester) canDelete = true;
+                else if (isCoOwner && !meta.owner && !meta.tester && !meta.coOwner && !meta.owner) canDelete = true;
+                else if (isHAdmin && !meta.owner && !meta.coOwner && !meta.tester && !meta.hAdmin) canDelete = true;
+                else if (isAdmin && !meta.hAdmin && !meta.admin && !meta.coOwner && !meta.owner && meta.tester) canDelete = true;
                 let canEdit = false;
                 if (isSelf) canEdit = true;
                 else if (isOwner || isTester) canEdit = true;
-                else if (isCoOwner && !senderIsOwner && !senderIsTester && !senderIsCoOwner && !senderIsHAdmin) canEdit = true;
+                else if (isCoOwner && !meta.owner && !meta.tester && !meta.coOwner && !meta.hAdmin) canEdit = true;
+                let canReply = true;
+                if (isSelf) canReply = false;
+                if (canReply) {
+                    const replyBtn = document.createElement("button");
+                    replyBtn.innerHTML = `<i class="bi bi-arrow-90deg-left"></i>`;
+                    replyBtn.title = "Reply";
+                    replyBtn.onclick = () => {
+                        toggleReply(id, displayName, msg.text);
+                    }
+                    msgBtns.appendChild(replyBtn);
+                }
                 if (canEdit) {
                     const editBtn = document.createElement("button");
                     editBtn.innerHTML = "<i class='bi bi-pencil-square'></i>";
@@ -1147,7 +1228,7 @@ async function attachMessageListeners(msgRef) {
                 /&lt;p\s+style="color:\s*([^";]+)\s*;"\s*&gt;([\s\S]*?)&lt;\/p&gt;/gi,
                 (match, color, content) => {
                     const safeColor = color.replace(/[^a-zA-Z0-9#(),.%\s]/g, "");
-                    return `<p style="color:${safeColor}">${content}</p>`;
+                    return `<p style="color:${safeColor}; margin-bottom:0px;">${content}</p>`;
                 }
             );
             safeText = safeText.replace(
@@ -1491,7 +1572,8 @@ sendBtn.onclick = async () => {
     const msg = {
         sender: currentUser.uid,
         text: outgoingText,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        reply: replyMsgId || null
     };
     if (currentPrivateUid) {
         await sendPrivateMessage(currentPrivateUid, outgoingText);
@@ -1504,10 +1586,11 @@ sendBtn.onclick = async () => {
         await push(ref(db, currentPath), msg);
     }
     chatInput.value = "";
+    toggleReply();
     if (typingRef && currentUser) {
-    const channelName = currentPath.split("/")[1];
-    remove(ref(db, `typing/${channelName}/${currentUser.uid}`));
-}
+        const channelName = currentPath.split("/")[1];
+        remove(ref(db, `typing/${channelName}/${currentUser.uid}`));
+    }
 };
 chatInput.addEventListener("input", () => {
     const mentions = chatInput.value.match(/@\w+/g);
@@ -1577,7 +1660,6 @@ sendBtn.addEventListener("click", async () => {
     const ch = currentPath.split("/")[1];
     remove(ref(db, `typing/${ch}/${currentUser.uid}`));
 });
-const mentionHint = document.getElementById("mentionHint");
 chatInput.addEventListener("input", () => {
     const value = chatInput.value;
     const cursorPos = chatInput.selectionStart;
