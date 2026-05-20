@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>
+            Infinite Campus Docs
+        </title>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-7SV03ZXJ9R">
+        </script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-7SV03ZXJ9R');
+        </script>
+        <link rel="stylesheet" href="css/theme.css" />
+        <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <aside class="sidebar" id="sidebar">
+        </aside>
+        <main class="content">
+            <h1 class="doc-header">
+                Infinite Campus API Self Hosting Guide
+            </h1>
+            <p class="doc-body">
+                This Page Is A Tutorial Of How To Host The Infinite Campus API Via Cloudflare Worker
+            </p>
+            <p class="doc-body">
+                How To Self Host The Infinite Campus API:
+                <br>
+                <br>
+                The Infinite Campus API Is Very Complex So Truly Self Hosting
+                <br>
+                Is Very Hard To Do.
+                <br>
+                This Article Will Teach You How To Self Host The Infinite Campus API
+                <br>
+                <br>
+                The Requirements For This Are As Follows:
+                <br>
+                A Cloudflare Account
+                <br>
+                <br>
+                <br>
+                <h3>
+                    Step 1:
+                </h3>
+                Navigate To Cloudflare Workers On You Cloudflare Dashboard
+                <br>
+                <br>
+                <h3>
+                    Step 2:
+                </h3>
+                Create A New Cloudflare Worker With The Hello World Template
+                <br>
+                <br>
+                <h3>
+                    Step 3:
+                </h3>
+                Click The Edit Code Button In The Top Right Corner And Paste In The Following Code
+                <br>
+                <pre class="language-js">
+                    <code class="language-js">
+  export default {
+    async fetch(req) {
+      const url = new URL(req.url);
+      url.protocol = "https:";
+      url.hostname = "api.infinitecampus.xyz";
+      url.hash = "";
+      const headers = new Headers(req.headers);
+      headers.set("Host", url.hostname);
+      const newRequest = new Request(url.toString(), {
+        method: req.method,
+        headers,
+        body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
+        redirect: "follow",
+      });
+      const res = await fetch(newRequest);
+      return res;
+    },
+  };
+                    </code>
+                </pre>
+                <br>
+                <br>
+                <h3>
+                    Step 4:
+                </h3>
+                Click The Blue Deploy Button In The Upper Right Corner
+                <br>
+                <br>
+                <h3>
+                    Step 5:
+                </h3>
+                Go To The Settings On Infinite Campus And Set The Backend URL To The URL That Is In The Address Bar Below The Deploy Button
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+            </p>
+        </main>
+        <script src="js/sidebar.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js">
+        </script>
+    </body>
+</html>

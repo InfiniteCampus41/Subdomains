@@ -1,0 +1,200 @@
+[
+    {
+        "game": "1",
+        "img": "/games/1/favicon.ico",
+        "place": 1,
+        "url": "/games/1/index.html"
+    },
+    { 
+        "game": "2048",
+        "img": "/games/2048/favicon.ico",
+        "place": 2,
+        "url": "/games/2048/index.html"
+    },
+    {
+        "game": "Universal Paperclips",
+        "img": "/games/paperclips/title.png",
+        "place": 3,
+        "url": "/games/paperclips/index.html"
+    },
+    {
+        "game": "Slope",
+        "img": "/games/slope/favicon.ico",
+        "place": 4,
+        "url": "/games/slope/index.html"
+    },
+    {
+        "game": "Eaglercraft (1.12.2)",
+        "img": "/games/eg1/favicon.ico",
+        "place": 5,
+        "url": "/games/eg1/index.html"
+    },
+    {
+        "game": "Super Mario 64",
+        "img": "/games/mario64/favicon.ico",
+        "place": 6,
+        "url": "/games/mario64/index.html"
+    },
+    {
+        "game": "Snake",
+        "img": "/games/slither/favicon.ico",
+        "place": 7,
+        "url": "/games/slither/index.html"
+    },
+    {
+        "game": "Pokemon Emerald",
+        "img": "/games/pokeemr/favicon.ico",
+        "place": 8,
+        "url": "/games/pokeemr/index.html"
+    },
+    {
+        "game": "Five Nights At Freddy's",
+        "img": "/games/fnaf1/favicon.ico",
+        "place": 9,
+        "url": "/games/fnaf1/index.html"
+    },
+    {
+        "game": "ULTRAKILL",
+        "img": "/games/ultrakill/favicon.ico",
+        "place": 10,
+        "url": "/games/ultrakill/index.html"
+    },
+    {
+        "game": "Iron Lung",
+        "img": "/games/ironlung/favicon.ico",
+        "place": 10,
+        "url": "/games/ironlung/index.html"
+    },
+    {
+        "game": "Hollow Knight",
+        "img": "/games/hollowknight/favicon.ico",
+        "place": 11,
+        "url": "/games/hollowknight/index.html"
+    },
+    {
+        "game": "Five Nights At Epstien's",
+        "img": "/games/fnae/favicon.ico",
+        "place": 12,
+        "url": "/games/fnae/index.html"
+    },
+    {
+        "game": "Buckshot Roulette",
+        "img": "/games/bsr/favicon.ico",
+        "place": 13,
+        "url": "/games/bsr/index.html"
+    },
+    {
+        "game": "The Legend of Zelda Ocarina of Time",
+        "img": "/games/oot/favicon.ico",
+        "place": 14,
+        "url": "/games/oot/index.html"
+    },
+    {
+        "game": "Run 3",
+        "img": "/games/run3/favicon.ico",
+        "place": 15,
+        "url": "/games/run3/index.html"
+    },
+    {
+        "game": "Tunnel Rush",
+        "img": "/games/tunnelrush/favicon.ico",
+        "place": 16,
+        "url": "/games/tunnelrush/index.html"
+    },
+    {
+        "game": "Tomb Of The Mask",
+        "img": "/games/totm/favicon.ico",
+        "place": 17,
+        "url": "/games/totm/index.html"
+    },
+    {
+        "game": "The Legend Of Zelda Majora's Mask",
+        "img": "/games/tlozmjm/favicon.ico",
+        "place": 18,
+        "url": "/games/tlozmjm/index.html"
+    },
+    {
+        "game": "Terraria",
+        "img": "/games/terraria/favicon.ico",
+        "place": 19,
+        "url": "/games/terraria/index.html"
+    },
+    {
+        "game": "Retro Bowl",
+        "img": "/games/retrobowl/favicon.ico",
+        "place": 20,
+        "url": "/games/retrobowl/index.html"
+    },
+    {
+        "game": "Pokemon Red",
+        "img": "/games/pokered/favicon.ico",
+        "place": 21,
+        "url": "/games/pokered/index.html"
+    },
+    {
+        "game": "Madalin Stunt Cars 2",
+        "img": "/games/msc2/favicon.ico",
+        "place": 22,
+        "url": "/games/msc2/index.html"
+    },
+    {
+        "game": "Getting Over It",
+        "img": "/games/goi/favicon.ico",
+        "place": 23,
+        "url": "/games/goi/index.html"
+    },
+    {
+        "game": "A Difficult Game About Climbing",
+        "img": "/games/adgac/favicon.ico",
+        "place": 24,
+        "url": "/games/adgac/index.html"
+    },
+    {
+        "game": "Angry Birds",
+        "img": "/games/abirds/favicon.ico",
+        "place": 25,
+        "url": "/games/abirds/index.html"
+    },
+    {
+        "game": "Basketball Stars",
+        "img": "/games/bkstars/favicon.ico",
+        "place": 26,
+        "url": "/games/bkstars/index.html"
+    },
+    {
+        "game": "BitLife",
+        "img": "/games/bitlife/favicon.ico",
+        "place": 27,
+        "url": "/games/bitlife/index.html"
+    },
+    {
+        "game": "Block Blast",
+        "img": "/games/bblast/favicon.ico",
+        "place": 28,
+        "url": "/games/bblast/index.html"
+    },
+    {
+        "game": "Cookie Clicker",
+        "img": "/games/cclick/favicon.ico",
+        "place": 29,
+        "url": "/games/cclick/index.html"
+    },
+    {
+        "game": "Crossy Road",
+        "img": "/games/crossyroad/favicon.ico",
+        "place": 30,
+        "url": "/games/crossyroad/index.html"
+    },
+    {
+        "game": "BuildNow.gg",
+        "img": "/games/buildnow/favicon.ico",
+        "place": 31,
+        "url": "/games/buildnow/index.html"
+    },
+    {
+        "game": "Rocket League",
+        "img": "/games/carsoccer/favicon.ico",
+        "place": 32,
+        "url": "/games/carsoccer/index.html"
+    }
+]

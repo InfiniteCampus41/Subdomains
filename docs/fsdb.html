@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>
+            Firestore DB Rules
+        </title>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-7SV03ZXJ9R">
+        </script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-7SV03ZXJ9R');
+        </script>
+        <link rel="stylesheet" href="css/theme.css" />
+        <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <aside class="sidebar" id="sidebar">
+        </aside>
+        <main class="content">
+            <h1 class="doc-header">
+                Infinite Campus Firestore Database Rules
+            </h1>
+            <p class="doc-body">
+                Infinite Campus Uses Google Firebase For Storing The Articles For The News Page
+                <br>
+                <br>
+                Below Are The Full Infinite Campus Firestore Database Rules
+            </p>
+            <br>
+            <pre class="language-js">
+                <code class="language-js">
+    rules_version = '2';
+    service cloud.firestore {
+        match /databases/{database}/documents {
+            function isOwner() {
+                return request.auth != null &&
+                request.auth.uid in [
+                    "jiEcu7wSifMalQxVupmQXRchA9k1"
+                ];
+            }
+            function isTester() {
+                return request.auth != null &&
+                request.auth.uid in [
+                    "5EQBEAbANRYAXq5qtwNgP54D65m1"
+                ];
+            }
+            function isDev() {
+                return request.auth != null &&
+                request.auth.uid in [
+                    "0MFrAJ3RSwayWkvHhhx34ugzOuB2"
+                ];
+            }
+            function isAdmin() {
+                return isOwner() || isTester() || isDev();
+            }
+            match /articles/{articleId} {
+                allow read: if true;
+                allow write: if isAdmin();
+            }
+            match /articles/{articleId}/content {
+                allow read: if true;
+                allow write: if isAdmin();
+            }
+            match /{document=**} {
+                allow read, write: if isAdmin();
+            }
+        }
+    }
+                </code>
+            </pre>
+        </main>
+        <script src="js/sidebar.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js">
+        </script>
+    </body>
+</html>

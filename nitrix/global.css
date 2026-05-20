@@ -1,0 +1,280 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap");
+@media (max-width: 1020px) {
+  	.parent {
+    	flex-direction: column;
+  	}
+  	.about {
+    	width: 95%;
+    	transition: 0.3s;
+  	}
+  	.buttons {
+    	padding-left: 35px;
+    	padding-top: 16px;
+    	transition: 0.3s;
+  	}
+  	.description {
+    	padding-left: 32px;
+    	padding-top: 0px;
+    	transition: 0.3s;
+  	}
+    .links {
+    	flex-direction: column;
+    	transition: 0.3s;
+  	}
+    .button {
+    	width: 95%;
+    	transition: 0.3s;
+  	}
+  	.project {
+    	width: 95%;
+    	transition: 0.3s;
+  	}
+}
+@media (max-width: 1200px) {
+  	.buttons {
+    	padding-right: 0px;
+    	padding-top: 16px;
+    	transition: 0.3s;
+  	}
+  	.description {
+    	padding-left: 32px;
+    	padding-top: 0px;
+    	transition: 0.3s;
+  	}
+}
+a {
+  	text-decoration: none;
+    cursor:pointer;
+    color: #000;
+}
+a:hover {
+  	text-decoration: underline salmon;
+}
+a:hover, a[rel~="nofollow"] {
+  	text-decoration: underline;
+}
+a[rel~="nofollow"] {
+  	color: #0452a5;
+}
+a[rel~="nofollow"]:hover {
+  	text-decoration: none;
+}
+.about {
+  	color: #abb2bf;
+  	font-size: 20px;
+  	width: 90%;
+}
+.blue {
+  	color: #5555ff;
+}
+body {
+  	background-color: #282c34;
+    color:#000;
+  	font-family: "Fira Code", monospace;
+  	padding: 0px;
+  	display: flex;
+    font-size: 16px;
+  	line-height: 28px;
+  	margin: 0;
+}
+.bold {
+  	font-family: "Fira Code", monospace;
+  	font-optical-sizing: auto;
+  	font-weight: 700;
+  	font-style: normal;
+}
+.button {
+    align-items: center;
+  	font-family: "Fira Code", monospace;
+  	background-color: #21252b;
+  	border-radius: 20px;
+  	color: #abb2bf;
+  	display: flex;
+  	font-size: 16px;
+  	justify-content: left;
+  	padding-left: 24px;
+  	text-decoration: none;
+	cursor: pointer;
+  	width: 42%;
+  	height: 60px;
+  	border: 0;
+}
+.button:hover {
+  	border: 2px solid #5555ff;
+  	padding-left: 22px;
+}
+.buttons {
+  	flex: 1;
+  	padding-top: 40px;
+  	text-align: left;
+  	float: right;
+  	transition: 0.3s;
+}
+.container {
+  	position: relative;
+  	width: 90%;
+  	max-width: 1024px;
+  	margin: 0 auto;
+}
+.cyan {
+  	color: #8be9fd;
+}
+.description {
+  	transition: 0.3s;
+  	flex: 1;
+  	padding-left: 128px;
+  	padding-top: 22px;
+  	float: left;
+}
+.footer {
+  	border-top: 1px solid #eee;
+  	margin: 32px 0 0;
+  	padding: 16px 0;
+}
+.green {
+  	color: #50fa7b;
+}
+h1 {
+  	font-size: 40px;
+  	line-height: 60px;
+}
+h1, h2 {
+  	font-weight: 700;
+}
+h2 {
+  	font-size: 32px;
+  	line-height: 48px;
+}
+h3 {
+  	font-size: 24px;
+  	line-height: 36px;
+}
+h3, h4 {
+  	font-weight: 700;
+}
+h4 {
+  	font-size: 20px;
+  	line-height: 30px;
+}
+h5 {
+  	font-size: 16px;
+}
+h5, h6 {
+  	line-height: 24px;
+  	font-weight: 700;
+}
+h6 {
+  	font-size: cacl(16px);
+}
+.header {
+  	color: #000;
+  	padding: 16px 0;
+}
+.header .title {
+  	font-size: 24px;
+  	line-height: 24px;
+	font-weight: 700;
+  	margin: 0;
+}
+.headers {
+  	color: #d6deed;
+  	font-size: 24px;
+}
+.hidden {
+  	display: none;
+}
+.links {
+  	display: flex;
+  	column-gap: 15px;
+}
+.name {
+  	color: #d6dde9;
+  	margin-bottom: 0px;
+  	font-size: 36px;
+}
+.orange {
+  	color: #ffb86c;
+}
+.page {
+  	width: 100%;
+}
+.parent {
+  	display: flex;
+  	flex-direction: row;
+}
+.project {
+  	display: block;
+  	width: 100%;
+  	height: auto;
+  	min-height: 120px;
+  	padding: 16px;
+  	box-sizing: border-box;
+  	background-color: #21252b;
+  	color: #abb2bf;
+  	border-radius: 12px;
+  	border: none;
+  	font-size: 16px;
+  	font-family: "Fira Code", monospace;
+  	text-align: left;
+  	transition: all 0.3s ease;
+  	margin-bottom: 12px;
+}
+.project:hover {
+  	border: 2px solid #f1fa8c;
+  	padding-left: 22px;
+  	background-color: #4a546a;
+  	transform: scale(1.02);
+}
+.project .text {
+  	display: block;
+  	width: 100%;
+}
+.purple {
+  	color: #bd93f9;
+}
+.red {
+  	color: #ff5555;
+}
+.skills {
+  	line-height: 1.4;
+  	margin-top: -15px;
+}
+.subtext {
+  	color: #7f848e;
+  	font-size: 20px;
+  	margin-top: 4px;
+}
+.translations-content-container {
+  	padding-top: 8px;
+  	border-top: 1px solid #eee;
+}
+.translations-list-container {
+  	color: #000;
+  	padding-bottom: 8px;
+  	margin: 0 0 16px;
+}
+.translations-list-container .translations-list {
+  	margin: 0;
+  	padding: 0;
+  	list-style: none;
+}
+.translations-list-container .translations-list .translations-list-item {
+  	display: inline-block;
+  	padding: 0;
+  	margin: 0 8px 8px 0;
+  	color: #fff;
+}
+.translations-list-container .translations-list .translations-list-item a {
+  	display: inline-block;
+  	padding: 4px 8px;
+}
+.translations-list-container .translations-list .translations-list-item a.active {
+  	color: #fff;
+  	background: #334055;
+}
+.visible {
+  	display: block;
+}
+.yellow {
+  	color: #f1fa8c;
+}

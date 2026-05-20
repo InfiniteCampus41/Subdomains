@@ -1,0 +1,214 @@
+import { auth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "./imports.js";
+const urlParams = new URLSearchParams(window.location.search);
+const chatparams = urlParams.get("chat");
+const donParams = urlParams.get("donate");
+const pollParams = urlParams.get("poll");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const loginBtn = document.getElementById("loginBtn");
+const signup = document.getElementById("signup");
+const resetBtn = document.getElementById("resetBtn");
+const statusEl = document.getElementById("status");
+const stillBtn = document.createElement("button");
+stillBtn.textContent = "Still Didn't Get Email?";
+let currentUser = null;
+let authReady = false;
+const authReadyPromise = new Promise((resolve) => {
+    onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        authReady = true;
+        resolve(user);
+    });
+});
+async function getAuthToken() {
+    await authReadyPromise;
+    if (currentUser) {
+        return await currentUser.getIdToken();
+    }
+    return null;
+}
+async function fetchAPI(endpoint, body) {
+    const token = await getAuthToken();
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = "Bearer " + token;
+    const res = await fetch(`${a}/${endpoint}`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body)
+    });
+    const json = await res.json();
+    if (!res.ok) {
+        throw new Error(json?.error || "Request failed");
+    }
+    return json;
+}
+function pathToArray(path) {
+    return path.split("/").filter(Boolean);
+}
+async function dbSet(path, value) {
+    return await fetchAPI("write", {
+        path: pathToArray(path),
+        value
+    });
+}
+async function dbPush(path, value) {
+    const key = Date.now().toString();
+    await dbSet(path + "/" + key, value);
+    return key;
+}
+stillBtn.disabled = true;
+stillBtn.style.display = "none";
+document.body.appendChild(stillBtn);
+const resetMenu = document.createElement("div");
+resetMenu.style.display = "none";
+resetMenu.style.marginTop = "10px";
+const serviceInput = document.createElement("input");
+serviceInput.placeholder = "Enter The Social Service (e.g., Nettleweb, Discord)";
+serviceInput.style.display = "block";
+serviceInput.style.marginBottom = "5px";
+const socialInput = document.createElement("input");
+socialInput.placeholder = "Enter Your Social Username";
+socialInput.style.display = "block";
+socialInput.style.marginBottom = "5px";
+const emailConfirmInput = document.createElement("input");
+emailConfirmInput.placeholder = "Enter The Email You Requested Reset For";
+emailConfirmInput.style.display = "block";
+emailConfirmInput.style.marginBottom = "5px";
+const submitResetDataBtn = document.createElement("button");
+submitResetDataBtn.textContent = "Submit";
+resetMenu.appendChild(serviceInput);
+resetMenu.appendChild(socialInput);
+resetMenu.appendChild(emailConfirmInput);
+resetMenu.appendChild(submitResetDataBtn);
+document.body.appendChild(resetMenu);
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        if (chatparams) {
+            window.location.href = "InfiniteAccounts.html?chat=true";
+        } else if (donParams) {
+            window.location.href = "InfiniteAccounts.html?donate=true";
+        } else if (pollParams) {
+            window.location.href = "InfiniteAccounts.html?poll=true";
+        } else {
+            window.location.href = "InfiniteAccounts.html";
+        }
+    }
+});
+const googleLoginBtn = document.getElementById("googleLoginBtn");
+googleLoginBtn.addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+        await signInWithPopup(auth, provider);
+        if (chatparams) {
+            window.location.href = "InfiniteAccounts.html?chat=true";
+        } else if (donParams) {
+            window.location.href = "InfiniteAccounts.html?donate=true";
+        } else if (pollParams) {
+            window.location.href = "InfiniteAccounts.html?poll=true";
+        } else {
+            window.location.href = "InfiniteAccounts.html";
+        }
+    } catch (error) {
+        console.error(error);
+        showError("Google Login Failed: " + error.message);
+    }
+});
+signup.addEventListener("click", () => {
+    if (chatparams) {
+        window.location.href = "InfiniteSignups.html?chat=true";
+    } else if (donParams) {
+        window.location.href = "InfiniteSignups.html?donate=true";
+    } else if (pollParams) {
+        window.location.href = "InfiniteSignups.html?poll=true";
+    } else {
+        window.location.href = "InfiniteSignups.html";
+    }
+});
+async function handleLogin() {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    if (!email || !password) {
+        statusEl.textContent = "Please Enter Email And Password.";
+        return;
+    }
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        if (chatparams) {
+            window.location.href = "InfiniteAccounts.html?chat=true";
+        } else if (donParams) {
+            window.location.href = "InfiniteAccounts.html?donate=true";
+        } else if (pollParams) {
+            window.location.href = "InfiniteAccounts.html?poll=true";
+        } else {
+            window.location.href = "InfiniteAccounts.html"
+        }
+    } catch (error) {
+        if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password") {
+            showError("Invalid Credentials.");
+        } else {
+            console.error(error);
+        }
+    }
+}
+async function handleReset() {
+    const email = emailInput.value.trim();
+    if (!email) {
+        statusEl.textContent = "Please Enter Your Email To Reset Password.";
+        return;
+    }
+    try {
+        await sendPasswordResetEmail(auth, email);
+        showSuccess("Password Reset Email Sent! It Should Arrive In 1-5 Minutes.");
+        stillBtn.style.display = "inline-block";
+        stillBtn.disabled = true;
+        let countdown = 5 * 60;
+        stillBtn.textContent = `Still Didn't Get Email? (${countdown}s)`;
+        const interval = setInterval(() => {
+            countdown--;
+            stillBtn.textContent = `Still Didn't Get Email? (${countdown}s)`;
+            if (countdown <= 0) {
+                clearInterval(interval);
+                stillBtn.textContent = "Still Didn't Get Email?";
+                stillBtn.disabled = false;
+            }
+        }, 1000);
+    } catch (error) {
+        console.error(error);
+        showError("Error Sending Reset Email: " + error.message);
+    }
+}
+stillBtn.addEventListener("click", () => {
+    resetMenu.style.display = "block";
+});
+submitResetDataBtn.addEventListener("click", async () => {
+    const service = serviceInput.value.trim();
+    const socialUsername = socialInput.value.trim();
+    const emailUsed = emailConfirmInput.value.trim();
+    if (!service || !socialUsername || !emailUsed) {
+        showError("Please Fill In All Fields.");
+        return;
+    }
+    try {
+        await dbPush("reset", {
+            service,
+            socialUsername,
+            emailUsed,
+            timestamp: Date.now()
+        });
+        showSuccess("Data Submitted Successfully!");
+        serviceInput.value = "";
+        socialInput.value = "";
+        emailConfirmInput.value = "";
+        resetMenu.style.display = "none";
+    } catch (err) {
+        console.error(err);
+        showError("Error Submitting Data: " + err.message);
+    }
+});
+loginBtn.addEventListener("click", handleLogin);
+resetBtn.addEventListener("click", handleReset);
+[emailInput, passwordInput].forEach(input => {
+    input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") handleLogin();
+    });
+});

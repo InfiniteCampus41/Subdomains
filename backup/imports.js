@@ -1,0 +1,25 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, updateProfile, sendEmailVerification, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { forceWebSockets } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+import { applyActionCode, confirmPasswordReset } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+import { io } from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
+import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-messaging.js";
+import Hyperbeam from "https://unpkg.com/@hyperbeam/web@latest/dist/index.js";
+const firebaseConfig = {
+  	apiKey: "AIzaSyBvbTQcsL1DoipWlO0ckApzkwCZgxBYbzY",
+  	authDomain: "notes-27f22.firebaseapp.com",
+  	databaseURL: "https://notes-27f22-default-rtdb.firebaseio.com",
+  	projectId: "notes-27f22",
+  	storageBucket: "notes-27f22.firebasestorage.app",
+  	messagingSenderId: "424229778181",
+  	appId: "1:424229778181:web:fa531219ed165346fa7d6c",
+  	measurementId: "G-834FYV6VTR"
+};
+const app = initializeApp(firebaseConfig);
+export const messaging = getMessaging(app);
+export const auth = getAuth(app);
+export const firestore = getFirestore(app);
+export { onAuthStateChanged, signOut, sendPasswordResetEmail, updateProfile, sendEmailVerification, signInWithEmailAndPassword, createUserWithEmailAndPassword, applyActionCode, confirmPasswordReset, signInWithCustomToken, forceWebSockets, io, doc, getDoc, updateDoc, deleteDoc, setDoc, GoogleAuthProvider, signInWithPopup, getToken, Hyperbeam };
+export default app;
