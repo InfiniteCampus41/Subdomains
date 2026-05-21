@@ -755,7 +755,7 @@ async function renderMessageInstant(id, msg) {
     if (id === "sender" || id === "text" || id === "timestamp" || id === "s" || id === "t") return null;
     if (!msg) return null;
     const isDiscordMsg = !!(msg.u !== undefined && msg.a !== undefined);
-    const isAnonMsg = !!(msg.anon === true && !isDiscordMsg);
+    const isAnonMsg = !!(( msg.anon === true || msg.sender === "anon") && !isDiscordMsg);
     const div = document.createElement("div");
     div.className = "msg" + (isDiscordMsg ? " msg-discord" : "");
     div.id = "msg-" + id;
@@ -789,7 +789,7 @@ async function renderMessageInstant(id, msg) {
     textDiv.style.whiteSpace = "pre-wrap";
     textDiv.style.overflowWrap = "anywhere";
     textDiv.style.marginLeft = "40px";
-    textDiv.style.marginTop = "-11px";
+    textDiv.style.marginTop = "-5px";
     let editedSpan = null;
     if (msg.edited || msg.e) {
         editedSpan = document.createElement("span");
@@ -803,8 +803,7 @@ async function renderMessageInstant(id, msg) {
         let safe = buildSafeText(raw);
         safe = await processChannelMentions(safe);
         textDivEl.innerHTML = safe;
-        textDivEl.querySelectorAll("discord-embed-b64").forEach(el => {
-            try {
+        textDivEl.querySelectorAll("discord-embed-b64").forEach(el => {            try {
                 const b64 = el.getAttribute("data") || "";
                 const decoded = atob(b64);
                 const wrapper = document.createElement("div");
@@ -923,8 +922,11 @@ async function renderMessageInstant(id, msg) {
             link.addEventListener("touchmove", () => clearTimeout(pressTimer));
         });
     }
-    buildRichText(rawText, textDiv).catch(() => { 
-        textDiv.innerHTML = buildSafeText(rawText); 
+    buildRichText(rawText, textDiv).then(() => {
+        initAudioPlayers(textDiv);
+    }).catch(() => { 
+        textDiv.innerHTML = buildSafeText(rawText);
+        initAudioPlayers(textDiv);
     });
     if (msg.edited || msg.e) editedSpan.textContent = "(Edited)";
     topRow.appendChild(leftWrapper);
@@ -1026,7 +1028,7 @@ async function renderMessageInstant(id, msg) {
         const textDiv = document.createElement("div");
         textDiv.className = "msg-text";
         textDiv.style.marginLeft = "40px";
-        textDiv.style.marginTop = "-11px";
+        textDiv.style.marginTop = "-5px";
         textDiv.style.whiteSpace = "pre-wrap";
         textDiv.style.overflowWrap = "anywhere";
         textDiv.innerHTML = buildSafeText(rawText);
@@ -1112,7 +1114,7 @@ async function renderMessageInstant(id, msg) {
                     replySpan.style.fontSize = "0.8em";
                     reply.style.marginRight = "44px";
                     replySpan.style.color = "#aaa";
-                    reply.style.marginTop = "-11px";
+                    reply.style.marginTop = "-5px";
                     replySpan.style.whiteSpace = "nowrap";
                     replySpan.style.overflow = "hidden";
                     replySpan.style.textOverflow = "ellipsis";
@@ -1470,7 +1472,7 @@ function buildSafeText(raw) {
                 if (hm) h = Math.min(parseInt(hm[1]), 300);
                 if (rm) r = parseInt(rm[1]);
             }
-            let st = "margin-top:6px;cursor:pointer;max-width:fit-content;border-radius:6px;";
+            let st = "margin-top:6px;cursor:pointer;border-radius:6px;";
             if (w) st += `width:${w}px;`;
             if (h) st += `height:${h}px;`;
             if (r !== null) st += `border-radius:${r}px;`;
@@ -1486,23 +1488,16 @@ function buildSafeText(raw) {
                 safeSrc = BACKEND + safeSrc;
             }
             const altMatch = attrs.match(/\balt="([^"]*)"/i);
-            const styleMatch = attrs.match(/\bstyle="([^"]*)"/i);
             const alt = altMatch ? altMatch[1] : "";
-            const style = styleMatch ? styleMatch[1] : "";
-            let w = null, h = null;
-            if (style) {
-                const wm = style.match(/width\s*:\s*([0-9]+)px/i);
-                const hm = style.match(/height\s*:\s*([0-9]+)px/i);
-                if (wm) w = Math.min(parseInt(wm[1]), 300);
-                if (hm) h = Math.min(parseInt(hm[1]), 300);
-            }
-            let st = "margin-top:6px;cursor:pointer;max-width:fit-content;border-radius:6px;height:fit-content;";
-            if (w) st += `width:${w}px;`;
-            if (h) st += `height:${h}px;`;
-            return `<video src="${safeSrc}" alt="${alt}" class="chat-vid" style="${st}" onerror="this.style.display='none'" controls>`;
+            const nameMatch = attrs.match(/\bdata-fname="([^"]*)"/i);
+            const fname = nameMatch ? nameMatch[1] : (alt || "video");
+            const fsizeMatch = attrs.match(/\bdata-fsize="([^"]*)"/i);
+            const fsize = fsizeMatch ? fsizeMatch[1] : "";
+            const fsizeHtml = fsize ? `<span class="discord-vid-size">${fsize}</span>` : "";
+            return `<div class="discord-vid-wrapper"><div class="discord-vid-topbar"><span class="discord-vid-fname">${fname}</span>${fsizeHtml}<a class="discord-vid-dl" href="${safeSrc}" download="${fname}" title="Download"><i class="bi bi-download"></i></a></div><video src="${safeSrc}" class="chat-vid discord-vid" onerror="this.parentElement.style.display='none'"></video><div class="discord-vid-controls"><button class="discord-vid-play"><i class="bi bi-play-fill"></i></button><input type="range" class="discord-vid-seek" value="0" min="0" max="100" step="0.1"><div class="discord-vid-time"><span class="discord-vid-cur">0:00</span> / <span class="discord-vid-dur">0:00</span></div><button class="discord-vid-mute" title="Mute"><i class="bi bi-volume-up-fill"></i></button></div></div>`;
         }
     );
-    safe = safe.replace(/&lt;\/video&gt;/gi, "</video>");
+    safe = safe.replace(/&lt;\/video&gt;/gi, "");
     safe = safe.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
     safe = safe.replace(
         /&lt;audio\b([\s\S]*?)&gt;/gi,
@@ -1514,10 +1509,39 @@ function buildSafeText(raw) {
             }
             const altMatch = attrs.match(/\balt="([^"]*)"/i);
             const alt = altMatch ? altMatch[1] : "";
-            return `<audio src="${safeSrc}" alt="${alt}" class="chat-aud" onerror="this.style.display='none'">`;
+            const nameMatch = attrs.match(/\bdata-fname="([^"]*)"/i);
+            const fname = nameMatch ? nameMatch[1] : "audio";
+            const fsizeMatch = attrs.match(/\bdata-fsize="([^"]*)"/i);
+            const fsize = fsizeMatch ? fsizeMatch[1] : "";
+            const fsizeHtml = fsize ? `<span class="discordaudiosize">${fsize}</span>` : "";
+            const tophtml = `<span class="discordaudiotop"><i class="bi bi-file-earmark-music"></i><span style="display:flex;flex-direction:column;overflow:hidden;">${fname} ${fsizeHtml}</span></span>`
+            return `<div class="discord-audio" data-fname="${fname}" data-src="${safeSrc}" data-dl="${fname}">${tophtml}<audio controls src="${safeSrc}" alt="${alt}" onerror="this.style.display='none'"></audio><div class="discordaudiocontrols"><button class="discordaudioplay"><i class='bi bi-play-fill'></i></button><input type="range" class="discordaudioseek" value="0" min="0" max="100"><div class="discordaudiotime"><span class="current">--:--</span> / <span class="duration">--:--</span></div><a class="discordaudiodl" href="${safeSrc}" download="${fname}" title="Download"><i class="bi bi-download"></i></a></div></div>`;
         }
     );
     safe = safe.replace(/&lt;\/audio&gt;/gi, "</audio>");
+    safe = safe.replace(
+        /&lt;file\b([\s\S]*?)&gt;/gi,
+        (fullTag, attrs) => {
+            const srcMatch = attrs.match(/\bhref="([^"]*)"/i) || attrs.match(/\bsrc="([^"]*)"/i);
+            let safeSrc = srcMatch ? srcMatch[1].replace(/"/g, "") : "";
+            if (safeSrc.startsWith("/")) safeSrc = BACKEND + safeSrc;
+            const nameMatch = attrs.match(/\bdata-fname="([^"]*)"/i);
+            const fname = nameMatch ? nameMatch[1] : "file";
+            const fsizeMatch = attrs.match(/\bdata-fsize="([^"]*)"/i);
+            const fsize = fsizeMatch ? fsizeMatch[1] : "";
+            const ext = fname.split(".").pop().toLowerCase();
+            let iconClass = "bi bi-file-earmark";
+            if (["pdf"].includes(ext)) iconClass = "bi bi-file-earmark-pdf";
+            else if (["zip","rar","7z","tar","gz"].includes(ext)) iconClass = "bi bi-file-earmark-zip";
+            else if (["doc","docx","txt","md"].includes(ext)) iconClass = "bi bi-file-earmark-text";
+            else if (["xls","xlsx","csv"].includes(ext)) iconClass = "bi bi-file-earmark-spreadsheet";
+            else if (["ppt","pptx"].includes(ext)) iconClass = "bi bi-file-earmark-slides";
+            else if (["js","ts","py","html","css","json","cpp","c","java"].includes(ext)) iconClass = "bi bi-file-earmark-code";
+            const fsizeHtml = fsize ? `<span class="discord-file-size">${fsize}</span>` : "";
+            return `<div class="discord-file-block"><i class="${iconClass} discord-file-icon"></i><div class="discord-file-info"><span class="discord-file-name" title="${fname}">${fname}</span>${fsizeHtml}</div><a class="discord-file-dl" href="${safeSrc}" download="${fname}" title="Download"><i class="bi bi-download"></i></a></div>`;
+        }
+    );
+    safe = safe.replace(/&lt;\/file&gt;/gi, "");
     safe = safe.replace(/\n/g, "<br>");
     const mentionRegex = /@([^\s<]+)/g;
     safe = safe.replace(mentionRegex, (match, name) => {
@@ -1633,6 +1657,7 @@ async function attachMessageListeners(path) {
         if (div) fragment.appendChild(div);
     }
     chatLog.appendChild(fragment);
+    initAudioPlayers(chatLog);
     scrollToBottom(false);
     let lastSnapshot = { ...msgs };
     const renderedKeys = new Set(Object.keys(msgs));
@@ -1662,6 +1687,7 @@ async function attachMessageListeners(path) {
                     }
                 }
                 if (!inserted) chatLog.appendChild(newDiv);
+                initAudioPlayers(newDiv);
                 if (autoScrollEnabled) scrollToBottom(true);
             } else if (lastSnapshot[key] && JSON.stringify(lastSnapshot[key]) !== JSON.stringify(val)) {
                 const textDiv = existing.querySelector(".msg-text");
@@ -1685,6 +1711,120 @@ async function attachMessageListeners(path) {
         lastSnapshot = { ...newData };
     }, "messages");
     currentListeners.added = ws;
+}
+function initAudioPlayers(container) {
+    const scope = container || document;
+    scope.querySelectorAll(".discord-audio").forEach((player) => {
+        if (player.dataset.audioInit) return;
+        player.dataset.audioInit = "1";
+        const audio = player.querySelector("audio");
+        const playBtn = player.querySelector(".discordaudioplay");
+        const seek = player.querySelector(".discordaudioseek");
+        const current = player.querySelector(".current");
+        const duration = player.querySelector(".duration");
+        if (!audio || !playBtn || !seek || !current || !duration) return;
+        function format(t) {
+            const m = Math.floor(t / 60);
+            const s = Math.floor(t % 60).toString().padStart(2, "0");
+            return `${m}:${s}`;
+        }
+        audio.addEventListener("loadedmetadata", () => {
+            seek.max = Math.floor(audio.duration);
+            duration.textContent = format(audio.duration);
+            current.textContent = "0:00";
+        });
+        audio.addEventListener("timeupdate", () => {
+            if (!seek._seeking) seek.value = audio.currentTime;
+            current.textContent = format(audio.currentTime);
+        });
+        audio.addEventListener("ended", () => {
+            playBtn.innerHTML = "<i class='bi bi-play-fill'></i>";
+            seek.value = 0;
+            current.textContent = "0:00";
+        });
+        playBtn.addEventListener("click", () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerHTML = "<i class='bi bi-pause-fill'></i>";
+            } else {
+                audio.pause();
+                playBtn.innerHTML = "<i class='bi bi-play-fill'></i>";
+            }
+        });
+        if (!isMobile) {
+            seek.addEventListener("mousedown", () => { seek._seeking = true; });
+            seek.addEventListener("mouseup", () => {
+                seek._seeking = false;
+                audio.currentTime = seek.value;
+            });
+            seek.addEventListener("input", () => {
+                current.textContent = format(Number(seek.value));
+            });
+        }
+    });
+    scope.querySelectorAll(".discord-vid-wrapper").forEach((wrapper) => {
+        if (wrapper.dataset.vidInit) return;
+        wrapper.dataset.vidInit = "1";
+        const video = wrapper.querySelector(".discord-vid");
+        const playBtn = wrapper.querySelector(".discord-vid-play");
+        const seek = wrapper.querySelector(".discord-vid-seek");
+        const curEl = wrapper.querySelector(".discord-vid-cur");
+        const durEl = wrapper.querySelector(".discord-vid-dur");
+        const muteBtn = wrapper.querySelector(".discord-vid-mute");
+        if (!video || !playBtn || !seek || !curEl || !durEl) return;
+        function fmt(t) {
+            const m = Math.floor(t / 60);
+            const s = Math.floor(t % 60).toString().padStart(2, "0");
+            return `${m}:${s}`;
+        }
+        video.addEventListener("loadedmetadata", () => {
+            seek.max = video.duration;
+            durEl.textContent = fmt(video.duration);
+        });
+        video.addEventListener("timeupdate", () => {
+            if (!seek._seeking) seek.value = video.currentTime;
+            curEl.textContent = fmt(video.currentTime);
+        });
+        video.addEventListener("ended", () => {
+            playBtn.innerHTML = "<i class='bi bi-play-fill'></i>";
+            seek.value = 0;
+            curEl.textContent = "0:00";
+        });
+        video.addEventListener("pause", () => {
+            playBtn.innerHTML = "<i class='bi bi-play-fill'></i>";
+        });
+        video.addEventListener("play", () => {
+            playBtn.innerHTML = "<i class='bi bi-pause-fill'></i>";
+        });
+        playBtn.addEventListener("click", () => {
+            if (video.paused) video.play();
+            else video.pause();
+        });
+        if (muteBtn) {
+            muteBtn.addEventListener("click", () => {
+                video.muted = !video.muted;
+                muteBtn.innerHTML = video.muted
+                    ? "<i class='bi bi-volume-mute-fill'></i>"
+                    : "<i class='bi bi-volume-up-fill'></i>";
+            });
+        }
+        if (!isMobile) {
+            seek.addEventListener("mousedown", () => { seek._seeking = true; });
+            seek.addEventListener("mouseup", () => {
+                seek._seeking = false;
+                video.currentTime = seek.value;
+            });
+            seek.addEventListener("input", () => {
+                curEl.textContent = fmt(Number(seek.value));
+            });
+            wrapper.addEventListener("dblclick", (e) => {
+                if (e.target === video) {
+                    if (video.paused) video.play();
+                    else video.pause();
+                }
+            });
+        }
+    });
 }
 function playNotificationSound() {
     const audio = new Audio("/res/notif.mp3");
@@ -2189,7 +2329,7 @@ sendBtn.onclick = async () => {
     if (!currentPath) return;
     if (isGuest) {
         let text = chatInput.value.trim();
-        if (!text) return;
+        if (!text && !pendingAttachFile) return;
         if (/@everyone\b/i.test(text) || /@here\b/i.test(text)) {
             showError("@everyone And @here Mentions Are Not Allowed.");
             chatInput.value = "";
@@ -2206,6 +2346,26 @@ sendBtn.onclick = async () => {
             showError("This Channel Does Not Allow Guest Messages.");
             return;
         }
+        if (pendingAttachFile) {
+            try {
+                const fileMsg = { 
+                    u: anonDisplayName, 
+                    t: text || "", 
+                    sender: "anon", 
+                    r: replyMsgId || undefined 
+                };
+                await dbPushWithFile(currentPath, fileMsg, pendingAttachFile);
+                pendingAttachFile = null;
+                const preview = document.getElementById("chatFilePreview");
+                if (preview) preview.remove();
+                chatInput.value = "";
+                toggleReply();
+                return;
+            } catch (err) {
+                showError("File Upload Failed: " + err.message);
+                return;
+            }
+        }
         const ts = Date.now();
         const headers = { "Content-Type": "application/json" };
         if (anonSessionToken) headers["x-anon-session"] = anonSessionToken;
@@ -2215,7 +2375,7 @@ sendBtn.onclick = async () => {
                 headers,
                 body: JSON.stringify({
                     path: ["messages", ch, String(ts)],
-                    value: { u: anonDisplayName, t: text, anon: true, r: replyMsgId || undefined },
+                    value: { u: anonDisplayName, t: text, sender: "anon", r: replyMsgId || undefined },
                     anonSession: anonSessionToken
                 })
             });
@@ -2705,9 +2865,14 @@ async function dbPushWithFile(path, value, file) {
     form.append("path", JSON.stringify([...path.split("/").filter(Boolean), key]));
     form.append("value", JSON.stringify(valueWithTs));
     form.append("file", file, file.name);
-    if (token) form.append("token", token);
     const headers = {};
-    if (token) headers["Authorization"] = "Bearer " + token;
+    if (token) {
+        form.append("token", token);
+        headers["Authorization"] = "Bearer " + token;
+    } else if (anonSessionToken) {
+        form.append("anonSession", anonSessionToken);
+        headers["x-anon-session"] = anonSessionToken;
+    }
     const res = await fetch(`${a}/write`, { method: "POST", headers, body: form });
     if (!res.ok) {
         let errMsg = "Upload failed";
@@ -2908,6 +3073,7 @@ setInterval(async () => {
             throw new Error("Online Indicator Post Failed");
         }
     }
+    initAudioPlayers(chatLog);
 }, 20000);
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("message", async (event) => {
