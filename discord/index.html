@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>
+            Join The Infinite Campus Discord
+        </title>
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Join The Infinite Campus Discord Server">
+        <meta property="og:description" content="The Official Infinite Campus Discord Server">
+        <meta property="og:image" content="https://cdn.discordapp.com/icons/1002698920809463808/92508dcf81af05440fcb7bae27cb0ac4.png?size=512">
+        <meta property="og:url" content="https://discord.infinitecampus.xyz">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Join The Infinite Campus Discord Server">
+        <meta name="twitter:description" content="The Official Infinite Campus Discord Server">
+        <meta name="twitter:image" content="https://cdn.discordapp.com/icons/1002698920809463808/92508dcf81af05440fcb7bae27cb0ac4.png?size=512">
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background: #0d1f14;
+                color: #d8ffe3;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                overflow-x: hidden;
+                position: relative;
+            }
+            #bg {
+                position: fixed;
+                inset: 0;
+                z-index: -1;
+            }
+            .card {
+                width: min(420px, calc(100vw - 30px));
+                background: rgba(18, 40, 25, 0.92);
+                border: 1px solid #2f6b38;
+                border-radius: 20px;
+                padding: 25px;
+                box-shadow:
+                    0 8px 25px rgba(0,0,0,.4),
+                    0 0 30px rgba(47,107,56,.2);
+                backdrop-filter: blur(10px);
+                text-align: center;
+            }
+            .icon {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 4px solid #4caf50;
+                margin-bottom: 15px;
+                box-shadow: 0 0 20px rgba(76,175,80,.4);
+            }
+            .server-name {
+                font-size: 28px;
+                font-weight: bold;
+                color: #7cff9c;
+                margin-bottom: 10px;
+            }
+            .description {
+                color: #b8d8bf;
+                line-height: 1.5;
+            }
+            .stats {
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-top: 20px;
+            }
+            .stat {
+                background: rgba(47, 107, 56, 0.3);
+                padding: 12px;
+                border-radius: 12px;
+                min-width: 120px;
+                border: 1px solid rgba(124,255,156,.15);
+            }
+            .stat-number {
+                font-size: 22px;
+                font-weight: bold;
+                color: #7cff9c;
+            }
+            .join-btn {
+                display: inline-block;
+                margin-top: 25px;
+                background: #2f9e44;
+                color: white;
+                text-decoration: none;
+                padding: 14px 24px;
+                border-radius: 12px;
+                font-weight: bold;
+                transition: .25s;
+            }
+            .join-btn:hover {
+                background: #37b24d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(55,178,77,.4);
+            }
+            @media (max-width: 500px) {
+                .card {
+                    padding: 20px;
+                }
+                .icon {
+                    width: 90px;
+                    height: 90px;
+                }
+                .server-name {
+                    font-size: 24px;
+                }
+                .description {
+                    font-size: 14px;
+                }
+                .stat {
+                    min-width: 110px;
+                    flex: 1;
+                }
+                .join-btn {
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="bg"></canvas>
+        <div class="card">
+            <img id="icon" class="icon" alt="Server Icon">
+            <div id="name" class="server-name">
+                Loading...
+            </div>
+            <div id="description" class="description">
+                Fetching Server Information...
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div id="members" class="stat-number">
+                        -
+                    </div>
+                    Members
+                </div>
+                <div class="stat">
+                    <div id="online" class="stat-number">
+                        -
+                    </div>
+                    Online
+                </div>
+            </div>
+            <a id="join" class="join-btn" href="#">
+                Join Server
+            </a>
+        </div>
+        <script src="script.js">
+        </script>
+    </body>
+</html>
