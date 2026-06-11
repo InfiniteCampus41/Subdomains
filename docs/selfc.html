@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>
+            Infinite Campus Docs
+        </title>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-7SV03ZXJ9R">
+        </script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-7SV03ZXJ9R');
+        </script>
+        <link rel="stylesheet" href="css/theme.css" />
+        <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <aside class="sidebar" id="sidebar">
+        </aside>
+        <main class="content">
+            <h1 class="doc-header">
+                Infinite Campus Self Hosting Guide
+            </h1>
+            <p class="doc-body">
+                This Page Is A Tutorial Of How To Host The Infinite Campus Via Cloudflare Worker
+            </p>
+            <p class="doc-body">
+                How To Self Host Infinite Campus:
+                <br>
+                <br>
+                The Requirements For This Are As Follows:
+                <br>
+                A Cloudflare Account
+                <br>
+                A Github Account
+                <br>
+                <br>
+                <br>
+                <h3>
+                    Step 1:
+                </h3>
+                Navigate To Cloudflare Workers On Your Cloudflare Dashboard
+                <br>
+                <br>
+                <h3>
+                    Step 2:
+                </h3>
+                Create A New Cloudflare Worker With The Hello World Template
+                <br>
+                <br>
+                <h3>
+                    Step 3:
+                </h3>
+                Click The Edit Code Button In The Top Right Corner And Paste In The Following Code
+                <br>
+                <pre class="language-js">
+                    <code class="language-js">
+    export default {
+        async fetch(request) {
+            const url = new URL(request.url);
+            const target =
+                "https://www.infinitecampus.xyz" +
+                url.pathname +
+                url.search;
+            const response = await fetch(target, {
+                headers: {
+                    "User-Agent": "Mozilla/5.0"
+                }
+            });
+            const headers = new Headers(response.headers);
+            headers.set("Access-Control-Allow-Origin", "*");
+            headers.set("Access-Control-Allow-Methods", "*");
+            headers.set("Access-Control-Allow-Headers", "*");
+            return new Response(response.body, {
+                status: response.status,
+                statusText: response.statusText,
+                headers
+            });
+        }
+    };
+                    </code>
+                </pre>
+                <br>
+                <br>
+                <p class="doc-body">
+                    If You Want To, You Can Replace The Infinite Campus URL With https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main So When Infinite Campus Goes Down, Your Link Will Stay Up. However, The Proxy Will Not Work I Think.
+                </p>
+                <br>
+                <h3>
+                    Step 4:
+                </h3>
+                Click The Blue Deploy Button In The Upper Right Corner And Keep This Tab Open
+                <br>
+                <br>
+                <h3>
+                    Step 5:
+                </h3>
+                Go To Github And Create A New Repo.
+                <br>
+                <br>
+                <h3>
+                    Step 6:
+                </h3>
+                Name The Repo Something And Create 2 Files In The Repo. One Should Be Called index.html, And The Other Should Be Called sw.js
+                <br>
+                <br>
+                <h3>
+                    Step 7:
+                </h3>
+                In The index.html File, Paste In The Following Code:
+                <pre class="language-html">
+                    <code class="language-html">
+    &lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+        &lt;head&gt;
+        &lt;script&gt;
+                if ("serviceWorker" in navigator) {
+                    navigator.serviceWorker.register("/sw.js");
+                }
+            &lt;/script&gt; 
+        &lt;/head&gt;
+        &lt;body&gt;
+            &lt;script&gt;
+                (async function () {
+                    if (sessionStorage.getItem("swReloaded")) return;
+                    await navigator.serviceWorker.ready;
+                    const status = document.createElement("div");
+                    document.body.appendChild(status);
+                    let seconds = 5;
+                    const interval = setInterval(() => {
+                        status.textContent = `Service Worker Ready. Launching In ${seconds}...`;
+                        if (seconds-- &lt;= 0) {
+                            clearInterval(interval);
+                            sessionStorage.setItem("swReloaded", "true");
+                            location.reload();
+                        }
+                    }, 1000);
+                })();
+            &lt;/script&gt;
+        &lt;/body&gt;
+    &lt;/html&gt;
+                    </code>
+                </pre>
+                <br>
+                <br>
+                In The sw.js File, Paste In The Following Code:
+                <pre class="language-js">
+                    <code class="language-js">
+    const WORKER_URL = "YOUR WORKER URL HERE";
+    self.addEventListener("fetch", event => {
+        const url = new URL(event.request.url);
+        if (
+            url.pathname.startsWith("/.well-known") ||
+            url.pathname === "/sw.js"
+        ) {
+            return;
+        }
+        if (
+            url.protocol === "https:" ||
+            url.protocol === "http:"
+        ) {
+            const currentOrigin = self.location.origin;
+            if (url.origin !== currentOrigin) {
+                return;
+            }
+        }
+        event.respondWith(
+            fetch(`${WORKER_URL}${url.pathname}${url.search}`, {
+                method: event.request.method,
+                headers: event.request.headers
+            }).catch(() => fetch(event.request))
+        );
+    });
+                    </code>
+                </pre>
+                <br>
+                <br>
+                <h3>
+                    Step 8:
+                </h3>
+                Go Back To The Cloudflare Worker Tab And Copy The URL Below The Deploy Button And Replace The YOUR WORKER URL HERE Text In The sw.js Code With The URL You Just Copied
+                <br>
+                <br>
+                <h3>
+                    Step 9:
+                </h3>
+                Make Sure The Changes To The sw.js And index.html Files Are Committed To Github, Then Go Back To The Cloudflare Worker Tab And Create A New Worker With Github
+                <br>
+                <br>
+                <h3>
+                    Step 10:
+                </h3>
+                Link Your Github Account With Cloudflare, Then Find The Repo You Created And Select It. After This, You Can Change The Project Name To Whatever You Like And Select Deploy
+                <br>
+                <br>
+                <h3>
+                    Step 11:
+                </h3>
+                Wait For The Worker To Deploy, Then Select The Visit Button In The Top Right.
+                <br>
+                <br>
+                <br>
+                <br>
+            </p>
+        </main>
+        <script src="js/sidebar.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js">
+        </script>
+    </body>
+</html>
