@@ -54,7 +54,7 @@ function animateBackground() {
     requestAnimationFrame(animateBackground);
 }
 animateBackground();
-const inviteUrl = "https://discord.gg/4d9hJSVXca";
+const inviteUrl = "https://discord.gg/Fq2gUZvRr3";
 const inviteCode = inviteUrl
     .replace("https://discord.gg/", "")
     .replace("https://discord.com/invite/", "");
