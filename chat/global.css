@@ -154,7 +154,11 @@ a {
 #article-content {
     text-align:center;
     margin: 50px 0px;
-    padding:0px 40px;
+    padding:40px 0px;
+    background:#333;
+    width:90%;
+    border:1px solid black;
+    border-radius:40px;
 }
 .article h2 {
     color:white;
@@ -255,6 +259,52 @@ blockquote{
 }
 body {
     background-image:url('/res/bg.png');
+}
+body.gl-scroll-locked {
+    overflow: hidden;
+}
+body.light-bg #badges {
+    background:#333;
+    width:fit-content;
+    align-self:center;
+    padding:0px 10px 10px;
+    border-radius:10px;
+    border:1px solid white;
+}
+body.light-bg .btxt:not(.text .btxt):not(.note div .btxt):not(.donate .btxt):not(#extensionSection .btxt), body.light-bg #clock, body.light-bg #dateText, body.light-bg #digitalClock, body.light-bg #adminEmail .field-label, body.light-bg #adminEmail .composer-title, body.light-bg #adminEmail .field-hint {
+    color: black;
+}
+body.light-bg .cdot, body.light-bg .hand, body.light-bg .mark  {
+    background-color: #000
+}
+body.light-bg .discord {
+    color: blue;
+}
+body.light-bg .displayName {
+    background:#333;
+    padding:10px 10px 10px;
+    border-radius:10px;
+    border:1px solid white;
+}
+body.light-bg hr:not(.text hr):not(.donate hr) {
+    border-color: #000;
+}
+body.light-bg #stats div {
+    color: #000;
+    background:#333;
+    border-radius:10px;
+}
+body.light-bg .showpopup {
+    filter:invert(1);
+}
+body.light-bg textarea {
+    background-color: #333
+}
+body.light-bg .tptxt {
+    color: green;
+}
+body.light-bg .y {
+    color: orange;
 }
 #browsers {
     height:calc(100vh - calc(var(--headerHeight) + var(--footerHeight)));
@@ -1175,6 +1225,18 @@ body {
     transition: width 0.4s linear;
     white-space: nowrap;
 }
+#fileRowInner span, #thumbRowInner span {
+    color: #aaa;
+    font-size: 0.85em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#fileRowInner, #thumbRowInner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 #fLabel {
     transition:0.3s all;
 }
@@ -1195,6 +1257,194 @@ footer {
 #gamesContainer .button {
     padding:10px;
     margin:10px;
+}
+#gameLibrary {
+    color: white;
+    padding: 20px 0 40px;
+}
+#gameUploadCard {
+    max-width: 560px;
+    margin: 40px auto;
+    text-align: left;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #222;
+    border-radius: 10px;
+    padding: 24px;
+}
+#gameUploadCard .charcount {
+    float: right;
+    color: #777;
+    font-size: 0.8em;
+}
+#gameUploadCard label {
+    display: block;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    color: #ccc;
+    font-size: 0.9em;
+}
+.glCard {
+    position: relative;
+    cursor: pointer;
+    text-align: left;
+    padding:10px;
+    background:#333;
+    border-radius:10px;
+    border:1px solid #666;
+}
+.glCardBadge {
+    position: absolute;
+    top: 8px;
+    right: -6px;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 0.7em;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    width: max-content;
+}
+.glCardBadge.flash { 
+    background: #2f9e44; 
+}
+.glCardBadge.html5 { 
+    background: #e8590c; 
+}
+.glCardBadge.pending { 
+    background: #f08c00; 
+}
+.glCardBadge.url { 
+    background: #1971c2; 
+}
+.glCardThumb {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 1.5em;
+}
+.glCardThumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.glCardTitle {
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: #eee;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.glFilterBtn {
+    background: none;
+    border: 1px solid #444;
+    color: #ccc;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.glFilterBtn.active {
+    border-color: #8cbe37;
+    color: #8cbe37;
+}
+#glFilters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+#glGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 24px 18px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+#glPagination {
+    margin-top: 30px;
+}
+#glPlayerBar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: #111;
+    border-top: 1px solid #333;
+}
+#glPlayerBar button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 4px 10px;
+}
+#glPlayerFrame {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: #000;
+}
+#glPlayerMeta {
+    padding: 10px 16px;
+    background: #0a0a0a;
+    color: #aaa;
+    font-size: 0.85em;
+}
+#glPlayerMeta p {
+    margin-top: 6px;
+    color: #ccc;
+}
+#glPlayerOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+}
+#glSearch {
+    width: 100%;
+    padding: 10px 36px 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #111;
+    color: white;
+}
+#glSearchWrap {
+    position: relative;
+    width: min(500px, 90vw);
+    margin: 0 auto 20px;
+}
+#glSearchWrap .ic-search {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+#glSortWrap {
+    margin-bottom: 20px;
+    color: #aaa;
+    font-size: 0.9em;
+}
+#glSortWrap select {
+    background: #111;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 4px 8px;
+    margin-left: 6px;
 }
 #groupInfoBtn {
     background: none !important;
@@ -1555,6 +1805,11 @@ input[type="range"]::-webkit-slider-thumb {
     background: #18181e; 
     border-color: #108028; 
 }
+#loginGate {
+    max-width: 480px;
+    margin: 60px auto;
+    text-align: center;
+}
 #logo {
     height: calc(var(--headerHeight) - 1px);
     transition:0.3s all;
@@ -1683,7 +1938,7 @@ main {
         height: 44px;
     }
     .sp-player {
-        height: auto;
+        height: auto !important;
         min-height: 72px;
         padding: 8px 10px;
         flex-direction: row;
@@ -2681,27 +2936,34 @@ main {
     flex-direction: column;
 }
 .popup2 .bar:first-child {
-    height: 45px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
+    flex-shrink: 0;
 }
 .popup2 .bar:last-child {
-    height: 40px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+}
+.popup2 hr {
+    margin-top:10px;
+    margin-bottom:10px;
 }
 .popup2 input, .popup2 button, .popup2 a.button {
-    margin: 5px 3px;
+    margin: 3px 2px;
     transition:0.3s all;
+    font-size: 0.82em;
 }
 .popup2 input, .popup2 .section button, .popup2 .section a:not(.discord), #fLabel {
     background:black;
     width:fit-content;
-    padding:5px;
+    padding:4px 6px;
     border-radius:4px;
     border:1px solid white;
     color:white;
@@ -2711,6 +2973,7 @@ main {
     display:flex;
     flex-wrap:wrap;
     justify-self:center;
+    gap:5px;
 }
 .popup2.shows {
     transform: translateX(0);
@@ -2723,6 +2986,31 @@ main {
 }
 pre code {
     font-size:.75em !important;
+}
+.preview-img {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid white;
+    margin: 4px auto;
+    display: none;
+}
+.preview-img-bg {
+    width: 100%;
+    height: 70%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 5px;
+    border: 1px solid white;
+    margin: 4px auto;
+    display: none;
+}
+.preview-img-bg.show {
+    display: block;
+}
+.preview-img.show {
+    display: block;
 }
 #privateList li .dm-pfp {
     width: 32px;
@@ -3145,6 +3433,9 @@ select {
 }
 #sendBtn:hover {
     background: #666;
+}
+#serverLogs {
+    background:#333;
 }
 #settings {
     display:flex;
@@ -4447,6 +4738,7 @@ table {
     border-collapse: collapse; 
     margin-top: 20px; 
     color:white;
+    background:#333;
 }
 .tab-frame {
     transition: opacity 0.25s ease;
@@ -4611,6 +4903,14 @@ th, td {
     margin-bottom:7px;
     border:1px solid white;
     border-radius:15px;
+}
+.upload-row {
+    margin-top: 16px;
+}
+#uploadStatus {
+    margin-top: 14px;
+    min-height: 20px;
+    font-size: 0.9em;
 }
 #url-table {
     width: 100%;
