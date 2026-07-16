@@ -104,6 +104,11 @@
                         Available Movies
                     </h2>
                     <input class="button mbInp" id="search" placeholder="Search Movies" autocomplete="off" oninput="filterMovies()">
+                    <select class="button" id="sortSelect" onchange="setSortMode(this.value)">
+                        <option value="order">Sort: Default Order</option>
+                        <option value="name">Sort: Name (A-Z)</option>
+                        <option value="popularity">Sort: Most Popular</option>
+                    </select>
                     <button class="button" onclick="loadMovies()">
                         Reload List
                     </button>

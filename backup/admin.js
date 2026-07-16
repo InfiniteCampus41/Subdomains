@@ -1750,6 +1750,16 @@ if (kdsuhPage == "/InfiniteAdmins.html") {
                 item.innerHTML = `
                     <span class="drag-handle"><i class="ic ic-grip-vertical"></i></span>
                     <span class="movie-name">${movie.filename}</span>
+                    <span class="movie-popularity" title="Views" style="font-size:0.75em;opacity:0.7;margin-left:6px;white-space:nowrap;">
+                        <i class="ic ic-eye-fill"></i> ${movie.popularity || 0}
+                    </span>
+                    <label class="movie-sub-btn button" title="Upload Subtitles (.vtt or .srt)" style="cursor:pointer;margin-left:8px;display:inline-flex;align-items:center;">
+                        <i class="ic ${movie.subtitleUrl ? "ic-badge-cc-fill" : "ic-badge-cc"}"></i>
+                        <input type="file" class="movie-sub-input" accept=".vtt,.srt" style="display:none;">
+                    </label>
+                    <button type="button" class="movie-delete-btn button" title="Delete Movie" style="margin-left:8px;color:#ff5555;">
+                        <i class="ic ic-trash"></i>
+                    </button>
                 `;
                 addDragEvents(item);
                 const nameEl = item.querySelector(".movie-name");
@@ -1758,9 +1768,75 @@ if (kdsuhPage == "/InfiniteAdmins.html") {
                     const currentIndex = moviesData.findIndex(m => m.filename === item.dataset.filename);
                     openMovieEditor(currentIndex);
                 });
+                const subLabel = item.querySelector(".movie-sub-btn");
+                subLabel.addEventListener("click", (e) => e.stopPropagation());
+                const subInput = item.querySelector(".movie-sub-input");
+                subInput.addEventListener("click", (e) => e.stopPropagation());
+                subInput.addEventListener("change", async (e) => {
+                    e.stopPropagation();
+                    const file = subInput.files[0];
+                    if (!file) return;
+                    await uploadMovieSubtitle(movie.filename, file);
+                });
+                const delBtn = item.querySelector(".movie-delete-btn");
+                delBtn.addEventListener("click", async (e) => {
+                    e.stopPropagation();
+                    await deleteMovieItem(movie.filename);
+                });
                 container.appendChild(item);
             });
             addSaveButton();
+        }
+        function stripMp4Ext(filename) {
+            return filename.replace(/\.mp4$/i, "");
+        }
+        async function deleteMovieItem(filename) {
+            const isAuthenticated = await checkUserAuthentication();
+            if (!isAuthenticated) return;
+            const confirmed = confirm(`Delete "${filename}"? This Cannot Be Undone.`);
+            if (!confirmed) return;
+            try {
+                const name = stripMp4Ext(filename);
+                const res = await adminFetch(BACKEND + `/delete/x9a7b2/${encodeURIComponent(name)}`, {
+                    method: "DELETE"
+                });
+                const data = await res.json().catch(() => null);
+                if (res.ok && data?.ok) {
+                    moviesData = moviesData.filter(m => m.filename !== filename);
+                    showSuccess("Movie Deleted.");
+                    renderMoviesList();
+                } else {
+                    showError(data?.error || "Failed To Delete Movie.");
+                }
+            } catch (err) {
+                console.error(err);
+                showError("Failed To Delete Movie.");
+            }
+        }
+        async function uploadMovieSubtitle(filename, file) {
+            const isAuthenticated = await checkUserAuthentication();
+            if (!isAuthenticated) return;
+            try {
+                const name = stripMp4Ext(filename);
+                const formData = new FormData();
+                formData.append("subtitle", file);
+                const res = await adminFetch(BACKEND + `/api/upload_subtitle_x9a7b2/${encodeURIComponent(name)}`, {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json().catch(() => null);
+                if (res.ok && data?.ok) {
+                    const movie = moviesData.find(m => m.filename === filename);
+                    if (movie) movie.subtitleUrl = data.subtitleUrl;
+                    showSuccess("Subtitles Uploaded.");
+                    renderMoviesList();
+                } else {
+                    showError(data?.error || "Failed To Upload Subtitles.");
+                }
+            } catch (err) {
+                console.error(err);
+                showError("Failed To Upload Subtitles.");
+            }
         }
         function addDragEvents(item) {
             const handle = item.querySelector(".drag-handle");

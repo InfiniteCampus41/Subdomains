@@ -2,6 +2,7 @@ import { auth } from "./imports.js";
 let BACKEND = `${a}`;
 let applyBK = `${a}`;
 let MOVIE_CACHE = [];
+let CURRENT_SORT = "order";
 let finishingTimeout = null;
 let FIREBASE_AVAILABLE = true;
 let MOVIE_LOAD_ID = 0;
@@ -138,6 +139,22 @@ async function uploadApply() {
     loadMovies();
     if (finishingWatcher) clearInterval(finishingWatcher);
 }
+function sortMovieList(list) {
+    const sorted = [...list];
+    if (CURRENT_SORT === "name") {
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (CURRENT_SORT === "popularity") {
+        sorted.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    } else {
+        sorted.sort((a, b) => (a.order ?? 99999999) - (b.order ?? 99999999));
+    }
+    return sorted;
+}
+function setSortMode(mode) {
+    CURRENT_SORT = mode;
+    filterMovies();
+}
+window.setSortMode = setSortMode;
 async function loadMovies() {
     const url = BACKEND + "/api/list_videos_x9a7b2";
     const box = document.getElementById("movies");
@@ -156,7 +173,7 @@ async function loadMovies() {
             return;
         }
         MOVIE_CACHE = data.videos;
-        await renderMovies(data.videos, loadId);
+        await renderMovies(sortMovieList(data.videos), loadId);
     } catch (e) {
         if (loadId !== MOVIE_LOAD_ID) return;
         showError("Failed To Load Movies, Check Server Status");
@@ -213,7 +230,7 @@ async function renderMovies(list, loadId = MOVIE_LOAD_ID) {
                     </span>
                     <div style="width:100%;position:relative;display:flex;justify-content:center;align-items:center;">
                         <small style="font-size:0.7em;">
-                            ${v.humanSize}
+                            ${v.humanSize}${v.popularity ? ` &middot; ${v.popularity} view${v.popularity === 1 ? "" : "s"}` : ""}
                         </small>
                         ${ccBadge}
                     </div>
@@ -270,7 +287,7 @@ function filterMovies() {
     const filtered = MOVIE_CACHE.filter(m =>
         m.name.toLowerCase().includes(term)
     );
-    renderMovies(filtered);
+    renderMovies(sortMovieList(filtered));
 }
 (function buildPlayerDOM() {
     const panel = document.getElementById("watchPanel");
@@ -819,6 +836,18 @@ async function openWatchPanel(name, subtitleUrl = null) {
     _vpCurrentSrc = streamURL;
     player.src = streamURL;
     player.play();
+    fetch(BACKEND + "/api/watch_x9a7b2/" + name, {
+        method: "POST",
+        headers: { "ngrok-skip-browser-warning": "true" }
+    }).then(async (res) => {
+        try {
+            const data = await res.json();
+            if (data && typeof data.popularity === "number") {
+                const cached = MOVIE_CACHE.find(m => m.name === name);
+                if (cached) cached.popularity = data.popularity;
+            }
+        } catch {}
+    }).catch(err => console.warn("Failed To Record Watch:", err));
     panel.style.display = "flex";
     const dlBtn = document.getElementById("vp-download-btn");
     if (dlBtn) dlBtn.dataset.src = streamURL;
