@@ -83,7 +83,7 @@ fetch(
             "https://cdn.discordapp.com/embed/avatars/0.png";
         document.getElementById("icon").src = iconUrl;
     }
-    document.title = `Join The ${guild?.name || "Discord"} Server`;
+    document.title = `Join The ${guild?.name || "Discord"} Discord Server`;
     document
         .querySelector('meta[property="og:title"]')
         ?.setAttribute("content", guild?.name || "Discord");
@@ -93,9 +93,6 @@ fetch(
             "content",
             guild?.description || "Join This Discord Server"
         );
-    document
-        .querySelector('meta[property="og:image"]')
-        ?.setAttribute("content", iconUrl);
     document
         .querySelector('meta[property="og:url"]')
         ?.setAttribute("content", window.location.href);
@@ -108,9 +105,6 @@ fetch(
             "content",
             guild?.description || "Join This Discord Server"
         );
-    document
-        .querySelector('meta[name="twitter:image"]')
-        ?.setAttribute("content", iconUrl);
 })
 .catch(error => {
     console.error(error);
