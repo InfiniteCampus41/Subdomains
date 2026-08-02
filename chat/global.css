@@ -2857,8 +2857,8 @@ pre code {
     max-width:50%;
 }
 :root {
-    --headerHeight: 60px;
-    --footerHeight: 32px;
+    --headerHeight: 0px;
+    --footerHeight: 0px;
 }
 #rules-editor {
     flex: 1;
