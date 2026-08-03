@@ -10,6 +10,7 @@ let lastUploadTime = Date.now();
 let currentlyOpenActions = null;
 let finishingWatcher = null;
 let currentSubtitleBlobUrl = null;
+let autoOpenedMovie = false;
 const currentfile = document.getElementById("currentFile");
 const movies = document.getElementById("movies");
 const section = document.getElementById("section");
@@ -43,7 +44,19 @@ document.getElementById("applyFile").addEventListener("change", () => {
     } else {
         label.innerText = "";
     }
-});
+})
+function updateMovieURL(movieName = null) {
+    const url = new URL(window.location);
+    if (movieName) {
+        url.searchParams.set("movie", movieName);
+    } else {
+        url.searchParams.delete("movie");
+    }
+    history.replaceState({}, "", url);
+}
+function getMovieFromURL() {
+    return new URLSearchParams(window.location.search).get("movie");
+}
 function sanitizeUsername(name) {
     if (!name) return "An Anonymous User";
     return name
@@ -222,7 +235,7 @@ async function renderMovies(list, loadId = MOVIE_LOAD_ID) {
         movieDiv.style.borderRadius = "12px";
         movieDiv.style.boxShadow = "0 4px 10px rgba(0,0,0,0.5)";
         movieDiv.innerHTML = `
-            <img src="${v.cover || ""}" alt="${v.name} Cover" style="height:300px;width:200px;border-radius:12px;position:absolute;z-index:3;display:flex;" />
+            <img src="${v.proxiedthumb ? BACKEND + v.proxiedthumb : (v.cover || "")}" alt="${v.name} Cover" style="height:300px;width:200px;border-radius:12px;position:absolute;z-index:3;display:flex;" />
             <div class="movie-actions" style="height:100%;width:100%;opacity:0;pointer-events:none;position:absolute;z-index:4;display:flex;flex-direction:column;transition:opacity 0.3s ease;">
                 <div style="top:0px;position:absolute;width:100%;justify-content:center;align-items:center;display:flex;padding:0px 10px;background:rgba(0,0,0,0.8);height:40px;flex-direction:column;border-top-left-radius:12px;border-top-right-radius:12px;">
                     <span style="display:flex;align-items:center;width:100%;white-space:nowrap;overflow:hidden;">
@@ -592,6 +605,12 @@ function vpCloseDropup() {
         if (video && !video.paused) vpHideUI();
     });
     video.addEventListener("click", (e) => {
+        if (autoOpenedMovie && video.muted) {
+            video.muted = false;
+            autoOpenedMovie = false;
+            vpUpdateVolIcon();
+            vpUpdateVolSlider();
+        }
         if (e.target.closest("#vp-controls") || e.target.closest("#vp-center-btn")) return;
         const isDesktop = window.matchMedia("(hover: hover)").matches;
         if (isDesktop) {
@@ -795,6 +814,7 @@ document.addEventListener("fullscreenchange", () => {
     vpShowUI();
 });
 async function openWatchPanel(name, subtitleUrl = null) {
+    updateMovieURL(name);
     const panel = document.getElementById("watchPanel");
     const player = document.getElementById("watchVideo");
     const before = document.getElementById("before");
@@ -835,6 +855,9 @@ async function openWatchPanel(name, subtitleUrl = null) {
     const streamURL = BACKEND + "/movies/x9a7b2/" + name;
     _vpCurrentSrc = streamURL;
     player.src = streamURL;
+    if (autoOpenedMovie) {
+        player.muted = true;
+    }
     player.play();
     fetch(BACKEND + "/api/watch_x9a7b2/" + name, {
         method: "POST",
@@ -859,6 +882,8 @@ function closeWatchPanel() {
     const panel = document.getElementById("watchPanel");
     const player = document.getElementById("watchVideo");
     const before = document.getElementById("before");
+    updateMovieURL(null);
+    autoOpenedMovie = false;
     player.pause();
     player.src = "";
     _vpCurrentSrc = "";
@@ -879,7 +904,17 @@ function closeWatchPanel() {
 }
 window.openWatchPanel = openWatchPanel;
 window.closeWatchPanel = closeWatchPanel;
-loadMovies();
+loadMovies().then(() => {
+    const movie = getMovieFromURL();
+    if (!movie) return;
+    const found = MOVIE_CACHE.find(
+        m => m.name.toLowerCase() === decodeURIComponent(movie).toLowerCase()
+    );
+    if (found) {
+        autoOpenedMovie = true;
+        openWatchPanel(found.name, found.subtitleUrl || null);
+    }
+});
 const networkWarning = document.getElementById("networkWarning");
 const SPEED_THRESHOLD_MS = 750;
 async function checkNetworkSpeed() {
