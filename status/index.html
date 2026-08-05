@@ -85,11 +85,41 @@
                 justify-content:space-between; 
                 align-items:center; 
             }
+            .site-url {
+                font-size:12px;
+                color:#999;
+                margin-top:2px;
+            }
             .bars { 
-                display:grid; 
-                grid-template-columns:repeat(24,1fr); 
-                gap:3px; 
+                display:flex;
+                flex-direction:column;
+                gap:12px;
                 margin-top:10px;
+            }
+            .day-row {
+                display:flex;
+                align-items:center;
+                gap:10px;
+                padding-bottom:12px;
+                border-bottom:1px solid #444;
+            }
+            .day-row:last-child {
+                border-bottom:none;
+                padding-bottom:0;
+            }
+            .day-label {
+                width:64px;
+                flex-shrink:0;
+                font-size:12px;
+                color:#bbb;
+                text-align:right;
+                line-height:1.3;
+            }
+            .day-bars {
+                display:grid;
+                grid-template-columns:repeat(24,1fr);
+                gap:3px;
+                flex:1;
             }
             .bar { 
                 height:25px; 
@@ -103,6 +133,9 @@
             }
             .maintenance { 
                 background:gray;
+            }
+            .nodata {
+                background:#4a4a4a;
             }
             .adminBtns { 
                 margin-top:10px; 
@@ -133,7 +166,7 @@
         </button>
         <center>
             <h1>
-                Service Status (Last 24 Hours)
+                Service Status (Last 7 Days)
             </h1>
             <p style="color:white">
                 To Report An Issue, Email support@infinitecampus.xyz
@@ -201,12 +234,15 @@
                 </p>
                 <p id="maintCountdown">
                 </p>
+                <button id="dismissMaintBtn">
+                    Dismiss
+                </button>
             </div>
         </div>
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
             import { getDatabase, ref, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
-            import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+            import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
             const firebaseConfig = {
                 apiKey: "AIzaSyA-_Troqe-OyvWB00JmyKNB7pcn3zIHyHI",
                 authDomain: "status-ba6c4.firebaseapp.com",
@@ -219,31 +255,44 @@
             const app = initializeApp(firebaseConfig);
             const db = getDatabase(app);
             const auth = getAuth(app);
+            setPersistence(auth, browserLocalPersistence).catch(err => console.error("Persistence Error:", err));
             let loggedIn = false;
             let currentSite = null;
             const container = document.getElementById("sites");
             const upcomingMaintEl = document.getElementById("upcomingMaint");
+            function showAdminUI() {
+                loggedIn = true;
+                document.querySelectorAll(".adminBtns").forEach(b => b.style.display = "flex");
+                document.getElementById("addSiteBtn").style.display = "block";
+            }
             document.getElementById("loginBtn").onclick = () => document.getElementById("loginOverlay").style.display = "flex";
             document.getElementById("loginSubmit").onclick = async () => {
                 const email = document.getElementById("email").value;
                 const password = document.getElementById("password").value;
                 try {
                     await signInWithEmailAndPassword(auth, email, password);
-                    loggedIn = true;
-                    document.querySelectorAll(".adminBtns").forEach(b => b.style.display = "flex");
-                    document.getElementById("addSiteBtn").style.display = "block";
                     document.getElementById("loginOverlay").style.display = "none";
-                    if (!localStorage.getItem("admin")) {
-                        let adminPass = prompt("Set Your Admin Password:");
-                        if (!adminPass) return alert("Admin Password Required!");
-                        localStorage.setItem("admin", adminPass);
-                        alert("Admin Password Set!");
-                    }
-                    loadSites();
                 } catch (err) {
                     alert("Login Failed: " + err.message);
                 }
             };
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    showAdminUI();
+                    if (!localStorage.getItem("admin")) {
+                        let adminPass = prompt("Set Your Admin Password:");
+                        if (adminPass) {
+                            localStorage.setItem("admin", adminPass);
+                            alert("Admin Password Set!");
+                        } else {
+                            alert("Admin Password Required!");
+                        }
+                    }
+                } else {
+                    loggedIn = false;
+                }
+                loadSites();
+            });
             document.getElementById("addSiteBtn").onclick = () => document.getElementById("addOverlay").style.display = "flex";
             document.getElementById("addSubmit").onclick = async () => {
                 const name = document.getElementById("newSiteName").value.trim();
@@ -258,6 +307,7 @@
                 await set(ref(db, `sites/${nextNum}/name`), name);
                 await set(ref(db, `sites/${nextNum}/url`), url);
                 await set(ref(db, `sites/${nextNum}/status`), {});
+                await set(ref(db, `sites/${nextNum}/addedAt`), Math.floor(Date.now()/1000));
                 document.getElementById("addOverlay").style.display = "none";
                 loadSites();
             };
@@ -277,9 +327,14 @@
                     div.className = "site";
                     div.innerHTML = `
                         <div class="site-header">
-                            <h3>
-                                ${siteName}
-                            </h3>
+                            <div>
+                                <h3 style="margin:0;">
+                                    ${siteName}
+                                </h3>
+                                <div class="site-url">
+                                    ${siteUrl}
+                                </div>
+                            </div>
                             <div id="${num}-percent">
                                 —
                             </div>
@@ -301,58 +356,93 @@
                     container.appendChild(div);
                     const statusRef = ref(db, `sites/${num}/status`);
                     const maintRef = ref(db, `sites/${num}/maint`);
-                    onValue(statusRef, snap => updateBars(num, siteName, snap.val() || {}, maintRef));
+                    const addedAt = siteData.addedAt || null;
+                    onValue(statusRef, snap => updateBars(num, siteName, snap.val() || {}, maintRef, addedAt));
                 }
             }
-            async function updateBars(num, siteName, data, maintRef) {
+            const HOURS_SHOWN = 24 * 7;
+            async function updateBars(num, siteName, data, maintRef, addedAt) {
                 const bars = document.getElementById(num + "-bars");
                 const now = Math.floor(Date.now()/1000);
                 onValue(maintRef, async maintSnap => {
                     const maintenance = maintSnap.val() || {};
                     bars.innerHTML = "";
                     let upHours = 0;
-                    for (let i = 23; i >= 0; i--) {
-                        const start = new Date(Date.now() - i * 3600000);
-                        const end = new Date(Date.now() - (i-1) * 3600000);
-                        const key = `${start.getUTCFullYear()}-${String(start.getUTCMonth()+1).padStart(2,"0")}-${String(start.getUTCDate()).padStart(2,"0")}-${String(start.getUTCHours()).padStart(2,"0")}`;
+                    let trackedHours = 0;
+                    let dayBars = null;
+                    for (let i = HOURS_SHOWN - 1; i >= 0; i--) {
+                        const rough = new Date(Date.now() - i * 3600000);
+                        const hourStart = new Date(Date.UTC(rough.getUTCFullYear(), rough.getUTCMonth(), rough.getUTCDate(), rough.getUTCHours()));
+                        const hourStartTs = Math.floor(hourStart.getTime()/1000);
+                        const isCurrentHour = i === 0;
+                        const hourEnd = isCurrentHour ? new Date() : new Date(hourStart.getTime() + 3600000);
+                        const key = `${hourStart.getUTCFullYear()}-${String(hourStart.getUTCMonth()+1).padStart(2,"0")}-${String(hourStart.getUTCDate()).padStart(2,"0")}-${String(hourStart.getUTCHours()).padStart(2,"0")}`;
                         const entry = data[key];
-                        let isUp = entry ? entry.up : false;
+                        if ((HOURS_SHOWN - 1 - i) % 24 === 0) {
+                            const dayRow = document.createElement("div");
+                            dayRow.className = "day-row";
+                            const dayLabel = document.createElement("div");
+                            dayLabel.className = "day-label";
+                            dayLabel.textContent = hourStart.toLocaleDateString([], {month:'short', day:'numeric'});
+                            dayBars = document.createElement("div");
+                            dayBars.className = "day-bars";
+                            dayRow.appendChild(dayLabel);
+                            dayRow.appendChild(dayBars);
+                            bars.appendChild(dayRow);
+                        }
                         const bar = document.createElement("div");
+                        const fromTime = hourStart.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:true});
+                        const toTime = hourEnd.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:true});
+                        if (addedAt && hourStartTs < addedAt) {
+                            bar.className = "bar nodata";
+                            bar.title = "No Data Available For This Period";
+                            dayBars.appendChild(bar);
+                            continue;
+                        }
+                        trackedHours++;
+                        let isUp = entry ? entry.up : false;
                         let isMaintenance = false;
                         if (maintenance.start && maintenance.end) {
-                            const ts = Math.floor(start.getTime()/1000);
-                            if (ts >= maintenance.start && ts <= maintenance.end) isMaintenance = true;
+                            if (hourStartTs >= maintenance.start && hourStartTs <= maintenance.end) isMaintenance = true;
                         }
                         if (isMaintenance) bar.className="bar maintenance";
                         else if (isUp) { bar.className="bar up"; upHours++; }
                         else bar.className="bar down";
-                        const fromTime = start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                        const toTime = end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                         bar.title = `${isMaintenance ? "Maintenance" : isUp ? "Up" : "Down"}\nFrom: ${fromTime} To: ${toTime}`;
-                        bars.appendChild(bar);
+                        dayBars.appendChild(bar);
                     }
-                    document.getElementById(num + "-percent").textContent = Math.round((upHours/24)*100) + "% uptime";
+                    const pct = trackedHours ? Math.round((upHours/trackedHours)*100) : 0;
+                    document.getElementById(num + "-percent").textContent = trackedHours ? (pct + "% uptime") : "—";
                     if (maintenance.start && maintenance.end && now >= maintenance.start && now <= maintenance.end) {
-                        const overlay = document.getElementById("currentMaintOverlay");
-                        overlay.style.display = "flex";
-                        document.getElementById("maintMessage").textContent = `${siteName} Is Currently Undergoing Maintenance.`;
-                        const countdownEl = document.getElementById("maintCountdown");
-                        const updateCountdown = () => {
-                            const remaining = maintenance.end - Math.floor(Date.now()/1000);
-                            if (remaining <= 0) { overlay.style.display="none"; clearInterval(timer); return; }
-                            const h = Math.floor(remaining/3600), m = Math.floor((remaining%3600)/60), s = remaining%60;
-                            countdownEl.textContent = `Maintenance Ends In About ${h}h ${m}m ${s}s`;
-                        };
-                        updateCountdown();
-                        const timer = setInterval(updateCountdown, 1000);
+                        const dismissKey = `dismissedMaint_${num}_${maintenance.start}_${maintenance.end}`;
+                        if (!localStorage.getItem(dismissKey)) {
+                            const overlay = document.getElementById("currentMaintOverlay");
+                            overlay.dataset.dismissKey = dismissKey;
+                            overlay.style.display = "flex";
+                            document.getElementById("maintMessage").textContent = `${siteName} Is Currently Undergoing Maintenance.`;
+                            const countdownEl = document.getElementById("maintCountdown");
+                            const updateCountdown = () => {
+                                const remaining = maintenance.end - Math.floor(Date.now()/1000);
+                                if (remaining <= 0) { overlay.style.display="none"; clearInterval(timer); return; }
+                                const h = Math.floor(remaining/3600), m = Math.floor((remaining%3600)/60), s = remaining%60;
+                                countdownEl.textContent = `Maintenance Ends In About ${h}h ${m}m ${s}s`;
+                            };
+                            updateCountdown();
+                            const timer = setInterval(updateCountdown, 1000);
+                        }
                     }
                     if (maintenance.start && maintenance.end && maintenance.start > now) {
-                        const startStr = new Date(maintenance.start*1000).toLocaleString([], {hour:'2-digit', minute:'2-digit', month:'short', day:'numeric'});
-                        const endStr = new Date(maintenance.end*1000).toLocaleString([], {hour:'2-digit', minute:'2-digit', month:'short', day:'numeric'});
+                        const startStr = new Date(maintenance.start*1000).toLocaleString([], {hour:'2-digit', minute:'2-digit', month:'short', day:'numeric', hour12:true});
+                        const endStr = new Date(maintenance.end*1000).toLocaleString([], {hour:'2-digit', minute:'2-digit', month:'short', day:'numeric', hour12:true});
                         upcomingMaintEl.innerHTML += `${siteName}: ${startStr} → ${endStr}<br>`;
                     }
                 });
             }
+            document.getElementById("dismissMaintBtn").onclick = () => {
+                const overlay = document.getElementById("currentMaintOverlay");
+                if (overlay.dataset.dismissKey) localStorage.setItem(overlay.dataset.dismissKey, "1");
+                overlay.style.display = "none";
+            };
             window.loadSites = loadSites;
             window.schedule = (site) => { currentSite = site; document.getElementById("maintOverlay").style.display="flex"; };
             document.getElementById("scheduleBtn").onclick = async () => {
@@ -383,9 +473,6 @@
             };
             window.deleteSite = async (num) => {
                 await remove(ref(db, "sites/"+num));
-                loadSites();
-            };
-            window.onload = () => {
                 loadSites();
             };
         </script>
