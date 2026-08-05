@@ -393,7 +393,7 @@
                         const bar = document.createElement("div");
                         const fromTime = hourStart.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:true});
                         const toTime = hourEnd.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:true});
-                        if (addedAt && hourStartTs < addedAt) {
+                        if (addedAt && (hourStartTs + 3600) <= addedAt) {
                             bar.className = "bar nodata";
                             bar.title = "No Data Available For This Period";
                             dayBars.appendChild(bar);
