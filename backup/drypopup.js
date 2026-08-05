@@ -1,6 +1,7 @@
 import { auth, onAuthStateChanged } from "./imports.js";
 let authReady = false;
 let isLoggedInMsg = "Login";
+let isLoggedInClass = "button";
 let isLoggedInLink = "/InfiniteLogins.html";
 const DEFAULT_BACKEND = a;
 let BACKEND = localStorage.getItem('backendUrl') || DEFAULT_BACKEND;
@@ -9,6 +10,7 @@ const authReadyPromise = new Promise((resolve) => {
     onAuthStateChanged(auth, (user) => {
         currentUser = user;
         isLoggedInMsg = "My Account";
+        isLoggedInClass = ""
         isLoggedInLink = "/InfiniteAccounts.html"; 
         authReady = true;
         resolve(user);
@@ -49,14 +51,48 @@ async function dbSet(path, value) {
         value
     });
 }
+let pfpDomain = "/pfps";
+if (!(e.includes(window.location.host))) {
+    pfpDomain = "https://raw.githubusercontent.com/InfiniteCampus41/InfiniteCampus/refs/heads/main/pfps";
+}
+let profileImages = [];
+async function loadProfileImages() {
+    try {
+        const res = await fetch(`${pfpDomain}/index.json`, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const files = await res.json();
+        return files.map(f => `${pfpDomain}/` + f);
+    } catch (e) {
+        console.error("Failed To Load Profile Images:", e);
+        return [`${pfpDomain}/1.jpeg`];
+    }
+}
+async function resolveProfilePicUrl(picIndex) {
+    try {
+        if (!profileImages || profileImages.length === 0) {
+            profileImages = await loadProfileImages();
+        }
+        const baseUrl = profileImages[picIndex || 0] || profileImages[0] || `${pfpDomain}/1.jpeg`;
+        return baseUrl.split("?")[0];
+    } catch (err) {
+        console.error("Failed To Resolve Profile Picture:", err);
+        return `${pfpDomain}/1.jpeg`;
+    }
+}
+let accountDisplayName = "";
+let accountNameColor = "#ffffff";
+let accountPicUrl = "";
 onAuthStateChanged(auth, async (user) => {
     if (!user) return;   
     try {
-        const [pankey, panurl, title, weather] = await Promise.all([
+        const [pankey, panurl, title, weather, displayName, nameColor, picIndex] = await Promise.all([
             dbGet(`users/${user.uid}/settings/panicKey`),
             dbGet(`users/${user.uid}/settings/panicUrl`),
             dbGet(`users/${user.uid}/settings/pageTitle`),
-            dbGet(`users/${user.uid}/settings/betterWeather`)
+            dbGet(`users/${user.uid}/settings/betterWeather`),
+            dbGet(`users/${user.uid}/profile/displayName`),
+            dbGet(`users/${user.uid}/settings/color`),
+            dbGet(`users/${user.uid}/profile/pic`)
         ]);
         if (pankey) localStorage.setItem('panicKey', pankey);
         if (panurl) localStorage.setItem('panicUrl', panurl);
@@ -64,12 +100,49 @@ onAuthStateChanged(auth, async (user) => {
         if (weather !== undefined) {
             localStorage.setItem('betterWeather', weather ? 'true' : 'false');
         }
+        accountDisplayName = displayName || user.email || "Account";
+        accountNameColor = nameColor || localStorage.getItem('color') || "#ffffff";
+        if (nameColor) localStorage.setItem('color', nameColor);
+        accountPicUrl = await resolveProfilePicUrl(picIndex);
         window.dispatchEvent(new Event("settingsLoaded"));
         applySettingsToUI();
     } catch (error) {
         console.warn("DB load failed:", error);
     }
 });
+function updateAccountButton(el) {
+    if (!el) return;
+    el.href = isLoggedInLink;
+    el.innerHTML = '';
+    if (currentUser) {
+        el.classList.remove('button');
+        el.classList.add('mini-profile-btn');
+        const photoURL = accountPicUrl || `${pfpDomain}/1.jpeg`;
+        const username = accountDisplayName || currentUser.email || 'Account';
+        const nameColor = accountNameColor || '#ffffff';
+        const pic = document.createElement('img');
+        pic.className = 'mini-profile-pic';
+        pic.src = photoURL;
+        pic.alt = '';
+        const info = document.createElement('div');
+        info.className = 'mini-profile-info';
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'mini-profile-username';
+        nameSpan.style.color = nameColor;
+        nameSpan.textContent = username;
+        const editSpan = document.createElement('p');
+        editSpan.className = 'mini-profile-edit';
+        editSpan.innerHTML = '<i class="ic ic-pencil-fill"></i>  Edit Profile';
+        info.appendChild(nameSpan);
+        info.appendChild(editSpan);
+        el.appendChild(pic);
+        el.appendChild(info);
+    } else {
+        el.classList.remove('mini-profile-btn');
+        el.classList.add('button');
+        el.textContent = isLoggedInMsg;
+    }
+}
 function applySettingsToUI() {
     const panicKeyInput = document.getElementById('panicKeyInput');
     const panicUrlInput = document.getElementById('panicUrlInput');
@@ -91,10 +164,7 @@ function applySettingsToUI() {
     const panicKey = localStorage.getItem('panicKey') || '';
     const panicUrl = localStorage.getItem('panicUrl') || '';
     const popuplogin = document.getElementById('popuplogin');
-    if (currentUser) {
-        popuplogin.innerText = isLoggedInMsg;
-        popuplogin.href = isLoggedInLink;
-    }
+    updateAccountButton(popuplogin);
     if (panicKeyInput) {
         panicKeyInput.value = panicKey ? `Key: ${panicKey}` : '';
     }
@@ -162,6 +232,32 @@ window.addEventListener('DOMContentLoaded', () => {
     const ICON_DATA = `<i class="ic ic-database-fill"></i>`;
     const ICON_ABOUT = `<i class="ic ic-info-circle"></i>`;
     const ICON_CHECK = `<i class="ic ic-check-circle-fill"></i>`;
+    const ICON_SEARCH = `<i class="ic ic-search"></i>`;
+    const SEARCH_ENGINES = [
+        { key: 'google', name: 'Google', desc: 'Most results', url: 'https://www.google.com/search?q=%s' },
+        { key: 'brave', name: 'Brave', desc: 'Independent index', url: 'https://search.brave.com/search?q=%s' },
+        { key: 'duckduckgo', name: 'DuckDuckGo', desc: 'Private, Bing-backed', url: 'https://duckduckgo.com/?q=%s' },
+        { key: 'bing', name: 'Bing', desc: 'Microsoft', url: 'https://www.bing.com/search?q=%s' },
+        { key: 'startpage', name: 'Startpage', desc: 'Google results, no tracking', url: 'https://www.startpage.com/sp/search?query=%s' },
+        { key: 'ecosia', name: 'Ecosia', desc: 'Plants trees', url: 'https://www.ecosia.org/search?q=%s' },
+        { key: 'wikipedia', name: 'Wikipedia', desc: 'Encyclopedia only', url: 'https://en.wikipedia.org/wiki/Special:Search?search=%s' },
+        { key: 'custom', name: 'Custom', desc: 'Your own URL with %s', url: null }
+    ];
+    const DEFAULT_SEARCH_ENGINE_KEY = 'google';
+    const savedSearchEngineId = localStorage.getItem('searchEngineId') || DEFAULT_SEARCH_ENGINE_KEY;
+    const savedSearchEngineUrl = localStorage.getItem('searchEngineUrl') || SEARCH_ENGINES.find(e => e.key === DEFAULT_SEARCH_ENGINE_KEY).url;
+    const savedSearchEngineCustomUrl = localStorage.getItem('searchEngineCustomUrl') || '';
+    const searchEngineGridHTML = SEARCH_ENGINES.map(se => `
+        <div class="search-engine-item ${se.key === savedSearchEngineId ? 'selected' : ''}" data-engine="${se.key}">
+            <span class="search-engine-check">${ICON_CHECK}</span>
+            <span class="search-engine-title">
+                ${se.name}
+            </span>
+            <span class="search-engine-desc">
+                ${se.desc}
+            </span>
+        </div>
+    `).join('');
     const THEMES = [
         { key: 'red', name: 'Crimson', gradient: 'linear-gradient(to right, darkred, black)' },
         { key: 'green', name: 'Green Fien', gradient: 'linear-gradient(to right, #8cbe37, black)' },
@@ -219,7 +315,7 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="popup-body">
                 <div class="popup-sidebar">
-                    <a class="button account-btn" id="popuplogin" href="${isLoggedInLink}">
+                    <a class="account-btn ${isLoggedInClass}" id="popuplogin" href="${isLoggedInLink}">
                         ${isLoggedInMsg}
                     </a>
                     <div class="tab-list">
@@ -233,6 +329,12 @@ window.addEventListener('DOMContentLoaded', () => {
                             ${ICON_CUSTOM}
                             <span>
                                 Customization
+                            </span>
+                        </button>
+                        <button class="tab-btn" type="button" data-tab="search">
+                            ${ICON_SEARCH}
+                            <span>
+                                Search
                             </span>
                         </button>
                         <button class="tab-btn" type="button" data-tab="advanced">
@@ -407,6 +509,33 @@ window.addEventListener('DOMContentLoaded', () => {
                                 </button>
                             </div>
                         </div>
+                        <div class="tab-pane" id="tab-search">
+                            <div class="section" style="flex-direction:column; align-items:stretch;">
+                                <p class="search-section-title">
+                                    Search Engine
+                                </p>
+                                <p class="search-section-sub">
+                                    Used For Anything Typed Into The Proxy Address Bar That Isn't A URL.
+                                </p>
+                                <div class="search-engine-grid" id="searchEngineGrid">
+                                    ${searchEngineGridHTML}
+                                </div>
+                                <div class="field-group" id="customEngineGroup" style="${savedSearchEngineId === 'custom' ? '' : 'display:none;'} margin-top:10px;">
+                                    <input class="button" type="text" id="customEngineInput" placeholder="https://example.com/search?q=%s" value="${savedSearchEngineCustomUrl}">
+                                    <div class="row-actions">
+                                        <button id="saveCustomEngineBtn" class="button">
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="search-section-title" style="margin-top:14px;">
+                                    Preview
+                                </p>
+                                <div class="search-preview-box" id="searchEnginePreview">
+                                    ${savedSearchEngineUrl.replace('%s', encodeURIComponent('hello world'))}
+                                </div>
+                            </div>
+                        </div>
                         <div class="tab-pane" id="tab-advanced">
                             <div class="section">
                                 <div class="field-group">
@@ -557,6 +686,14 @@ window.addEventListener('DOMContentLoaded', () => {
                                     </span>
                                     <span class="credit-role">
                                         Games Source
+                                    </span>
+                                </div>
+                                <div class="credits-row">
+                                    <span class="credit-name">
+                                        Cherri
+                                    </span>
+                                    <span class="credit-role">
+                                        UI Inspiration
                                     </span>
                                 </div>
                             </div>
@@ -814,6 +951,62 @@ window.addEventListener('DOMContentLoaded', () => {
         clearThemeSelection();
         clearCustomOptionSelection();
     });
+    const searchEngineItems = wrapper.querySelectorAll('.search-engine-item');
+    const customEngineGroup = document.getElementById('customEngineGroup');
+    const customEngineInput = document.getElementById('customEngineInput');
+    const saveCustomEngineBtn = document.getElementById('saveCustomEngineBtn');
+    const searchEnginePreview = document.getElementById('searchEnginePreview');
+    function updateSearchEnginePreview(url) {
+        if (!searchEnginePreview) return;
+        searchEnginePreview.textContent = (url || '').includes('%s')
+            ? url.replace('%s', encodeURIComponent('hello world'))
+            : url || '';
+    }
+    function markSearchEngineSelected(key) {
+        searchEngineItems.forEach((item) => {
+            item.classList.toggle('selected', item.dataset.engine === key);
+        });
+    }
+    function applySearchEngine(key, url, name) {
+        localStorage.setItem('searchEngineId', key);
+        localStorage.setItem('searchEngineUrl', url);
+        markSearchEngineSelected(key);
+        updateSearchEnginePreview(url);
+        const sjSearchEngine = document.getElementById('sj-search-engine');
+        if (sjSearchEngine) sjSearchEngine.value = url;
+        showSuccess(`Search Engine Set To "${name}"`);
+    }
+    searchEngineItems.forEach((item) => {
+        item.addEventListener('click', () => {
+            const key = item.dataset.engine;
+            const engine = SEARCH_ENGINES.find(se => se.key === key);
+            if (!engine) return;
+            if (key === 'custom') {
+                markSearchEngineSelected('custom');
+                if (customEngineGroup) customEngineGroup.style.display = '';
+                const existingCustom = localStorage.getItem('searchEngineCustomUrl');
+                if (existingCustom) {
+                    updateSearchEnginePreview(existingCustom);
+                } else if (customEngineInput) {
+                    customEngineInput.focus();
+                }
+                return;
+            }
+            if (customEngineGroup) customEngineGroup.style.display = 'none';
+            applySearchEngine(engine.key, engine.url, engine.name);
+        });
+    });
+    if (saveCustomEngineBtn) {
+        saveCustomEngineBtn.addEventListener('click', () => {
+            const url = customEngineInput.value.trim();
+            if (!url || !url.includes('%s')) {
+                showError('Please Enter A Valid URL Containing %s');
+                return;
+            }
+            localStorage.setItem('searchEngineCustomUrl', url);
+            applySearchEngine('custom', url, 'Custom');
+        });
+    }
     const backendUrlInput = document.getElementById('backendUrlInput');
     const saveBackendBtn = document.getElementById('saveBackendBtn');
     const resetBackendBtn = document.getElementById('resetBackendBtn');
