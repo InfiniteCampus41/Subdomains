@@ -363,78 +363,183 @@
             const HOURS_SHOWN = 24 * 7;
             async function updateBars(num, siteName, data, maintRef, addedAt) {
                 const bars = document.getElementById(num + "-bars");
-                const now = Math.floor(Date.now()/1000);
+                const now = new Date();
+                const nowTs = Math.floor(now.getTime() / 1000);
                 onValue(maintRef, async maintSnap => {
                     const maintenance = maintSnap.val() || {};
                     bars.innerHTML = "";
                     let upHours = 0;
                     let trackedHours = 0;
+                    let todayUpHours = 0;
+                    let todayTrackedHours = 0;
                     let dayBars = null;
-                    for (let i = HOURS_SHOWN - 1; i >= 0; i--) {
-                        const rough = new Date(Date.now() - i * 3600000);
-                        const hourStart = new Date(Date.UTC(rough.getUTCFullYear(), rough.getUTCMonth(), rough.getUTCDate(), rough.getUTCHours()));
-                        const hourStartTs = Math.floor(hourStart.getTime()/1000);
-                        const isCurrentHour = i === 0;
-                        const hourEnd = isCurrentHour ? new Date() : new Date(hourStart.getTime() + 3600000);
-                        const key = `${hourStart.getUTCFullYear()}-${String(hourStart.getUTCMonth()+1).padStart(2,"0")}-${String(hourStart.getUTCDate()).padStart(2,"0")}-${String(hourStart.getUTCHours()).padStart(2,"0")}`;
-                        const entry = data[key];
-                        if ((HOURS_SHOWN - 1 - i) % 24 === 0) {
-                            const dayRow = document.createElement("div");
-                            dayRow.className = "day-row";
-                            const dayLabel = document.createElement("div");
-                            dayLabel.className = "day-label";
-                            dayLabel.textContent = hourStart.toLocaleDateString([], {month:'short', day:'numeric'});
-                            dayBars = document.createElement("div");
-                            dayBars.className = "day-bars";
-                            dayRow.appendChild(dayLabel);
-                            dayRow.appendChild(dayBars);
-                            bars.appendChild(dayRow);
-                        }
-                        const bar = document.createElement("div");
-                        const fromTime = hourStart.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:true});
-                        const toTime = hourEnd.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:true});
-                        if (addedAt && (hourStartTs + 3600) <= addedAt) {
-                            bar.className = "bar nodata";
-                            bar.title = "No Data Available For This Period";
+                    const startOfToday = new Date(
+                        now.getFullYear(),
+                        now.getMonth(),
+                        now.getDate()
+                    );
+                    const startDate = new Date(startOfToday);
+                    startDate.setDate(startDate.getDate() - 6);
+                    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+                        const day = new Date(startDate);
+                        day.setDate(startDate.getDate() + dayOffset);
+                        const dayRow = document.createElement("div");
+                        dayRow.className = "day-row";
+                        const dayLabel = document.createElement("div");
+                        dayLabel.className = "day-label";
+                        dayLabel.textContent = day.toLocaleDateString([], {
+                            month: "short",
+                            day: "numeric"
+                        });
+                        dayBars = document.createElement("div");
+                        dayBars.className = "day-bars";
+                        dayRow.appendChild(dayLabel);
+                        dayRow.appendChild(dayBars);
+                        bars.appendChild(dayRow);
+                        for (let hour = 0; hour < 24; hour++) {
+                            const hourStart = new Date(day);
+                            hourStart.setHours(hour, 0, 0, 0);
+                            const hourStartTs = Math.floor(hourStart.getTime() / 1000);
+                            const hourEndTs = hourStartTs + 3600;
+                            if (hourStartTs > nowTs) {
+                                const bar = document.createElement("div");
+                                bar.className = "bar nodata";
+                                bar.title = "No Data Available Yet";
+                                dayBars.appendChild(bar);
+                                continue;
+                            }
+                            const utc = new Date(hourStartTs * 1000);
+                            const key =
+                                `${utc.getUTCFullYear()}-` +
+                                `${String(utc.getUTCMonth() + 1).padStart(2, "0")}-` +
+                                `${String(utc.getUTCDate()).padStart(2, "0")}-` +
+                                `${String(utc.getUTCHours()).padStart(2, "0")}`;
+                            const entry = data[key];
+                            const bar = document.createElement("div");
+                            const fromTime = hourStart.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true
+                            });
+                            const actualEnd = Math.min(hourEndTs, nowTs);
+                            const toTime = new Date(actualEnd * 1000).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true
+                            });
+                            if (addedAt && hourEndTs <= addedAt) {
+                                bar.className = "bar nodata";
+                                bar.title = "No Data Available For This Period";
+                                dayBars.appendChild(bar);
+                                continue;
+                            }
+                            trackedHours++;
+                            const isUp = entry ? entry.up === true : false;
+                            let isMaintenance = false;
+                            if (maintenance.start && maintenance.end) {
+                                if (
+                                    hourStartTs < maintenance.end &&
+                                    hourEndTs > maintenance.start
+                                ) {
+                                    isMaintenance = true;
+                                }
+                            }
+                            if (isMaintenance) {
+                                bar.className = "bar maintenance";
+                            } else if (isUp) {
+                                bar.className = "bar up";
+                                upHours++;
+                            } else {
+                                bar.className = "bar down";
+                            }
+                            bar.title =
+                                `${isMaintenance ? "Maintenance" : isUp ? "Up" : "Down"}\n` +
+                                `From: ${fromTime} To: ${toTime}`;
                             dayBars.appendChild(bar);
-                            continue;
+                            if (
+                                hourStart.getFullYear() === now.getFullYear() &&
+                                hourStart.getMonth() === now.getMonth() &&
+                                hourStart.getDate() === now.getDate()
+                            ) {
+                                todayTrackedHours++;
+                                if (isUp && !isMaintenance) {
+                                    todayUpHours++;
+                                }
+                            }
                         }
-                        trackedHours++;
-                        let isUp = entry ? entry.up : false;
-                        let isMaintenance = false;
-                        if (maintenance.start && maintenance.end) {
-                            if (hourStartTs >= maintenance.start && hourStartTs <= maintenance.end) isMaintenance = true;
-                        }
-                        if (isMaintenance) bar.className="bar maintenance";
-                        else if (isUp) { bar.className="bar up"; upHours++; }
-                        else bar.className="bar down";
-                        bar.title = `${isMaintenance ? "Maintenance" : isUp ? "Up" : "Down"}\nFrom: ${fromTime} To: ${toTime}`;
-                        dayBars.appendChild(bar);
                     }
-                    const pct = trackedHours ? Math.round((upHours/trackedHours)*100) : 0;
-                    document.getElementById(num + "-percent").textContent = trackedHours ? (pct + "% uptime") : "—";
-                    if (maintenance.start && maintenance.end && now >= maintenance.start && now <= maintenance.end) {
-                        const dismissKey = `dismissedMaint_${num}_${maintenance.start}_${maintenance.end}`;
+                    const pct = trackedHours
+                        ? Math.round((upHours / trackedHours) * 100)
+                        : 0;
+                    const todayPct = todayTrackedHours
+                        ? Math.round((todayUpHours / todayTrackedHours) * 100)
+                        : 0;
+                    const percentEl = document.getElementById(num + "-percent");
+                    if (trackedHours) {
+                        percentEl.innerHTML =
+                            `${pct}% uptime` +
+                            `<br><span style="font-size:12px;color:#bbb;">` +
+                            `Today: ${todayPct}% uptime` +
+                            `</span>`;
+                    } else {
+                        percentEl.textContent = "—";
+                    }
+                    if (
+                        maintenance.start &&
+                        maintenance.end &&
+                        nowTs >= maintenance.start &&
+                        nowTs <= maintenance.end
+                    ) {
+                        const dismissKey =
+                            `dismissedMaint_${num}_${maintenance.start}_${maintenance.end}`;
                         if (!localStorage.getItem(dismissKey)) {
-                            const overlay = document.getElementById("currentMaintOverlay");
+                            const overlay =
+                                document.getElementById("currentMaintOverlay");
                             overlay.dataset.dismissKey = dismissKey;
                             overlay.style.display = "flex";
-                            document.getElementById("maintMessage").textContent = `${siteName} Is Currently Undergoing Maintenance.`;
-                            const countdownEl = document.getElementById("maintCountdown");
+                            document.getElementById("maintMessage").textContent =
+                                `${siteName} Is Currently Undergoing Maintenance.`;
+                            const countdownEl =
+                                document.getElementById("maintCountdown");
                             const updateCountdown = () => {
-                                const remaining = maintenance.end - Math.floor(Date.now()/1000);
-                                if (remaining <= 0) { overlay.style.display="none"; clearInterval(timer); return; }
-                                const h = Math.floor(remaining/3600), m = Math.floor((remaining%3600)/60), s = remaining%60;
-                                countdownEl.textContent = `Maintenance Ends In About ${h}h ${m}m ${s}s`;
+                                const remaining =
+                                    maintenance.end - Math.floor(Date.now() / 1000);
+                                if (remaining <= 0) {
+                                    overlay.style.display = "none";
+                                    clearInterval(timer);
+                                    return;
+                                }
+                                const h = Math.floor(remaining / 3600);
+                                const m = Math.floor((remaining % 3600) / 60);
+                                const s = remaining % 60;
+                                countdownEl.textContent =
+                                    `Maintenance Ends In About ${h}h ${m}m ${s}s`;
                             };
                             updateCountdown();
                             const timer = setInterval(updateCountdown, 1000);
                         }
                     }
-                    if (maintenance.start && maintenance.end && maintenance.start > now) {
-                        const startStr = new Date(maintenance.start*1000).toLocaleString([], {hour:'2-digit', minute:'2-digit', month:'short', day:'numeric', hour12:true});
-                        const endStr = new Date(maintenance.end*1000).toLocaleString([], {hour:'2-digit', minute:'2-digit', month:'short', day:'numeric', hour12:true});
-                        upcomingMaintEl.innerHTML += `${siteName}: ${startStr} → ${endStr}<br>`;
+                    if (maintenance.start && maintenance.end && maintenance.start > nowTs) {
+                        const startStr = new Date(
+                            maintenance.start * 1000
+                        ).toLocaleString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            month: "short",
+                            day: "numeric",
+                            hour12: true
+                        });
+                        const endStr = new Date(
+                            maintenance.end * 1000
+                        ).toLocaleString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            month: "short",
+                            day: "numeric",
+                            hour12: true
+                        });
+                        upcomingMaintEl.innerHTML +=
+                            `${siteName}: ${startStr} → ${endStr}<br>`;
                     }
                 });
             }
