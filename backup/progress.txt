@@ -1,0 +1,128 @@
+this was for the first todo entry
+
+the server dir looks beautiful here it is
+
+ICSERVER (root folder)
+    data (folder)
+        articles (folder)
+            slug id (folder) each slug id has its own folder
+                data.json
+        channels (folder)
+            channel name (folder) each channel name has its own folder
+                attachments.json
+                cache.json
+                messages.json
+                misc.json
+        discord (folder)
+            discordids.json
+        donations (folder)
+            data.json
+        games (folder)
+            games.json
+            hidden.json
+        groups (folder)
+            group id (folder) each group has its own folder
+                data.json
+                messages.json
+                misc.json
+            data.json
+        logs (folder)
+            archive (folder)
+                all the old report.json files go here
+            acclogs.json
+            report.json
+        movies (folder)
+            accepted (folder)
+                movies (folder)
+                    all the mp4 files go here
+                subtitles (folder)
+                    all the .vtt files go here
+                movies.json
+            apply (folder)
+                applicants (folder)
+                    movie applicants go here
+                applychunks (folder)
+                    when chunks are going into an mp4 they go here
+                movieaccepts (folder)
+                    backup data for when the server restarts while accepting
+                uploads_temp (folder)
+                    when uploading a movie chunks are stored here
+                apply.json
+        notes (folder)
+            data.json
+        notifications (folder)
+            user id (folder) each user id gets their own folder
+                settings.json
+                tokens.json
+        partners (folder)
+            partner id (folder) each partner gets their own folder
+                data.json
+            _index.json
+        private (folder)
+            private chat id (folder) each private chat gets it's own id
+                messages.json
+                metadata.json
+                misc.json
+            _index.json
+        restrictedwords (folder)
+            data.json
+        site (folder)
+            data.json
+        templates (folder)
+            the email templates go here
+        updates (folder)
+            data.json
+        uploads (folder)
+            when using the 10 min file upload feature, uploads will be stored here
+            tmp (folder)
+                upload chunks get stored here
+        users (folder)
+            user id (folder) each user gets their own folder
+                profile (folder)
+                    data.json
+                    roles.json
+                settings (folder)
+                    data.json
+    node_modules (folder)
+    public (folder)
+        index.html
+    .env
+    admin.json
+    attachmenttracker.js
+    channelsstore.js
+    datastore.js
+    emailtemplates.js
+    groupsstore.js
+    package.json
+    package-lock.json
+    partnersstore.js
+    privatestore.js
+    rules.json
+    server.js
+    usersstore.js
+    zonesstore.js
+---------------------------------------------------------------------------------------
+
+
+I may do a similar system for exporting data for importing data with a menu
+just a hypothetical so this makes sense.
+if you have already exported your data using the new system and are now importing data to infinite campus on another url.
+lets say you had everything selected and had every option available, here is what the import menu would look like:
+---------------------------------------------------------------
+|                        Import Data                          |
+|            ------------------------------------             |
+|    Select All                                  (   O)       |
+|    --------------------------------------------------       |                   
+|    Theme Data                                  (   O)       |
+|    Cloaking Settings                           (   O)       |
+|    Search Engine                               (   O)       |
+|    Backend URL                                 (   O)       |
+|    Timer Settings                              (   O)       |
+|    Song Data                                   (   O)       |
+|    Session Storage                             (   O)       |
+|    Local Storage                               (   O)       |
+|    Indexxed DB                                 (   O)       |
+|    Login Data                                  (   O)       |
+|                          IMPORT                             |
+|_____________________________________________________________|
+you would be able to customize what gets overwritten in your settings and now there is a select all option
