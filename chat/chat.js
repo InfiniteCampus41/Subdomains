@@ -1,4 +1,5 @@
 import { auth, onAuthStateChanged } from "./imports.js";
+import { createIdleWatcher } from "./statusutils.js";
 const sidebar = document.getElementById("sidebar");
 const mobileToggle = document.getElementById("mobileToggle");
 mobileToggle.onclick = () => {
@@ -83,6 +84,8 @@ const PRESENCE_META = {
     offline: { icon: "ib ic ic-offline", title: "Offline" }
 };
 let currentStatus = "online";
+let manualStatus = "online";
+let idleWatcher = null;
 if (statusDropdown) statusDropdown.style.display = "none";
 let activeListenersCount = 0;
 let allUsernames = [];
@@ -1036,6 +1039,7 @@ statusOptions.forEach(opt => {
         const newStatus = opt.dataset.status;
         if (!STATUS_META[newStatus]) return;
         toggleStatusDropdown(false);
+        manualStatus = newStatus;
         if (newStatus === currentStatus) return;
         currentStatus = newStatus;
         applyStatusUI(newStatus);
@@ -1065,8 +1069,37 @@ async function loadUserStatus(user) {
         showError("Failed To Load Status:", err);
         currentStatus = "online";
     }
+    manualStatus = currentStatus;
     applyStatusUI(currentStatus);
     statusRow.style.display = "flex";
+    startIdleWatcher(user);
+}
+function startIdleWatcher(user) {
+    if (idleWatcher) {
+        idleWatcher.stop();
+        idleWatcher = null;
+    }
+    idleWatcher = createIdleWatcher({
+        getManualStatus: () => manualStatus,
+        onAutoIdle: async () => {
+            currentStatus = "idle";
+            applyStatusUI(currentStatus);
+            try {
+                await dbSet(`users/${user.uid}/profile/status`, "idle");
+            } catch (err) {
+                showError("Failed To Save Status:", err);
+            }
+        },
+        onAutoResume: async () => {
+            currentStatus = manualStatus;
+            applyStatusUI(currentStatus);
+            try {
+                await dbSet(`users/${user.uid}/profile/status`, manualStatus);
+            } catch (err) {
+                showError("Failed To Save Status:", err);
+            }
+        }
+    });
 }
 async function getDisplayName(uid) {
     let dn = await dbGet(`users/${uid}/profile/displayName`);
@@ -1526,7 +1559,7 @@ async function renderMessageInstant(id, msg) {
     leftWrapper.appendChild(profilePic);
     leftWrapper.appendChild(nameSpan);
     if (isAnonMsg) {
-        profilePic.src = "/pfps/1.jpeg";
+        profilePic.src = `${pfpDomain}/1.jpeg`;
         profilePic.onerror = () => { profilePic.src = ""; profilePic.style.display = "none"; };
         nameSpan.textContent = msg.u || "Anonymous";
         nameSpan.style.color = "#aaa";
@@ -3241,10 +3274,21 @@ async function switchChannel(ch) {
         } else {
         }
     });
+    if (pinnedRef) {
+        try {
+            if (pinnedRef.close) pinnedRef.close();
+        } catch (e) {}
+        pinnedRef = null;
+    }
+    pinnedRef = await dbListen(`pinned/${ch}`, (pinned) => {
+        if (currentPinnedChannel !== ch) return;
+        renderPinnedMessagesList(pinned || {});
+    });
     clearChannelMention(ch);
     renderChannelsFromDB();
 }
 let currentPinnedChannel = null;
+let pinnedRef = null;
 async function refreshPinnedMessagesBar(channelName) {
     currentPinnedChannel = channelName;
     if (!pinnedMessagesWrap) return;
@@ -3500,6 +3544,10 @@ sendBtn.onclick = async () => {
 };
 onAuthStateChanged(auth, async user => {
     if (!user) {
+        if (idleWatcher) {
+            idleWatcher.stop();
+            idleWatcher = null;
+        }
         isGuest = true;
         currentUser = null;
         if (usernameSpan) usernameSpan.textContent = anonDisplayName;
@@ -3624,7 +3672,7 @@ onAuthStateChanged(auth, async user => {
     const sidebarPfp = document.getElementById("sidebarPfp");
     sidebarPfp.style.border = `2px solid ${DNC}`;
     if (sidebarPfp) {
-        sidebarPfp.src = `${pfpDomain}/${user.uid}?t=${Date.now()}`;
+        sidebarPfp.src = isGuest ? `${pfpDomain}/1.jpeg` : `${pfpDomain}/${user.uid}?t=${Date.now()}`;
     }
 });
 function _injectGuestNameButton() {
