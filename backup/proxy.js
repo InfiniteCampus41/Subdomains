@@ -578,7 +578,7 @@ if ("getBattery" in navigator) {
 }
 const hosturl = window.location.host;
 function setRandomPhrase() { 
-    const phrases = [ 
+        const phrases = [ 
         "Walking By The Wall",
         "The Shadows Will Not Fall",
         "Is Silently Ignored",

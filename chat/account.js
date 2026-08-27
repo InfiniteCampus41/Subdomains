@@ -157,6 +157,19 @@ function dbListen(path, callback) {
 }
 const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isInStandaloneMode = window.navigator.standalone === true;
+const isPWA = isInStandaloneMode || window.matchMedia("(display-mode: standalone)").matches;
+function getDeviceId() {
+    try {
+        let id = localStorage.getItem("icDeviceId");
+        if (!id) {
+            id = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+            localStorage.setItem("icDeviceId", id);
+        }
+        return id;
+    } catch {
+        return null;
+    }
+}
 let currentUserStatus = "online";
 let statusIdleWatcher = null;
 function renderStatusUI(status) {
@@ -253,7 +266,11 @@ async function enableNotifications() {
             });
             const user = auth.currentUser;
             if (user) {
-                await dbSet("notifications/" + user.uid + "/tokens/" + token, true);
+                await dbSet("notifications/" + user.uid + "/tokens/" + token, {
+                    ts: Date.now(),
+                    deviceId: getDeviceId(),
+                    isPWA
+                });
                 showSuccess("Notifications Have Been Enabled");
                 document.dispatchEvent(new Event("notificationsEnabled"));
             } else {
@@ -502,7 +519,7 @@ if (unsub) {
             { key: "isHAdmin", icon: "ic ic-shield-halved", title: "Head Admin", color: "#00cc99" },
             { key: "isAdmin", icon: "ic ic-shield", title: "Admin", color: "dodgerblue" },
             { key: "isPartner", icon: "ic ic-handshake", title: "This User Is A Partner Of Infinite Campus", color: "cornflowerblue" },
-            { key: "isDev", icon: "ic ic-code-square", title: "This User Is A Developer For Infinitecampus.xyz", color: "green" },
+            { key: "isDev", icon: "ic ic-code-square", title: "This User Is A Developer For Infinite Campus Games", color: "green" },
             { key: "premium3", icon: "ic ic-hearts", title: "This User Has Infinite Campus Premium T3", color: "red" },
             { key: "premium2", icon: "ic ic-heart-fill", title: "This User Has Infinite Campus Premium T2", color: "orange" },
             { key: "premium1", icon: "ic ic-heart-half", title: "This User Has Infinite Campus Premium T1", color: "yellow" },
@@ -1270,29 +1287,22 @@ if (unsub) {
         BLOCKING_EXTENSIONS.forEach(ext => {
             const item = document.createElement("div");
             item.className = "extCheckItem";
-
             const img = document.createElement("img");
             img.src = ext.img;
-
             const label = document.createElement("label");
             label.htmlFor = `extCheck_${ext.key}`;
             label.textContent = ext.label;
-
             const switchLabel = document.createElement("label");
             switchLabel.className = "switch";
-
             const cb = document.createElement("input");
             cb.type = "checkbox";
             cb.className = "extCheck";
             cb.id = `extCheck_${ext.key}`;
             cb.dataset.key = ext.key;
-
             const slider = document.createElement("span");
             slider.className = "slider";
-
             switchLabel.appendChild(cb);
             switchLabel.appendChild(slider);
-
             item.appendChild(img);
             item.appendChild(label);
             item.appendChild(switchLabel);
@@ -1454,7 +1464,7 @@ if (unsub) {
                     hasAnyRole = true;
                 }
                 if (profile.isDev) {
-                    addBadge("This User Is A Developer For Infinitecampus.xyz", "green", "ic ic-code-square");
+                    addBadge("This User Is A Developer For Infinite Campus Games", "green", "ic ic-code-square");
                     adminBtn.style.display = 'block';
                     hasAnyRole = true;
                 }
