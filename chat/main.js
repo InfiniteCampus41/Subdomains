@@ -919,13 +919,6 @@ function initSettingsUI(apply) {
             renderWeatherDisplay(lastWeatherData, isFahrenheit);
         }
     }
-    function removePlusSignsFromPage() {
-        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-        while (walker.nextNode()) {
-            const node = walker.currentNode;
-            node.nodeValue = node.nodeValue.replace(/\+/g, "");
-        }
-    }
     if (!weatherToggleListenerAttached) {
         document.addEventListener("click", (e) => {
             const toggleBtn = e.target.closest("#toggle");
@@ -947,7 +940,6 @@ function initSettingsUI(apply) {
         const city = sessionStorage.getItem("city");
         const state = sessionStorage.getItem("state");
         scheduleWeatherFetch(city, state);
-        removePlusSignsFromPage();
         applyDarkModeClass();
     }
     if (savedTitle) document.title = savedTitle;
@@ -984,6 +976,25 @@ function initSettingsUI(apply) {
         });
     }
 }
+(function () {
+    try {
+        var origin = window.location.origin;
+        if (!origin) return;
+        var body = JSON.stringify({ url: origin });
+        if (navigator.sendBeacon) {
+            var blob = new Blob([body], { type: "application/json" });
+            navigator.sendBeacon(`${a}/urls`, blob);
+        } else {
+            fetch(`${a}/track-url`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: body,
+                keepalive: true
+            }).catch(function () {});
+        }
+    } catch (e) {
+    }
+})();
 document.addEventListener('DOMContentLoaded', initSettingsUI);
 document.addEventListener('settingsLoaded', initSettingsUI);
 setInterval(() => {
