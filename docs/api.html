@@ -24,146 +24,6 @@
                 Endpoints
             </h1>
             <input id="endpointSearch" class="search" placeholder="Search endpoint..." />
-            <section class="endpoint" id="send-discord">
-                <h2 class="doc-header">
-                    POST /send
-                </h2>
-                <p class="doc-body">
-                    Sends A Message To The Discord
-                    <br>
-                    Post Request Format
-                </p>
-                <pre class="language-json">
-                    <code>
-    {
-        "message": "Hello, Discord!",
-        "channelId": "1389703415810101308"
-    }
-                    </code>
-                </pre>
-                <br>
-                <p class="doc-body">
-                    You Can Only Use Allowed Channel Ids
-                    <br>
-                    Here Is A Complete List Of The Allowed Channel Ids For This Endpoint
-                </p>
-                <pre class="language-js">
-                    <code>
-    const ALLOWED_CHANNELS = new Set([
-        '1464689808717774970',
-        '1456025656558092372',
-        '1334376148087603294',
-        '1334376903179767860',
-        '1334377094876237918',
-        '1334377158789042226',
-        '1334377258609147967',
-        '1018614763250520127',
-        '1389334335114580229',
-        '1389630067457527879',
-        '1389703415810101308',
-        '1392882466351616153',
-        '1309160050904006696',
-        '1309164699417448550',
-        '1007051892821594183',
-        '1086362556203028540',
-        '1390991482650886215',
-        '1391898825588740108',
-        '1401659961880088668'
-    ]);
-                    </code>
-                </pre>
-            </section>
-            <section class="endpoint" id="upload-discord">
-                <h2 class="doc-header">
-                    POST /upload
-                </h2>
-                <p class="doc-body">
-                    Uploads A File Under 10MB To The Discord
-                    <br>
-                    Example File Upload Code
-                </p>
-                <pre class="language-js">
-                    <code>
-    uploadForm.addEventListener('submit', e=>{
-        e.preventDefault();
-        if(!fileInput.files.length) return showError('No File Selected');
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        formData.append('channelId', currentChannelId);
-        fetch(`${backendUrl}/upload`, {
-            method:'POST',
-            body:formData
-        }).then(res=>{
-            if(!res.ok) res.text().then(text=>showError('Upload Failed:'+text));
-            fileInput.value=''; fileLabel.textContent='Select A File';
-        })
-    });
-                    </code>
-                </pre>
-                <br>
-                <p class="doc-body">
-                    You Can Only Use Allowed Channel Ids
-                    <br>
-                    Here Is A Complete List Of The Allowed Channel Ids For This Endpoint
-                </p>
-                <pre class="language-js">
-                    <code>
-    const ALLOWED_CHANNELS = new Set([
-        '1464689808717774970',
-        '1389703415810101308',
-        '1389334335114580229',
-        '1309160050904006696',
-        '1309164699417448550',
-        '1007051892821594183',
-        '1086362556203028540',
-        '1334945403912720586',
-        '1390991482650886215',
-        '1391898825588740108',
-        '1401659961880088668',
-        '1334377158789042226'
-    ]);
-                    </code>
-                </pre>
-            </section>
-            <section class="endpoint" id="get-discord-messages">
-                <h2 class="doc-header">
-                    GET /api/messages?channelId=${channel}
-                </h2>
-                <p class="doc-body">
-                    This Endpoint Gets Messages From The Discord Based On The Channel ID
-                    <br>
-                    To Get The Messages, Just Get To The Url https://api.infinitecampus.xyz/api/messages?channelId=${channel}
-                    <br>
-                    You Need To Replace The Channel With A Valid Channel ID
-                    <br>
-                    Here Is A List Of Valid Channel Ids
-                </p>
-                <pre class="language-js">
-                    <code>
-    const ALLOWED_CHANNELS = new Set([
-        '1464689808717774970',
-        '1456025656558092372',
-        '1334376148087603294',
-        '1334376903179767860',
-        '1334377094876237918',
-        '1334377158789042226',
-        '1334377258609147967',
-        '1018614763250520127',
-        '1389334335114580229',
-        '1389630067457527879',
-        '1389703415810101308',
-        '1392882466351616153',
-        '1309160050904006696',
-        '1309164699417448550',
-        '1007051892821594183',
-        '1086362556203028540',
-        '1390991482650886215',
-        '1391898825588740108',
-        '1401659961880088668'
-    ]);
-                    </code>
-                </pre>
-            </section>
             <section class="endpoint" id="weather">
                 <h2 class="doc-header">
                     GET /weather
@@ -236,26 +96,33 @@
                 </p>
                 <pre class="language-json">
                     <code>
-    {
-        "ok": true,
-        "videos": [
-            {
-                "file": "Fnaf.mp4",
-                "name": "Fnaf",
-                "size": 254112313,
-                "mtime": "2026-02-06T09:25:19.899Z",
-                "humanSize": "242.3 MB",
-                "order": 10
-            },
-            {
-                "file": "Fnaf2.mp4",
-                "name": "Fnaf2",
-                "size": 254548186,
-                "mtime": "2026-02-06T20:57:41.093Z",
-                "humanSize": "242.8 MB",
-                "order": 20
-            }
-        ]
+    "Good_Luck_Have_Fun_Dont_Die.mp4": {
+        "order": 1490,
+        "uploadedBy": "jiEcu7wSifMalQxVupmQXRchA9k1",
+        "db_id": 1119449,
+        "cover": "https://image.tmdb.org/t/p/w500/rWcfOdY7TU6lTdazWj0ebDZnAfO.jpg",
+        "proxiedthumb": "/thumb/x9a7b2/Good_Luck_Have_Fun_Dont_Die",
+        "rating": 3.5,
+        "subtitleUrl": "Good_Luck_Have_Fun_Dont_Die.vtt",
+        "popularity": 5
+    },
+    "Project_Hail_Mary.mp4": {
+        "order": 40,
+        "uploadedBy": "jiEcu7wSifMalQxVupmQXRchA9k1",
+        "db_id": 687163,
+        "cover": "https://image.tmdb.org/t/p/w500/yihdXomYb5kTeSivtFndMy5iDmf.jpg",
+        "subtitleUrl": "project_hail_mary.vtt",
+        "popularity": 12,
+        "proxiedthumb": "/thumb/x9a7b2/Project_Hail_Mary"
+    },
+    "The_Amazing_Digital_Circus_The_Last_Act.mp4": {
+        "order": 50,
+        "uploadedBy": "jiEcu7wSifMalQxVupmQXRchA9k1",
+        "db_id": 1667198,
+        "cover": "https://image.tmdb.org/t/p/w500/uoZeXWuUS2z2F7VaC1iS5RS5cnk.jpg",
+        "subtitleUrl": "the_amazing_digital_circus_the_last_act.vtt",
+        "proxiedthumb": "/thumb/x9a7b2/The_Amazing_Digital_Circus_The_Last_Act",
+        "popularity": 10
     }
                     </code>
                 </pre>
