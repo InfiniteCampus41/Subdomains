@@ -8799,8 +8799,6 @@ function logToConsole(txt) {
                 Y.innerHTML = c,
                 void Y.appendChild(aJ)
             }
-            if (O.origin !== dg)
-                return void O.replace(dI)
         }
         const a0 = mw.freeze(mw.setPrototypeOf({
             length: 0,
@@ -8887,7 +8885,7 @@ function logToConsole(txt) {
                 case dN:
                     if (b !== d1)
                         return a.protocol = cJ,
-                        O.replace(a.href),
+                        // O.replace(a.href),
                         !1;
                     break;
                 case cJ:
@@ -8943,7 +8941,7 @@ function logToConsole(txt) {
             )())
                 return aD(aX, b1),
                 void setTimeout( () => {
-                    O.replace(di)
+                    // O.replace(di)
                 }
                 , 300);
             for (const bi of mw.getOwnPropertyNames(mH))
